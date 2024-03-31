@@ -1,7 +1,10 @@
+using FFischbach.Events.API.Data;
 using FFischbach.Events.API.Services;
 using FFischbach.Events.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
+using Serilog;
 
 namespace FFischbach.Events.API
 {
@@ -10,6 +13,13 @@ namespace FFischbach.Events.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Host.UseSerilog((context, configuration) =>
+            {
+                configuration.WriteTo.Console();
+                if (context.HostingEnvironment.IsDevelopment()) configuration.MinimumLevel.Debug();
+                else configuration.MinimumLevel.Information();
+            });
 
             // Add services to the container.
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -49,6 +59,11 @@ namespace FFischbach.Events.API
                 });
             });
 
+            builder.Services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddHealthChecks()
+                .AddDbContextCheck<DatabaseContext>();
+
             builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
 
             var app = builder.Build();
@@ -72,6 +87,8 @@ namespace FFischbach.Events.API
 
 
             app.MapControllers();
+
+            app.MapHealthChecks("/health");
 
             app.Run();
         }
