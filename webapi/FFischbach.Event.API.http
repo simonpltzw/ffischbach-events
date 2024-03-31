@@ -1,0 +1,6 @@
+@FFischbach.Event.API_HostAddress = http://localhost:5074
+
+GET {{FFischbach.Event.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
