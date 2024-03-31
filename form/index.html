@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <style>
+    #container {
+      width: 80vw;
+      margin: auto;
+    }
+
+    .flex {
+      display: flex;
+      gap: 0.5em;
+    }
+
+    
+    .flex-col {
+      flex-direction: column;
+    }
+
+    .flex-row {
+      flex-direction: row;
+    }
+
+    .flex-shrink {
+      flex-shrink: 3;
+    }
+
+    .flex-1 {
+      flex: auto;
+      overflow: auto;
+    }
+
+    .flex-0 {
+      flex: 0;
+    }
+
+    .align-self-start {
+      align-self: flex-start;
+    }
+
+    .fit {
+      display: inline-block;
+    }
+
+    .min-width {
+      max-width: 2.4em;
+      min-width: 2.4em;
+      width: 2.4em;
+    }
+
+    input[type="text"],
+    select {
+      height: 2em;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+
+    button {
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+
+    .agb {
+      height: 8em;
+      overflow-y: scroll;
+    }
+
+    .error[visible="true"] {
+      color: red;
+      display: block;
+    }
+
+    .error[visible="false"] {
+      display: none;
+    }
+  </style>
+
+  <body>
+    <div id="container">
+      <div class="flex flex-col">
+        <h3>Ansprechpartner</h3>
+        <select id="category" title="category">
+          <option value="0">FF-Fischbach (15.12.)</option>
+          <option value="1">Vereine (21.12.)</option>
+          <option value="2">Privat (15.1.)</option>
+        </select>
+
+        <div id="category_error" class="error" visible="true">
+          Der ausgewählte Zeitraum liegt in der Zukunft
+        </div>
+
+        <input id="contact_first" type="text" title="contact_first" placeholder="Vorname" />
+        <input id="contact_last" type="text" title="contact_last" placeholder="Nachname" />
+
+        <input
+          id="contact_birthDate"
+          type="date"
+          title="contact_birthDate"
+          placeholder="Geburtstag"
+        />
+        <input id="contact_email" type="email" title="contact_email" placeholder="E-Mail" />
+
+        <input id="group" type="text" title="group" placeholder="Gruppenname" />
+        <h3>Weitere Teilnehmer</h3>
+        <div class="flex flex-col">
+          <div id="list" class="flex flex-col"></div>
+          <button id="add" class="align-self-start" type="button" onclick="addParticipant()">
+            +
+          </button>
+        </div>
+        <div id="agb" class="agb">
+          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
+          invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et
+          accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata
+          sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing
+          elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed
+          diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd
+          gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+        </div>
+        <div class="flex fit">
+          <input id="agb_check" type="checkbox" title="agb" disabled/>
+          <label>AGB</label>
+        </div>
+
+        <button
+          id="submit"
+          class="align-self-start"
+          type="button"
+          title="submit"
+          onclick="submit()"
+          disabled
+        >
+          Absenden
+        </button>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    let hasError = false;
+    let stayDisabled = false;
+    const currYear = new Date().getFullYear();
+    const dates = [
+      new Date(currYear, 15, 11),
+      new Date(currYear, 21, 11),
+      new Date(currYear, 15, 0),
+    ];
+
+    const contact_first = document.getElementById("contact_first");
+    const contact_last = document.getElementById("contact_last");
+    const contact_birthDate = document.getElementById("contact_birthDate");
+    const contact_email = document.getElementById("contact_email");
+    const group = document.getElementById("group");
+    const addBtn = document.getElementById("add");
+    const submitBtn = document.getElementById("submit");
+    const agb_check = document.getElementById("agb_check");
+
+    const category_error = document.getElementById("category_error");
+
+    let form = {
+      contact_first: undefined,
+      contact_last: undefined,
+      contact_birthDate: undefined,
+      contact_email: undefined,
+      category: undefined,
+      groupName: undefined,
+      participantList: [],
+    };
+
+    const submit = () => {
+      /*fetch('', {
+            method: 'POST',
+            body: JSON.stringify(form)
+          })*/
+
+      console.log(form);
+    };
+
+    const setInputsDisables = (isDisabled) => {
+      contact_first.disabled = isDisabled;
+      contact_last.disabled = isDisabled;
+      contact_birthDate.disabled = isDisabled;
+      contact_email.disabled = isDisabled;
+      group.disabled = isDisabled;
+
+      if (stayDisabled) {
+        submitBtn.disabled = true;
+      }
+    };
+
+    const addListeners = () => {
+      contact_first.addEventListener("change", (evt) => (form.contact_first = evt.target.value));
+      contact_last.addEventListener("change", (evt) => (form.contact_last = evt.target.value));
+      contact_birthDate.addEventListener("change", (evt) => (form.birthDate = evt.target.value));
+      contact_email.addEventListener("change", (evt) => (form.contact_email = evt.target.value));
+      group.addEventListener("change", (evt) => (form.contact_email = evt.target.value));
+
+      document.getElementById("category").addEventListener("change", (evt) => {
+        const selection = dates[evt.target.value];
+
+        form.category = selection;
+
+        const isDisabled = selection > new Date();
+        stayDisabled = isDisabled;
+
+        category_error.visible = !isDisabled;
+
+        setInputsDisables(isDisabled);
+      });
+
+      document.getElementById("agb").addEventListener("scrollend", (evt) => {
+        const submitBtn = document.getElementById("submit");
+        if (!stayDisabled) {
+          submitBtn.disabled = false;
+          agb_check.checked = true;
+        }
+      });
+    };
+
+    const addParticipant = () => {
+      const list = document.getElementById("list");
+
+      const container = document.createElement("div");
+      container.className = "flex";
+
+      const firstName = document.createElement("input");
+      const lastName = document.createElement("input");
+      const birthDate = document.createElement("input");
+      const deleteBtn = document.createElement("button");
+
+      firstName.placeholder = "Vorname";
+      firstName.setAttribute("type", "text");
+
+      lastName.placeholder = "Nachname";
+      lastName.setAttribute("type", "text");
+
+      birthDate.setAttribute("type", "date");
+      birthDate.style = "min-width: 7.5em";
+
+      deleteBtn.innerHTML = "🗑️";
+      deleteBtn.style = "background-color: red";
+      deleteBtn.className = "min-width";
+      deleteBtn.labels = "birth date";
+      deleteBtn.setAttribute("type", "button");
+
+      const inputs = [firstName, lastName, birthDate, deleteBtn];
+
+      const obj = {
+        firstName: "",
+        lastName: "",
+        birthDate: "",
+      };
+
+      firstName.addEventListener("change", (evt) => (obj.firstName = evt.target.value));
+      lastName.addEventListener("change", (evt) => (obj.lastName = evt.target.value));
+      birthDate.addEventListener("change", (evt) => (obj.birthDate = evt.target.value));
+
+      deleteBtn.addEventListener("click", (evt) => {
+        list.removeChild(container);
+        form.participantList = form.participantList.filter((e) => e !== obj);
+      });
+
+      for (let e of inputs) {
+        e.classList.add("flex-1");
+        container.appendChild(e);
+      }
+
+      form.participantList.push(obj);
+      list.appendChild(container);
+    };
+
+    addListeners();
+  </script>
+</html>
