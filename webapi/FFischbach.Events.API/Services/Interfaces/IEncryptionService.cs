@@ -1,4 +1,4 @@
-﻿namespace FFischbach.Event.API.Services.Interfaces
+﻿namespace FFischbach.Events.API.Services.Interfaces
 {
     /// <summary>
     /// Provides rsa asymmetric cryptography functionality.

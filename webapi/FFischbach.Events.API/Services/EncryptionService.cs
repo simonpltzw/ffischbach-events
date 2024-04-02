@@ -1,8 +1,8 @@
-﻿using FFischbach.Event.API.Services.Interfaces;
+﻿using FFischbach.Events.API.Services.Interfaces;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace FFischbach.Event.API.Services
+namespace FFischbach.Events.API.Services
 {
     /// <summary>
     /// Provides rsa asymmetric cryptography functionality.

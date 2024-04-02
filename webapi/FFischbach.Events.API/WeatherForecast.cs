@@ -1,4 +1,4 @@
-namespace FFischbach.Event.API
+namespace FFischbach.Events.API
 {
     public class WeatherForecast
     {

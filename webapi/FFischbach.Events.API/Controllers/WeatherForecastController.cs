@@ -1,12 +1,13 @@
-using FFischbach.Event.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web.Resource;
 
-namespace FFischbach.Event.API.Controllers
+namespace FFischbach.Events.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
-    [Produces("application/json")]
+    [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -15,15 +16,12 @@ namespace FFischbach.Event.API.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
-        private readonly IEncryptionService _encryptionService;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IEncryptionService encryptionService)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger)
         {
             _logger = logger;
-            _encryptionService = encryptionService;
         }
 
-        [Authorize]
         [HttpGet(Name = "GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
@@ -31,7 +29,7 @@ namespace FFischbach.Event.API.Controllers
             {
                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                 TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)] + " " + _encryptionService.GetPublicKey()
+                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
         }
