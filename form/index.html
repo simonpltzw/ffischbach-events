@@ -17,7 +17,6 @@
       gap: 0.5em;
     }
 
-    
     .flex-col {
       flex-direction: column;
     }
@@ -87,28 +86,32 @@
     <div id="container">
       <div class="flex flex-col">
         <h3>Ansprechpartner</h3>
+        <!--Categories of users-->
         <select id="category" title="category">
           <option value="0">FF-Fischbach (15.12.)</option>
           <option value="1">Vereine (21.12.)</option>
           <option value="2">Privat (15.1.)</option>
         </select>
 
+        <!--error message-->
         <div id="category_error" class="error" visible="true">
           Der ausgewählte Zeitraum liegt in der Zukunft
         </div>
 
-        <input id="contact_first" type="text" title="contact_first" placeholder="Vorname" />
-        <input id="contact_last" type="text" title="contact_last" placeholder="Nachname" />
+        <!--Input section-->
+        <input id="contactFirst" type="text" title="contactFirst" placeholder="Vorname" />
+        <input id="contactLast" type="text" title="contactLast" placeholder="Nachname" />
 
         <input
-          id="contact_birthDate"
+          id="contact_BirthDate"
           type="date"
-          title="contact_birthDate"
+          title="contact_BirthDate"
           placeholder="Geburtstag"
         />
-        <input id="contact_email" type="email" title="contact_email" placeholder="E-Mail" />
+        <input id="contactEmail" type="email" title="contactEmail" placeholder="E-Mail" />
 
         <input id="group" type="text" title="group" placeholder="Gruppenname" />
+        <!--Additional participants-->
         <h3>Weitere Teilnehmer</h3>
         <div class="flex flex-col">
           <div id="list" class="flex flex-col"></div>
@@ -116,6 +119,7 @@
             +
           </button>
         </div>
+        <!--AGB section-->
         <div id="agb" class="agb">
           Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
           invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et
@@ -126,10 +130,11 @@
           gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
         </div>
         <div class="flex fit">
-          <input id="agb_check" type="checkbox" title="agb" disabled/>
+          <input id="agbCheck" type="checkbox" title="agb" disabled />
           <label>AGB</label>
         </div>
 
+        <!--Submit Button-->
         <button
           id="submit"
           class="align-self-start"
@@ -147,29 +152,31 @@
   <script>
     let hasError = false;
     let stayDisabled = false;
-    const currYear = new Date().getFullYear();
+    const currentYear = new Date().getFullYear();
     const dates = [
-      new Date(currYear, 15, 11),
-      new Date(currYear, 21, 11),
-      new Date(currYear, 15, 0),
+      new Date(currentYear, 15, 11),
+      new Date(currentYear, 21, 11),
+      new Date(currentYear, 15, 0),
     ];
 
-    const contact_first = document.getElementById("contact_first");
-    const contact_last = document.getElementById("contact_last");
-    const contact_birthDate = document.getElementById("contact_birthDate");
-    const contact_email = document.getElementById("contact_email");
+    /*input elements*/
+    const contactFirst = document.getElementById("contactFirst");
+    const contactLast = document.getElementById("contactLast");
+    const contact_BirthDate = document.getElementById("contact_BirthDate");
+    const contactEmail = document.getElementById("contactEmail");
     const group = document.getElementById("group");
     const addBtn = document.getElementById("add");
     const submitBtn = document.getElementById("submit");
-    const agb_check = document.getElementById("agb_check");
+    const agbCheck = document.getElementById("agbCheck");
 
     const category_error = document.getElementById("category_error");
 
+    /*api model*/
     let form = {
-      contact_first: undefined,
-      contact_last: undefined,
-      contact_birthDate: undefined,
-      contact_email: undefined,
+      contactFirst: undefined,
+      contactLast: undefined,
+      contact_BirthDate: undefined,
+      contactEmail: undefined,
       category: undefined,
       groupName: undefined,
       participantList: [],
@@ -185,10 +192,10 @@
     };
 
     const setInputsDisables = (isDisabled) => {
-      contact_first.disabled = isDisabled;
-      contact_last.disabled = isDisabled;
-      contact_birthDate.disabled = isDisabled;
-      contact_email.disabled = isDisabled;
+      contactFirst.disabled = isDisabled;
+      contactLast.disabled = isDisabled;
+      contact_BirthDate.disabled = isDisabled;
+      contactEmail.disabled = isDisabled;
       group.disabled = isDisabled;
 
       if (stayDisabled) {
@@ -196,13 +203,15 @@
       }
     };
 
+    /*form input listener*/
     const addListeners = () => {
-      contact_first.addEventListener("change", (evt) => (form.contact_first = evt.target.value));
-      contact_last.addEventListener("change", (evt) => (form.contact_last = evt.target.value));
-      contact_birthDate.addEventListener("change", (evt) => (form.birthDate = evt.target.value));
-      contact_email.addEventListener("change", (evt) => (form.contact_email = evt.target.value));
-      group.addEventListener("change", (evt) => (form.contact_email = evt.target.value));
+      contactFirst.addEventListener("change", (evt) => (form.contactFirst = evt.target.value));
+      contactLast.addEventListener("change", (evt) => (form.contactLast = evt.target.value));
+      contact_BirthDate.addEventListener("change", (evt) => (form.birthDate = evt.target.value));
+      contactEmail.addEventListener("change", (evt) => (form.contactEmail = evt.target.value));
+      group.addEventListener("change", (evt) => (form.contactEmail = evt.target.value));
 
+      /*Category*/
       document.getElementById("category").addEventListener("change", (evt) => {
         const selection = dates[evt.target.value];
 
@@ -216,15 +225,17 @@
         setInputsDisables(isDisabled);
       });
 
+      /*AGB check*/
       document.getElementById("agb").addEventListener("scrollend", (evt) => {
         const submitBtn = document.getElementById("submit");
         if (!stayDisabled) {
           submitBtn.disabled = false;
-          agb_check.checked = true;
+          agbCheck.checked = true;
         }
       });
     };
 
+    /*Adds participants to list*/
     const addParticipant = () => {
       const list = document.getElementById("list");
 
@@ -236,15 +247,19 @@
       const birthDate = document.createElement("input");
       const deleteBtn = document.createElement("button");
 
+      /*Firstname input properties*/
       firstName.placeholder = "Vorname";
       firstName.setAttribute("type", "text");
 
+      /*Lastname input properties*/
       lastName.placeholder = "Nachname";
       lastName.setAttribute("type", "text");
 
+      /*Delete Button properties*/
       birthDate.setAttribute("type", "date");
       birthDate.style = "min-width: 7.5em";
 
+      /*Delete Button properties*/
       deleteBtn.innerHTML = "🗑️";
       deleteBtn.style = "background-color: red";
       deleteBtn.className = "min-width";
@@ -259,10 +274,12 @@
         birthDate: "",
       };
 
+      /*set further participant properties*/
       firstName.addEventListener("change", (evt) => (obj.firstName = evt.target.value));
       lastName.addEventListener("change", (evt) => (obj.lastName = evt.target.value));
       birthDate.addEventListener("change", (evt) => (obj.birthDate = evt.target.value));
 
+      /*remove participant from list*/
       deleteBtn.addEventListener("click", (evt) => {
         list.removeChild(container);
         form.participantList = form.participantList.filter((e) => e !== obj);
@@ -277,6 +294,7 @@
       list.appendChild(container);
     };
 
+    /*initial function calls*/
     addListeners();
   </script>
 </html>
