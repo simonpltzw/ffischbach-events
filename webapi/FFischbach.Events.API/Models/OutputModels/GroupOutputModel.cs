@@ -28,12 +28,12 @@
         /// <summary>
         /// Contact participant.
         /// </summary>
-        public required Participant Contact { get; set; }
+        public required ParticipantOutputModel Contact { get; set; }
 
         /// <summary>
         /// Other participants.
         /// </summary>
-        public required List<Participant> Participants { get; set; }
+        public required List<ParticipantOutputModel> Participants { get; set; }
 
         /// <summary>
         /// Create timestamp.

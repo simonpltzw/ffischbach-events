@@ -51,7 +51,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Group", b =>
@@ -85,7 +85,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Groups");
+                    b.ToTable("Groups", (string)null);
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Participant", b =>
@@ -116,7 +116,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("Participants");
+                    b.ToTable("Participants", (string)null);
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Group", b =>

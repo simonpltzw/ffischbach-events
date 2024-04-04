@@ -5,9 +5,9 @@ namespace FFischbach.Events.API.Data
 {
     public class DatabaseContext(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Event>? Events { get; }
-        public DbSet<Group>? Groups { get; }
-        public DbSet<Participant>? Participants { get; }
+        public required DbSet<Event> Events { get; set; }
+        public required DbSet<Group> Groups { get; set; }
+        public required DbSet<Participant> Participants { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,7 +42,8 @@ namespace FFischbach.Events.API.Data
                 c.HasOne(x => x.Event)
                     .WithMany(x => x.Groups)
                     .HasForeignKey(x => x.EventId)
-                    .IsRequired();
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 c.Property(x => x.Name)
                     .HasMaxLength(100)
@@ -60,7 +61,8 @@ namespace FFischbach.Events.API.Data
 
                 c.HasOne(x => x.Group)
                     .WithMany(x => x.Participants)
-                    .HasForeignKey(x => x.GroupId);
+                    .HasForeignKey(x => x.GroupId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 c.Property(x => x.EncryptedData)
                     .IsRequired();
