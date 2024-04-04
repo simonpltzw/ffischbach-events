@@ -15,9 +15,11 @@ namespace FFischbach.Events.API.Data
             {
                 c.HasKey(x => x.Id);
 
-                c.Property(x => x.Name)
-                    .HasMaxLength(50)
-                    .IsRequired();
+                c.Property(x => x.Description)
+                    .HasMaxLength(1000);
+
+                c.Property(x => x.Id)
+                    .HasMaxLength(20);
 
                 c.Property(x => x.PublicKey)
                     .IsRequired();

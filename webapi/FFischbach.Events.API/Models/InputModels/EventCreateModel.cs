@@ -8,10 +8,16 @@ namespace FFischbach.Events.API.Models.InputModels
     public class EventCreateModel
     {
         /// <summary>
-        /// Name of the event.
+        /// Id. Has to follow a certain pattern, for example 'RAUP2026'
         /// </summary>
-        [Required, StringLength(50)]
-        public string? Name { get; set; }
+        [Required, MaxLength(20)]
+        public string? Id { get; set; }
+
+        /// <summary>
+        /// Description of the event.
+        /// </summary>
+        [StringLength(1000)]
+        public string? Description { get; set; }
 
         /// <summary>
         /// Public RSA-OAEP encryption key exported as JWK.

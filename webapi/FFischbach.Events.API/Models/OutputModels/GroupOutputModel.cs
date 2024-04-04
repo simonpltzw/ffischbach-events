@@ -26,14 +26,9 @@
         public bool? Approved { get; set; }
 
         /// <summary>
-        /// Event.
-        /// </summary>
-        public Event? Event { get; set; }
-
-        /// <summary>
         /// Contact participant.
         /// </summary>
-        public Participant? Contact { get; set; }
+        public required Participant Contact { get; set; }
 
         /// <summary>
         /// Other participants.

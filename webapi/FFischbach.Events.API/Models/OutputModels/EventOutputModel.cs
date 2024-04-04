@@ -8,17 +8,17 @@
         /// <summary>
         /// Id.
         /// </summary>
-        public int Id { get; set; }
+        public required string Id { get; set; }
 
         /// <summary>
-        /// Name.
+        /// Description.
         /// </summary>
-        public required string Name { get; set; }
+        public string? Description { get; set; }
 
         /// <summary>
         /// List of groups.
         /// </summary>
-        public List<GroupOutputModel>? Groups { get; set; }
+        public required List<GroupOutputModel> Groups { get; set; }
 
         /// <summary>
         /// Create timestamp.

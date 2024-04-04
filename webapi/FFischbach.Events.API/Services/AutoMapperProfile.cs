@@ -11,8 +11,11 @@ namespace FFischbach.Events.API.Services
             CreateMap<Models.Event, Models.OutputModels.EventOutputModel>();
 
             CreateMap<Models.InputModels.GroupCreateModel, Models.Group>()
-                .ForMember(x => x.CreatedAt, o => o.MapFrom(x => DateTime.Now));
-            CreateMap<Models.Group, Models.OutputModels.GroupOutputModel>();
+                .ForMember(x => x.CreatedAt, o => o.MapFrom(x => DateTime.Now))
+                .ForMember(x => x.Participants, o => o.MapFrom<InputGroupParticipantsResolver>());
+            CreateMap<Models.Group, Models.OutputModels.GroupOutputModel>()
+                .ForMember(x => x.Contact, o => o.MapFrom(x => x.Participants!.First(y => y.IsContact)))
+                .ForMember(x => x.Participants, o => o.MapFrom(x => x.Participants!.Where(y => !y.IsContact).ToList()));
 
             CreateMap<Models.InputModels.ParticipantCreateModel, Models.Participant>()
                 .ForMember(x => x.EncryptedData, o => o.MapFrom<ParticipantEncryptionResolver>()); // Requires "PublicKey" as passed in Items dict.

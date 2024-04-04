@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FFischbach.Events.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240403171605_PrivateKeyHash")]
-    partial class PrivateKeyHash
+    [Migration("20240404205002_EventDescription")]
+    partial class EventDescription
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,9 @@ namespace FFischbach.Events.API.Migrations
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Event", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -40,10 +38,10 @@ namespace FFischbach.Events.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("PrivateKeyHash")
                         .IsRequired()
@@ -74,14 +72,12 @@ namespace FFischbach.Events.API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<int>("ContactId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("EventId")
-                        .HasColumnType("integer");
+                    b.Property<string>("EventId")
+                        .IsRequired()
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -89,8 +85,6 @@ namespace FFischbach.Events.API.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ContactId");
 
                     b.HasIndex("EventId");
 
@@ -115,6 +109,9 @@ namespace FFischbach.Events.API.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("IsContact")
+                        .HasColumnType("boolean");
+
                     b.Property<bool?>("VIP")
                         .HasColumnType("boolean");
 
@@ -127,19 +124,11 @@ namespace FFischbach.Events.API.Migrations
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Group", b =>
                 {
-                    b.HasOne("FFischbach.Events.API.Models.Participant", "Contact")
-                        .WithMany()
-                        .HasForeignKey("ContactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("FFischbach.Events.API.Models.Event", "Event")
                         .WithMany("Groups")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Contact");
 
                     b.Navigation("Event");
                 });
