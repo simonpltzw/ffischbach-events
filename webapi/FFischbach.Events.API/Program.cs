@@ -1,6 +1,5 @@
 using FFischbach.Events.API.Data;
 using FFischbach.Events.API.Services;
-using FFischbach.Events.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
@@ -8,8 +7,15 @@ using Serilog;
 
 namespace FFischbach.Events.API
 {
+    /// <summary>
+    /// Program.
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// Good old main.
+        /// </summary>
+        /// <param name="args"></param>
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -61,10 +67,10 @@ namespace FFischbach.Events.API
 
             builder.Services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
             builder.Services.AddHealthChecks()
                 .AddDbContextCheck<DatabaseContext>();
-
-            builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
 
             var app = builder.Build();
 
