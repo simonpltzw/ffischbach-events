@@ -24,14 +24,23 @@ namespace FFischbach.Events.API.Data
                 c.Property(x => x.PublicKey)
                     .IsRequired();
 
-                c.Property(x => x.PrivateKeyHash)
-                    .HasMaxLength(64)
-                    .IsRequired();
-
                 c.Property(x => x.CreatedBy)
                     .IsRequired();
 
                 c.Property(x => x.CreatedAt)
+                    .IsRequired();
+            });
+
+            modelBuilder.Entity<EventManager>(c =>
+            {
+                c.HasKey(x => x.Id);
+
+                c.HasOne(x => x.Event)
+                    .WithMany(x => x.EventManagers)
+                    .HasForeignKey(x => x.EventId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                c.Property(x => x.EntraObjectId)
                     .IsRequired();
             });
 

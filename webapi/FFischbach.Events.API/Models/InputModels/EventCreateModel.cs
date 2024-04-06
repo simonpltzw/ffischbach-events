@@ -20,15 +20,9 @@ namespace FFischbach.Events.API.Models.InputModels
         public string? Description { get; set; }
 
         /// <summary>
-        /// Public RSA-OAEP encryption key exported as JWK.
+        /// Public RSA-OAEP encryption key in spki pem format.
         /// </summary>
         [Required]
         public string? PublicKey { get; set; }
-
-        /// <summary>
-        /// SHA-256 hash of the private RSA-OAEP encryption key exported as PKCS#8.
-        /// </summary>
-        [Required, StringLength(64, MinimumLength = 64)]
-        public string? PrivateKeyHash { get; set; }
     }
 }

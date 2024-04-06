@@ -3,6 +3,7 @@ using FFischbach.Events.API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,50 +19,55 @@ namespace FFischbach.Events.API.Controllers
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public class EventsController : ControllerBase
+    public class EventsController(ILogger<EventsController> logger, IMapper mapper, DatabaseContext databaseContext) : ControllerBase
     {
-        private IMapper Mapper { get; }
-        private DatabaseContext DatabaseContext { get; }
-
-        public EventsController(IMapper mapper, DatabaseContext databaseContext)
-        {
-            Mapper = mapper;
-            DatabaseContext = databaseContext;
-        }
+        private ILogger<EventsController> Logger { get; } = logger;
+        private IMapper Mapper { get; } = mapper;
+        private DatabaseContext DatabaseContext { get; } = databaseContext;
 
         // GET: api/<EventsController>
         /// <summary>
-        /// Get all events.
+        /// Gets all events.
         /// </summary>
-        /// <param name="pkHash">Your rsa private keys hashed using SHA-256 to get all events you have the permissions for.</param>
-        /// <returns></returns>
+        /// <remarks>Events are filtered on behalf of the calling user's permissions.</remarks>
         [HttpGet]
-        [ProducesResponseType(typeof(List<Models.OutputModels.EventOutputModel>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<Models.OutputModels.EventOutputModel>>> Get([FromQuery, Required, MinLength(1)] List<string>? pkHash)
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(List<Models.OutputModels.EventListItemOutputModel>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<Models.OutputModels.EventListItemOutputModel>>> Get()
         {
-            // Validate.
-            if (!ModelState.IsValid)
+            // Get object id as guid.
+            string? objectIdString = User.GetObjectId();
+
+            // Forbid if object id not present.
+            if (string.IsNullOrEmpty(objectIdString)) 
             {
-                return BadRequest(ModelState);
+                Logger.LogError("User token object id is null or empty.");
+                return BadRequest();
+            }
+
+            if (!Guid.TryParse(objectIdString, out Guid objectId))
+            {
+                Logger.LogError("User token object id '{ObjectId}' can not be parsed to guid.", objectIdString);
+                return BadRequest();
             }
 
             // Get events from the database.
             return Ok(
-                Mapper.Map<List<Models.OutputModels.EventOutputModel>>(
-                    await DatabaseContext.Events.Where(x => pkHash!.Contains(x.PrivateKeyHash)).ToListAsync()));
+                Mapper.Map<List<Models.OutputModels.EventListItemOutputModel>>(
+                    await DatabaseContext.Events.Where(x => x.EventManagers.Any(x => x.EntraObjectId == objectId)).ToListAsync()));
         }
 
         // GET: api/<EventsController>/5
         /// <summary>
-        /// Get a single event.
+        /// Gets a single event.
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="pkHash">Your rsa private keys hashed using SHA-256 to get all events you have the permissions for.</param>
         /// <returns></returns>
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Models.OutputModels.EventOutputModel), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult<Models.OutputModels.EventOutputModel>> Get([Required] string? id, [FromQuery, Required] string? pkHash)
+        public async Task<ActionResult<Models.OutputModels.EventOutputModel>> Get([Required] string? id)
         {
             // Validate.
             if (!ModelState.IsValid)
@@ -69,10 +75,47 @@ namespace FFischbach.Events.API.Controllers
                 return BadRequest(ModelState);
             }
 
+            // Get object id as guid.
+            string? objectIdString = User.GetObjectId();
+
+            // Forbid if object id not present.
+            if (string.IsNullOrEmpty(objectIdString))
+            {
+                Logger.LogError("User token object id is null or empty.");
+                return BadRequest();
+            }
+
+            if (!Guid.TryParse(objectIdString, out Guid objectId))
+            {
+                Logger.LogError("User token object id '{ObjectId}' can not be parsed to guid.", objectIdString);
+                return BadRequest();
+            }
+
             // Get event from the database.
-            return Ok(
-                Mapper.Map<Models.OutputModels.EventOutputModel>(
-                    await DatabaseContext.Events.FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower() && x.PrivateKeyHash == pkHash)));
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+            Models.Event? dbEvent = (await DatabaseContext.Events
+                                    .Include(x => x.Groups)
+                                        .ThenInclude(x => x.Participants)
+                                    .Include(x => x.EventManagers)
+                                    .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
+#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+
+            // Check db response.
+            if (dbEvent == null)
+            {
+                // Nothing found.
+                return NotFound();
+            }
+            else if (!dbEvent.EventManagers.Any(x => x.EntraObjectId == objectId))
+            {
+                // Calling user is not an event manager of that group.
+                return Forbid();
+            }
+            else
+            {
+                // Success. Map the response.
+                return Ok(Mapper.Map<Models.OutputModels.EventOutputModel>(dbEvent));
+            }
         }
 
         //// POST api/<EventsController>

@@ -9,6 +9,7 @@ namespace FFischbach.Events.API.Services
             CreateMap<Models.InputModels.EventCreateModel, Models.Event>()
                 .ForMember(x => x.CreatedAt, o => o.MapFrom(x => DateTime.Now));
             CreateMap<Models.Event, Models.OutputModels.EventOutputModel>();
+            CreateMap<Models.Event, Models.OutputModels.EventListItemOutputModel>();
 
             CreateMap<Models.InputModels.GroupCreateModel, Models.Group>()
                 .ForMember(x => x.CreatedAt, o => o.MapFrom(x => DateTime.Now))
