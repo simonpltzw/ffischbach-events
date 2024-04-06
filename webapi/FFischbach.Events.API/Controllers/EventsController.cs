@@ -183,12 +183,13 @@ namespace FFischbach.Events.API.Controllers
 
         // POST api/<EventsController>/5/EventManager
         /// <summary>
-        /// 
+        /// Adds a new manager to an event.
         /// </summary>
         /// <param name="id"></param>
         /// <param name="email"></param>
-        /// <returns></returns>
+        /// <remarks>Permit other users to manage the event using their email.</remarks>
         [HttpPost("{id}/EventManager")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> AddEventManager([Required] string? id, [FromQuery, Required, EmailAddress] string? email)
         {
             // Validate.
@@ -259,7 +260,7 @@ namespace FFischbach.Events.API.Controllers
             DatabaseContext.EventManagers.Add(eventManager);
             await DatabaseContext.SaveChangesAsync();
 
-            return NoContent();
+            return Created();
         }
 
         //// PUT api/<EventsController>/5
