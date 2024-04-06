@@ -36,26 +36,21 @@ namespace FFischbach.Events.API.Controllers
         [ProducesResponseType(typeof(List<Models.OutputModels.EventListItemOutputModel>), StatusCodes.Status200OK)]
         public async Task<ActionResult<List<Models.OutputModels.EventListItemOutputModel>>> Get()
         {
-            // Get object id as guid.
-            string? objectIdString = User.GetObjectId();
+            // Get display name.
+            string? displayName = User.GetDisplayName();
 
-            // Forbid if object id not present.
-            if (string.IsNullOrEmpty(objectIdString)) 
+            if (string.IsNullOrEmpty(displayName))
             {
-                Logger.LogError("User token object id is null or empty.");
-                return Problem(detail: "Unable to get object id from token.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-            if (!Guid.TryParse(objectIdString, out Guid objectId))
-            {
-                Logger.LogError("User token object id '{ObjectId}' can not be parsed to guid.", objectIdString);
-                return Problem(detail: "Unable to parse object id from token.", statusCode: StatusCodes.Status400BadRequest);
+                Logger.LogError("Could not get display name of user.");
+                return Problem(detail: "Unable to get display name from token.", statusCode: StatusCodes.Status400BadRequest);
             }
 
             // Get events from the database.
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
             return Ok(
                 Mapper.Map<List<Models.OutputModels.EventListItemOutputModel>>(
-                    await DatabaseContext.Events.Where(x => x.EventManagers!.Any(x => x.EntraObjectId == objectId)).ToListAsync()));
+                    await DatabaseContext.Events.Where(x => x.EventManagers!.Any(x => x.Manager!.Email.ToLower() == displayName.ToLower())).ToListAsync()));
+#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
         }
 
         // GET: api/<EventsController>/5
@@ -76,20 +71,13 @@ namespace FFischbach.Events.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Get object id as guid.
-            string? objectIdString = User.GetObjectId();
+            // Get display name.
+            string? displayName = User.GetDisplayName();
 
-            // Forbid if object id not present.
-            if (string.IsNullOrEmpty(objectIdString))
+            if (string.IsNullOrEmpty(displayName))
             {
-                Logger.LogError("User token object id is null or empty.");
-                return Problem(detail: "Unable to get object id from token.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-            if (!Guid.TryParse(objectIdString, out Guid objectId))
-            {
-                Logger.LogError("User token object id '{ObjectId}' can not be parsed to guid.", objectIdString);
-                return Problem(detail: "Unable to parse object id from token.", statusCode: StatusCodes.Status400BadRequest);
+                Logger.LogError("Could not get display name of user.");
+                return Problem(detail: "Unable to get display name from token.", statusCode: StatusCodes.Status400BadRequest);
             }
 
             // Get event from the database.
@@ -97,7 +85,8 @@ namespace FFischbach.Events.API.Controllers
             Models.Event? dbEvent = (await DatabaseContext.Events
                                     .Include(x => x.Groups!)
                                         .ThenInclude(x => x.Participants)
-                                    .Include(x => x.EventManagers)
+                                    .Include(x => x.EventManagers!)
+                                        .ThenInclude(x => x.Manager)
                                     .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
 #pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
 
@@ -107,7 +96,7 @@ namespace FFischbach.Events.API.Controllers
                 // Nothing found.
                 return NotFound();
             }
-            else if (!dbEvent.EventManagers!.Any(x => x.EntraObjectId == objectId))
+            else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
             {
                 // Calling user is not an event manager of that group.
                 return Forbid();
@@ -144,29 +133,31 @@ namespace FFischbach.Events.API.Controllers
                 return Problem(detail: "Event already exists.", statusCode: StatusCodes.Status400BadRequest);
             }
 
-            // Get object id as guid.
-            string? objectIdString = User.GetObjectId();
-
-            // Forbid if object id not present.
-            if (string.IsNullOrEmpty(objectIdString))
-            {
-                Logger.LogError("User token object id is null or empty.");
-                return Problem(detail: "Unable to get object id from token.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-            if (!Guid.TryParse(objectIdString, out Guid objectId))
-            {
-                Logger.LogError("User token object id '{ObjectId}' can not be parsed to guid.", objectIdString);
-                return Problem(detail: "Unable to parse object id from token.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
             // Get display name.
             string? displayName = User.GetDisplayName();
 
             if (string.IsNullOrEmpty(displayName))
             {
-                Logger.LogError("Could not get display name of user with object id '{ObjectId}'.", objectIdString);
+                Logger.LogError("Could not get display name of user.");
                 return Problem(detail: "Unable to get display name from token.", statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            // Check if the current user is already a manager.
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+            Manager? manager = await DatabaseContext.Managers.FirstOrDefaultAsync(x => x.Email.ToLower() == displayName.ToLower());
+#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+            if (manager == null)
+            {
+                // Add current user as manager.
+                manager = new Manager
+                {
+                    Email = displayName,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                // Create the manager.
+                DatabaseContext.Managers.Add(manager);
+                await DatabaseContext.SaveChangesAsync();
             }
 
             // Map the event input.
@@ -176,18 +167,99 @@ namespace FFischbach.Events.API.Controllers
             DatabaseContext.Events.Add(dbEvent);
             await DatabaseContext.SaveChangesAsync();
 
-            // Add current user as event manager.
+            // Create the event manager.
             EventManager eventManager = new EventManager
             {
-                EntraObjectId = objectId,
-                EventId = dbEvent.Id
+                EventId = dbEvent.Id,
+                ManagerId = manager.Id,
+                CreatedAt = DateTime.UtcNow
             };
 
-            // Create the event manager.
             DatabaseContext.EventManagers.Add(eventManager);
             await DatabaseContext.SaveChangesAsync();
 
-            return Ok(dbEvent);
+            return Created();
+        }
+
+        // POST api/<EventsController>/5/EventManager
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="email"></param>
+        /// <returns></returns>
+        [HttpPost("{id}/EventManager")]
+        public async Task<IActionResult> AddEventManager([Required] string? id, [FromQuery, Required, EmailAddress] string? email)
+        {
+            // Validate.
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Get display name.
+            string? displayName = User.GetDisplayName();
+
+            if (string.IsNullOrEmpty(displayName))
+            {
+                Logger.LogError("Could not get display name of user.");
+                return Problem(detail: "Unable to get display name from token.", statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            // Get event from the database.
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+            Models.Event? dbEvent = (await DatabaseContext.Events
+                                    .Include(x => x.EventManagers!)
+                                        .ThenInclude(x => x.Manager)
+                                    .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
+#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+
+            // Check db response.
+            if (dbEvent == null)
+            {
+                // Nothing found.
+                return NotFound();
+            }
+            else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                // Calling user is not an event manager of that group.
+                return Forbid();
+            }
+            else if (dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                return Problem(detail: "User is already a manager of this event.", statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            // Check if the email is already a manager.
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+            Manager? manager = await DatabaseContext.Managers.FirstOrDefaultAsync(x => x.Email.ToLower() == email!.ToLower());
+#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+            if (manager == null)
+            {
+                // Add current user as manager.
+                manager = new Manager
+                {
+                    Email = email!,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                // Create the manager.
+                DatabaseContext.Managers.Add(manager);
+                await DatabaseContext.SaveChangesAsync();
+            }
+
+            // Create the event manager.
+            EventManager eventManager = new EventManager
+            {
+                EventId = dbEvent.Id,
+                ManagerId = manager.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            DatabaseContext.EventManagers.Add(eventManager);
+            await DatabaseContext.SaveChangesAsync();
+
+            return NoContent();
         }
 
         //// PUT api/<EventsController>/5

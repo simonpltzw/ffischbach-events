@@ -7,6 +7,7 @@ namespace FFischbach.Events.API.Data
     {
         public required DbSet<Event> Events { get; set; }
         public required DbSet<EventManager> EventManagers { get; set; }
+        public required DbSet<Manager> Managers { get; set; }
         public required DbSet<Group> Groups { get; set; }
         public required DbSet<Participant> Participants { get; set; }
 
@@ -39,9 +40,25 @@ namespace FFischbach.Events.API.Data
                 c.HasOne(x => x.Event)
                     .WithMany(x => x.EventManagers)
                     .HasForeignKey(x => x.EventId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                c.Property(x => x.EntraObjectId)
+                c.HasOne(x => x.Manager)
+                    .WithMany(x => x.EventManagers)
+                    .HasForeignKey(x => x.ManagerId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                c.Property(x => x.CreatedAt)
+                    .IsRequired();
+            });
+
+            modelBuilder.Entity<Manager>(c =>
+            {
+                c.HasKey(x => x.Id);
+
+                c.Property(x => x.Email)
+                    .HasMaxLength(100)
                     .IsRequired();
             });
 
