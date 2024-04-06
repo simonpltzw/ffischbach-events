@@ -6,6 +6,7 @@ namespace FFischbach.Events.API.Data
     public class DatabaseContext(DbContextOptions options) : DbContext(options)
     {
         public required DbSet<Event> Events { get; set; }
+        public required DbSet<EventManager> EventManagers { get; set; }
         public required DbSet<Group> Groups { get; set; }
         public required DbSet<Participant> Participants { get; set; }
 

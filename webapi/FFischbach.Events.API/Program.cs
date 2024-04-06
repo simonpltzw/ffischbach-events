@@ -1,6 +1,8 @@
 using FFischbach.Events.API.Data;
 using FFischbach.Events.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Serilog;
@@ -90,6 +92,20 @@ namespace FFischbach.Events.API
                     c.OAuthClientId("979c1c0e-193c-4bb7-8024-c24c493b2e41");
                 });
             }
+
+            app.UseExceptionHandler(a => a.Run(async context =>
+            {
+                var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+                var exception = exceptionHandlerPathFeature?.Error;
+
+                var problem = new ProblemDetails { 
+                    Title = "An unexpected error occured.", 
+                    Detail = exception?.Message, 
+                    Status = 500 
+                };
+
+                await context.Response.WriteAsJsonAsync(problem);
+            }));
 
             app.UseHttpsRedirection();
 
