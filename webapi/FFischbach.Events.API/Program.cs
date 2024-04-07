@@ -80,12 +80,7 @@ namespace FFischbach.Events.API
             builder.Services.AddHealthChecks()
                 .AddDbContextCheck<DatabaseContext>();
 
-            builder.Services.AddCors(x => x.AddDefaultPolicy(c =>
-            {
-                c.AllowAnyOrigin();
-                c.AllowAnyMethod();
-                c.AllowAnyHeader();
-            }));
+            builder.Services.AddCors();
 
             var app = builder.Build();
 
@@ -120,7 +115,12 @@ namespace FFischbach.Events.API
 
             app.UseAuthorization();
 
-            app.UseCors();
+            app.UseCors(builder => builder
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .SetIsOriginAllowed((host) => true)
+                .AllowCredentials()
+            );
 
             app.MapControllers();
 
