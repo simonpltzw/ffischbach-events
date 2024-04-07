@@ -80,6 +80,13 @@ namespace FFischbach.Events.API
             builder.Services.AddHealthChecks()
                 .AddDbContextCheck<DatabaseContext>();
 
+            builder.Services.AddCors(x => x.AddDefaultPolicy(c =>
+            {
+                c.AllowAnyOrigin();
+                c.AllowAnyMethod();
+                c.AllowAnyHeader();
+            }));
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -113,6 +120,7 @@ namespace FFischbach.Events.API
 
             app.UseAuthorization();
 
+            app.UseCors();
 
             app.MapControllers();
 
