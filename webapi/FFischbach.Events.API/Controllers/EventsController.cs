@@ -178,7 +178,7 @@ namespace FFischbach.Events.API.Controllers
             DatabaseContext.EventManagers.Add(eventManager);
             await DatabaseContext.SaveChangesAsync();
 
-            return Created();
+            return CreatedAtAction(nameof(Get), new { id = dbEvent.Id }, Mapper.Map<Models.OutputModels.EventOutputModel>(dbEvent));
         }
 
         // POST api/<EventsController>/5/EventManager
@@ -260,7 +260,7 @@ namespace FFischbach.Events.API.Controllers
             DatabaseContext.EventManagers.Add(eventManager);
             await DatabaseContext.SaveChangesAsync();
 
-            return Created();
+            return NoContent();
         }
 
         //// PUT api/<EventsController>/5
