@@ -23,21 +23,30 @@ namespace FFischbach.Events.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            #region Add Services
+
+            #region Logging
             builder.Host.UseSerilog((context, configuration) =>
             {
                 configuration.WriteTo.Console();
                 if (context.HostingEnvironment.IsDevelopment()) configuration.MinimumLevel.Debug();
                 else configuration.MinimumLevel.Information();
             });
+            #endregion Logging
 
+            #region Authentication
             // Add services to the container.
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+            #endregion Authentication
 
+            #region Routing
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
+            #endregion Routing
 
+            #region Swagger
             builder.Services.AddSwaggerGen(c =>
             {
                 c.AddSecurityDefinition("msid", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -72,18 +81,32 @@ namespace FFischbach.Events.API
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
+            #endregion Swagger
 
+            #region Database
             builder.Services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            #endregion Database
 
+            #region AutoMapper
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+            #endregion AutoMapper
 
+            #region HealthChecks
             builder.Services.AddHealthChecks()
                 .AddDbContextCheck<DatabaseContext>();
+            #endregion HealthChecks
 
+            #region Cors
             builder.Services.AddCors();
+            #endregion Cors
+
+            #endregion Add Services
 
             var app = builder.Build();
 
+            #region Use Services
+
+            #region Swagger
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -94,7 +117,9 @@ namespace FFischbach.Events.API
                     c.OAuthClientId("979c1c0e-193c-4bb7-8024-c24c493b2e41");
                 });
             }
+            #endregion Swagger
 
+            #region Exception Handler Middleware
             app.UseExceptionHandler(a => a.Run(async context =>
             {
                 var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
@@ -108,23 +133,34 @@ namespace FFischbach.Events.API
 
                 await context.Response.WriteAsJsonAsync(problem);
             }));
+            #endregion Exception Handler Middleware
 
+            #region Https Redirection
             app.UseHttpsRedirection();
+            #endregion Https Redirection
 
+            #region Auth
             app.UseAuthentication();
 
             app.UseAuthorization();
+            #endregion Auth
 
+            #region Cors
             app.UseCors(builder => builder
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .SetIsOriginAllowed((host) => true)
                 .AllowCredentials()
             );
+            #endregion Cors
 
+            #region Routing
             app.MapControllers();
 
             app.MapHealthChecks("/health");
+            #endregion Routing
+
+            #endregion Use Services
 
             app.Run();
         }
