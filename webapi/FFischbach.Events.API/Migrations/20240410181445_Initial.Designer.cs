@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FFischbach.Events.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240405193300_EventManagers")]
-    partial class EventManagers
+    [Migration("20240410181445_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,11 +43,6 @@ namespace FFischbach.Events.API.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
-                    b.Property<string>("PrivateKeyHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
                     b.Property<string>("PublicKey")
                         .IsRequired()
                         .HasColumnType("text");
@@ -65,18 +60,23 @@ namespace FFischbach.Events.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid>("EntraObjectId")
-                        .HasColumnType("uuid");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("EventId")
                         .IsRequired()
                         .HasColumnType("character varying(20)");
 
+                    b.Property<int>("ManagerId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("EventManager");
+                    b.HasIndex("ManagerId");
+
+                    b.ToTable("EventManagers");
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Group", b =>
@@ -113,6 +113,27 @@ namespace FFischbach.Events.API.Migrations
                     b.ToTable("Groups");
                 });
 
+            modelBuilder.Entity("FFischbach.Events.API.Models.Manager", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Managers");
+                });
+
             modelBuilder.Entity("FFischbach.Events.API.Models.Participant", b =>
                 {
                     b.Property<int>("Id")
@@ -124,9 +145,9 @@ namespace FFischbach.Events.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("EncryptedData")
+                    b.Property<byte[]>("EncryptedData")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("bytea");
 
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
@@ -152,7 +173,15 @@ namespace FFischbach.Events.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FFischbach.Events.API.Models.Manager", "Manager")
+                        .WithMany("EventManagers")
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Event");
+
+                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Group", b =>
@@ -187,6 +216,11 @@ namespace FFischbach.Events.API.Migrations
             modelBuilder.Entity("FFischbach.Events.API.Models.Group", b =>
                 {
                     b.Navigation("Participants");
+                });
+
+            modelBuilder.Entity("FFischbach.Events.API.Models.Manager", b =>
+                {
+                    b.Navigation("EventManagers");
                 });
 #pragma warning restore 612, 618
         }

@@ -126,7 +126,7 @@ namespace FFischbach.Events.API
                 var exception = exceptionHandlerPathFeature?.Error;
 
                 var problem = new ProblemDetails { 
-                    Title = "An unexpected error occured.", 
+                    Title = "Ein unerwarteter Fehler ist aufgetreten.", 
                     Detail = exception?.Message, 
                     Status = 500 
                 };

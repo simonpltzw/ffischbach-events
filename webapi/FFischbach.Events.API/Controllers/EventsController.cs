@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using FFischbach.Events.API.Data;
-using FFischbach.Events.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +41,7 @@ namespace FFischbach.Events.API.Controllers
             if (string.IsNullOrEmpty(displayName))
             {
                 Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", statusCode: StatusCodes.Status400BadRequest);
+                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
             }
 
             // Get events from the database.
@@ -77,7 +76,7 @@ namespace FFischbach.Events.API.Controllers
             if (string.IsNullOrEmpty(displayName))
             {
                 Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", statusCode: StatusCodes.Status400BadRequest);
+                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
             }
 
             // Get event from the database.
@@ -132,7 +131,7 @@ namespace FFischbach.Events.API.Controllers
             if (string.IsNullOrEmpty(displayName))
             {
                 Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", statusCode: StatusCodes.Status400BadRequest);
+                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
             }
 
             // Get event from the database.
@@ -185,7 +184,7 @@ namespace FFischbach.Events.API.Controllers
             {
                 // Event already exists.
                 Logger.LogError("Attempt to create event '{EventId}' failed as it already exists.", @event.Id);
-                return Problem(detail: "Event already exists.", statusCode: StatusCodes.Status400BadRequest);
+                return Problem(detail: "Event already exists.", title: "Dieses Event existiert bereits.", statusCode: StatusCodes.Status400BadRequest);
             }
 
             // Get display name.
@@ -194,17 +193,17 @@ namespace FFischbach.Events.API.Controllers
             if (string.IsNullOrEmpty(displayName))
             {
                 Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", statusCode: StatusCodes.Status400BadRequest);
+                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
             }
 
             // Check if the current user is already a manager.
 #pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            Manager? manager = await DatabaseContext.Managers.FirstOrDefaultAsync(x => x.Email.ToLower() == displayName.ToLower());
+            Models.Manager? manager = await DatabaseContext.Managers.FirstOrDefaultAsync(x => x.Email.ToLower() == displayName.ToLower());
 #pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
             if (manager == null)
             {
                 // Add current user as manager.
-                manager = new Manager
+                manager = new Models.Manager
                 {
                     Email = displayName,
                     CreatedAt = DateTime.UtcNow
@@ -223,7 +222,7 @@ namespace FFischbach.Events.API.Controllers
             await DatabaseContext.SaveChangesAsync();
 
             // Create the event manager.
-            EventManager eventManager = new EventManager
+            Models.EventManager eventManager = new Models.EventManager
             {
                 EventId = dbEvent.Id,
                 ManagerId = manager.Id,
@@ -259,7 +258,7 @@ namespace FFischbach.Events.API.Controllers
             if (string.IsNullOrEmpty(displayName))
             {
                 Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", statusCode: StatusCodes.Status400BadRequest);
+                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
             }
 
             // Get event from the database.
@@ -283,17 +282,17 @@ namespace FFischbach.Events.API.Controllers
             }
             else if (dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase)))
             {
-                return Problem(detail: "User is already a manager of this event.", statusCode: StatusCodes.Status400BadRequest);
+                return Problem(detail: "User is already a manager of this event.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
             }
 
             // Check if the email is already a manager.
 #pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            Manager? manager = await DatabaseContext.Managers.FirstOrDefaultAsync(x => x.Email.ToLower() == email!.ToLower());
+            Models.Manager? manager = await DatabaseContext.Managers.FirstOrDefaultAsync(x => x.Email.ToLower() == email!.ToLower());
 #pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
             if (manager == null)
             {
                 // Add current user as manager.
-                manager = new Manager
+                manager = new Models.Manager
                 {
                     Email = email!,
                     CreatedAt = DateTime.UtcNow
@@ -305,7 +304,7 @@ namespace FFischbach.Events.API.Controllers
             }
 
             // Create the event manager.
-            EventManager eventManager = new EventManager
+            Models.EventManager eventManager = new Models.EventManager
             {
                 EventId = dbEvent.Id,
                 ManagerId = manager.Id,

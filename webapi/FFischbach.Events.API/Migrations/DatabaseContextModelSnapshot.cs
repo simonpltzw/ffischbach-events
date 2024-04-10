@@ -142,9 +142,9 @@ namespace FFischbach.Events.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("EncryptedData")
+                    b.Property<byte[]>("EncryptedData")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("bytea");
 
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");

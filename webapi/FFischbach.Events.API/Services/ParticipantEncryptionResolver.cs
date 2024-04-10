@@ -7,9 +7,9 @@ using System.Text;
 
 namespace FFischbach.Events.API.Services
 {
-    public class ParticipantEncryptionResolver : IValueResolver<ParticipantCreateModel, Participant, string>
+    public class ParticipantEncryptionResolver : IValueResolver<ParticipantCreateModel, Participant, byte[]>
     {
-        public string Resolve(ParticipantCreateModel source, Participant destination, string destMember, ResolutionContext context)
+        public byte[] Resolve(ParticipantCreateModel source, Participant destination, byte[] destMember, ResolutionContext context)
         {
             // Get public key from context.
             string publicKey = context.Items["PublicKey"] as string ?? throw new Exception("Missing public key on participant encryption.");
@@ -25,12 +25,9 @@ namespace FFischbach.Events.API.Services
             byte[] data = Encoding.Default.GetBytes(json);
 
             // Encrypt data.
-            byte[] encryptedData = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA256);
+            destMember = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA256);
 
-            // Parse encrypted data to string.
-            string encryptedString = Encoding.Default.GetString(encryptedData);
-
-            return encryptedString;
+            return destMember;
         }
     }
 }

@@ -13,7 +13,7 @@
         /// <summary>
         /// Encrypted data.
         /// </summary>
-        public required string EncryptedData { get; set; }
+        public required byte[] EncryptedData { get; set; }
 
         /// <summary>
         /// VIP flag.
