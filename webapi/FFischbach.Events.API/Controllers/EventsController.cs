@@ -108,6 +108,61 @@ namespace FFischbach.Events.API.Controllers
             }
         }
 
+        // GET: api/<EventsController>/5/Groups
+        /// <summary>
+        /// Gets the groups of an event.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("{id}/Groups")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(List<Models.OutputModels.GroupOutputModel>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<Models.OutputModels.GroupOutputModel>>> GetGroups([Required] string? id)
+        {
+            // Validate.
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Get display name.
+            string? displayName = User.GetDisplayName();
+
+            if (string.IsNullOrEmpty(displayName))
+            {
+                Logger.LogError("Could not get display name of user.");
+                return Problem(detail: "Unable to get display name from token.", statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            // Get event from the database.
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+            Models.Event? dbEvent = (await DatabaseContext.Events
+                                    .Include(x => x.Groups!)
+                                        .ThenInclude(x => x.Participants)
+                                    .Include(x => x.EventManagers!)
+                                        .ThenInclude(x => x.Manager)
+                                    .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
+#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+
+            // Check db response.
+            if (dbEvent == null)
+            {
+                // Nothing found.
+                return NotFound();
+            }
+            else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                // Calling user is not an event manager of that group.
+                return Forbid();
+            }
+            else
+            {
+                // Success. Map the response.
+                return Ok(Mapper.Map<List<Models.OutputModels.GroupOutputModel>>(dbEvent.Groups));
+            }
+        }
+
         // POST api/<EventsController>
         /// <summary>
         /// Creates an event.

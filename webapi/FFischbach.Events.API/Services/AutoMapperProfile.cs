@@ -15,6 +15,8 @@ namespace FFischbach.Events.API.Services
                 .ForMember(x => x.CreatedAt, o => o.MapFrom(x => DateTime.UtcNow))
                 .ForMember(x => x.Participants, o => o.MapFrom<InputGroupParticipantsResolver>());
             CreateMap<Models.Group, Models.OutputModels.GroupOutputModel>()
+                .ForMember(x => x.Contact, o => o.MapFrom(x => x.Participants!.First(y => y.IsContact)));
+            CreateMap<Models.Group, Models.OutputModels.GroupDetailOutputModel>()
                 .ForMember(x => x.Contact, o => o.MapFrom(x => x.Participants!.First(y => y.IsContact)))
                 .ForMember(x => x.Participants, o => o.MapFrom(x => x.Participants!.Where(y => !y.IsContact).ToList()));
 
