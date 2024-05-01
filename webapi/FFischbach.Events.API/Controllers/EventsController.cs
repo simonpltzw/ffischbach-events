@@ -44,12 +44,42 @@ namespace FFischbach.Events.API.Controllers
                 return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
             }
 
-            // Get events from the database.
 #pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            return Ok(
+            // Get group and participant counts.
+            List<Models.OutputModels.EventListItemOutputModel> counts = await DatabaseContext.Events
+                .Where(x => x.EventManagers!.Any(x => x.Manager!.Email.ToLower() == displayName.ToLower()))
+                .Select(x => new Models.OutputModels.EventListItemOutputModel { 
+                    Id = x.Id, 
+                    TotalGroups = x.Groups!.Count, 
+                    TotalParticipants = x.Groups!.Sum(y => y.Participants!.Count), 
+                    CreatedAt = x.CreatedAt })
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
+
+            // Get events.
+            List<Models.OutputModels.EventListItemOutputModel> returnValue = 
                 Mapper.Map<List<Models.OutputModels.EventListItemOutputModel>>(
-                    await DatabaseContext.Events.Where(x => x.EventManagers!.Any(x => x.Manager!.Email.ToLower() == displayName.ToLower())).ToListAsync()));
+                    await DatabaseContext.Events
+                    .Where(x => x.EventManagers!.Any(x => x.Manager!.Email.ToLower() == displayName.ToLower()))
+                    .OrderByDescending(x => x.CreatedAt)
+                    .ToListAsync());
 #pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+
+            // Merge lists.
+            foreach(Models.OutputModels.EventListItemOutputModel item in returnValue)
+            {
+                // Get corresponding count.
+                Models.OutputModels.EventListItemOutputModel? count = counts.FirstOrDefault(x => x.Id == item.Id);
+
+                if (count != null)
+                {
+                    item.TotalGroups = count.TotalGroups;
+                    item.TotalParticipants = count.TotalParticipants;
+                }
+            }
+
+            return Ok(returnValue);
+
         }
 
         // GET: api/<EventsController>/5
@@ -79,8 +109,19 @@ namespace FFischbach.Events.API.Controllers
                 return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
             }
 
-            // Get event from the database.
 #pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+            // Get group and participant counts.
+            Models.OutputModels.EventOutputModel count = await DatabaseContext.Events
+                .Select(x => new Models.OutputModels.EventOutputModel { 
+                    Id = x.Id, 
+                    TotalGroups = x.Groups!.Count, 
+                    TotalParticipants = x.Groups!.Sum(y => y.Participants!.Count),
+                    EncryptedPrivateKey = x.EncryptedPrivateKey,
+                    Groups = new List<Models.OutputModels.GroupOutputModel>()
+                })
+                .FirstAsync(x => x.Id.ToLower() == id!.ToLower());
+
+            // Get event from the database.
             Models.Event? dbEvent = (await DatabaseContext.Events
                                     .Include(x => x.Groups!)
                                         .ThenInclude(x => x.Participants)
@@ -103,7 +144,13 @@ namespace FFischbach.Events.API.Controllers
             else
             {
                 // Success. Map the response.
-                return Ok(Mapper.Map<Models.OutputModels.EventOutputModel>(dbEvent));
+                Models.OutputModels.EventOutputModel returnValue = Mapper.Map<Models.OutputModels.EventOutputModel>(dbEvent);
+
+                // Merge with counts.
+                returnValue.TotalGroups = count.TotalGroups;
+                returnValue.TotalParticipants = count.TotalParticipants;
+
+                return Ok(returnValue);
             }
         }
 

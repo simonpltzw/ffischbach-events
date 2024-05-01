@@ -24,5 +24,11 @@ namespace FFischbach.Events.API.Models.InputModels
         /// </summary>
         [Required]
         public string? PublicKey { get; set; }
+
+        /// <summary>
+        /// AES-Encrypted PKCS#8 RSA private key.
+        /// </summary>
+        [Required]
+        public string? EncryptedPrivateKey { get; set; }
     }
 }

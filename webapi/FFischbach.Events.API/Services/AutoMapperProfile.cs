@@ -7,6 +7,7 @@ namespace FFischbach.Events.API.Services
         public AutoMapperProfile()
         {
             CreateMap<Models.InputModels.EventCreateModel, Models.Event>()
+                .ForMember(x => x.Completed, o => o.MapFrom(x => false))
                 .ForMember(x => x.CreatedAt, o => o.MapFrom(x => DateTime.UtcNow));
             CreateMap<Models.Event, Models.OutputModels.EventOutputModel>();
             CreateMap<Models.Event, Models.OutputModels.EventListItemOutputModel>();

@@ -16,6 +16,26 @@
         public string? Description { get; set; }
 
         /// <summary>
+        /// Completed.
+        /// </summary>
+        public bool Completed { get; set; }
+
+        /// <summary>
+        /// Amount of groups.
+        /// </summary>
+        public int TotalGroups { get; set; }
+
+        /// <summary>
+        /// Amount of participants.
+        /// </summary>
+        public int TotalParticipants { get; set; }
+
+        /// <summary>
+        /// AES-Encrypted PKCS#8 RSA private key.
+        /// </summary>
+        public required string EncryptedPrivateKey { get; set; }
+
+        /// <summary>
         /// List of groups.
         /// </summary>
         public required List<GroupOutputModel> Groups { get; set; }
