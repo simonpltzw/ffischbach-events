@@ -32,8 +32,8 @@ namespace FFischbach.Events.API.Controllers
         /// <remarks>Events are filtered on behalf of the calling user's permissions.</remarks>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(typeof(List<Models.OutputModels.EventListItemOutputModel>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<Models.OutputModels.EventListItemOutputModel>>> Get()
+        [ProducesResponseType(typeof(List<Models.OutputModels.EventOutputModel>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<Models.OutputModels.EventOutputModel>>> Get()
         {
             // Get display name.
             string? displayName = User.GetDisplayName();
@@ -46,9 +46,9 @@ namespace FFischbach.Events.API.Controllers
 
 #pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
             // Get group and participant counts.
-            List<Models.OutputModels.EventListItemOutputModel> counts = await DatabaseContext.Events
+            List<Models.OutputModels.EventOutputModel> counts = await DatabaseContext.Events
                 .Where(x => x.EventManagers!.Any(x => x.Manager!.Email.ToLower() == displayName.ToLower()))
-                .Select(x => new Models.OutputModels.EventListItemOutputModel { 
+                .Select(x => new Models.OutputModels.EventOutputModel { 
                     Id = x.Id, 
                     TotalGroups = x.Groups!.Count, 
                     TotalParticipants = x.Groups!.Sum(y => y.Participants!.Count), 
@@ -57,8 +57,8 @@ namespace FFischbach.Events.API.Controllers
                 .ToListAsync();
 
             // Get events.
-            List<Models.OutputModels.EventListItemOutputModel> returnValue = 
-                Mapper.Map<List<Models.OutputModels.EventListItemOutputModel>>(
+            List<Models.OutputModels.EventOutputModel> returnValue = 
+                Mapper.Map<List<Models.OutputModels.EventOutputModel>>(
                     await DatabaseContext.Events
                     .Where(x => x.EventManagers!.Any(x => x.Manager!.Email.ToLower() == displayName.ToLower()))
                     .OrderByDescending(x => x.CreatedAt)
@@ -66,10 +66,10 @@ namespace FFischbach.Events.API.Controllers
 #pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
 
             // Merge lists.
-            foreach(Models.OutputModels.EventListItemOutputModel item in returnValue)
+            foreach(Models.OutputModels.EventOutputModel item in returnValue)
             {
                 // Get corresponding count.
-                Models.OutputModels.EventListItemOutputModel? count = counts.FirstOrDefault(x => x.Id == item.Id);
+                Models.OutputModels.EventOutputModel? count = counts.FirstOrDefault(x => x.Id == item.Id);
 
                 if (count != null)
                 {
@@ -91,8 +91,8 @@ namespace FFischbach.Events.API.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Models.OutputModels.EventOutputModel), StatusCodes.Status200OK)]
-        public async Task<ActionResult<Models.OutputModels.EventOutputModel>> Get([Required] string? id)
+        [ProducesResponseType(typeof(Models.OutputModels.EventDetailOutputModel), StatusCodes.Status200OK)]
+        public async Task<ActionResult<Models.OutputModels.EventDetailOutputModel>> Get([Required] string? id)
         {
             // Validate.
             if (!ModelState.IsValid)
@@ -110,17 +110,6 @@ namespace FFischbach.Events.API.Controllers
             }
 
 #pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            // Get group and participant counts.
-            Models.OutputModels.EventOutputModel count = await DatabaseContext.Events
-                .Select(x => new Models.OutputModels.EventOutputModel { 
-                    Id = x.Id, 
-                    TotalGroups = x.Groups!.Count, 
-                    TotalParticipants = x.Groups!.Sum(y => y.Participants!.Count),
-                    EncryptedPrivateKey = x.EncryptedPrivateKey,
-                    Groups = new List<Models.OutputModels.GroupOutputModel>()
-                })
-                .FirstAsync(x => x.Id.ToLower() == id!.ToLower());
-
             // Get event from the database.
             Models.Event? dbEvent = (await DatabaseContext.Events
                                     .Include(x => x.Groups!)
@@ -144,68 +133,27 @@ namespace FFischbach.Events.API.Controllers
             else
             {
                 // Success. Map the response.
-                Models.OutputModels.EventOutputModel returnValue = Mapper.Map<Models.OutputModels.EventOutputModel>(dbEvent);
+                Models.OutputModels.EventDetailOutputModel returnValue = Mapper.Map<Models.OutputModels.EventDetailOutputModel>(dbEvent);
+
+                // Get the total amounts.
+                int totalParticipants = 0;
+                for (int i = 0; i < returnValue.Groups.Count; i++)
+                {
+                    // Get participant amount of this group.
+                    int? groupParticipants = dbEvent.Groups?[i]?.Participants?.Count;
+                    if (!groupParticipants.HasValue) groupParticipants = 0;
+
+                    // Add to total for event.
+                    totalParticipants += (int)groupParticipants;
+
+                    returnValue.Groups[i].TotalParticipants = (int)groupParticipants;
+                }
 
                 // Merge with counts.
-                returnValue.TotalGroups = count.TotalGroups;
-                returnValue.TotalParticipants = count.TotalParticipants;
+                returnValue.TotalGroups = returnValue.Groups.Count;
+                returnValue.TotalParticipants = totalParticipants;
 
                 return Ok(returnValue);
-            }
-        }
-
-        // GET: api/<EventsController>/5/Groups
-        /// <summary>
-        /// Gets the groups of an event.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [HttpGet("{id}/Groups")]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(List<Models.OutputModels.GroupOutputModel>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<Models.OutputModels.GroupOutputModel>>> GetGroups([Required] string? id)
-        {
-            // Validate.
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Get display name.
-            string? displayName = User.GetDisplayName();
-
-            if (string.IsNullOrEmpty(displayName))
-            {
-                Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-            // Get event from the database.
-#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            Models.Event? dbEvent = (await DatabaseContext.Events
-                                    .Include(x => x.Groups!)
-                                        .ThenInclude(x => x.Participants)
-                                    .Include(x => x.EventManagers!)
-                                        .ThenInclude(x => x.Manager)
-                                    .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
-#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-
-            // Check db response.
-            if (dbEvent == null)
-            {
-                // Nothing found.
-                return NotFound();
-            }
-            else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
-            {
-                // Calling user is not an event manager of that group.
-                return Forbid();
-            }
-            else
-            {
-                // Success. Map the response.
-                return Ok(Mapper.Map<List<Models.OutputModels.GroupOutputModel>>(dbEvent.Groups));
             }
         }
 
@@ -216,9 +164,9 @@ namespace FFischbach.Events.API.Controllers
         /// <param name="event"></param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(Models.OutputModels.EventOutputModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Models.OutputModels.EventDetailOutputModel), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Models.OutputModels.EventOutputModel>> Post([FromBody, Required] Models.InputModels.EventCreateModel @event)
+        public async Task<ActionResult<Models.OutputModels.EventDetailOutputModel>> Post([FromBody, Required] Models.InputModels.EventCreateModel @event)
         {
             // Validate.
             if (!ModelState.IsValid)
@@ -279,7 +227,7 @@ namespace FFischbach.Events.API.Controllers
             DatabaseContext.EventManagers.Add(eventManager);
             await DatabaseContext.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(Get), new { id = dbEvent.Id }, Mapper.Map<Models.OutputModels.EventOutputModel>(dbEvent));
+            return CreatedAtAction(nameof(Get), new { id = dbEvent.Id }, Mapper.Map<Models.OutputModels.EventDetailOutputModel>(dbEvent));
         }
 
         // POST api/<EventsController>/5/EventManager

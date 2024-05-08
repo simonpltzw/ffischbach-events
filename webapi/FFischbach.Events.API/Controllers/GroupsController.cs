@@ -71,7 +71,10 @@ namespace FFischbach.Events.API.Controllers
             else
             {
                 // Success. Map the response.
-                return Ok(Mapper.Map<Models.OutputModels.GroupDetailOutputModel>(dbGroup));
+                Models.OutputModels.GroupDetailOutputModel returnValue = Mapper.Map<Models.OutputModels.GroupDetailOutputModel>(dbGroup);
+                returnValue.TotalParticipants = dbGroup.Participants?.Count ?? 0;
+                
+                return Ok(returnValue);
             }
         }
 
@@ -83,7 +86,7 @@ namespace FFischbach.Events.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
-        [ProducesResponseType(typeof(Models.OutputModels.GroupOutputModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Models.OutputModels.GroupOutputModel>> Post([FromBody, Required] Models.InputModels.GroupCreateModel? group)
         {
@@ -120,7 +123,7 @@ namespace FFischbach.Events.API.Controllers
             DatabaseContext.Groups.Add(dbGroup);
             await DatabaseContext.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(Get), new { id = dbGroup.Id }, Mapper.Map<Models.OutputModels.GroupOutputModel>(dbGroup));
+            return Created();
         }
     }
 }

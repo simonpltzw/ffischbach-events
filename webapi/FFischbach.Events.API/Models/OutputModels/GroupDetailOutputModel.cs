@@ -26,6 +26,11 @@
         public bool? Approved { get; set; }
 
         /// <summary>
+        /// Amount of participants.
+        /// </summary>
+        public int TotalParticipants { get; set; }
+
+        /// <summary>
         /// Contact participant.
         /// </summary>
         public required ParticipantOutputModel Contact { get; set; }
