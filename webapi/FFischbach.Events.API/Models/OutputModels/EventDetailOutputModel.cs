@@ -1,29 +1,29 @@
 ﻿namespace FFischbach.Events.API.Models.OutputModels
 {
     /// <summary>
-    /// Group output model.
+    /// Event output model.
     /// </summary>
-    public class GroupOutputModel
+    public class EventDetailOutputModel
     {
         /// <summary>
         /// Id.
         /// </summary>
-        public int Id { get; set; }
+        public required string Id { get; set; }
 
         /// <summary>
-        /// Name.
+        /// Description.
         /// </summary>
-        public required string Name { get; set; }
+        public string? Description { get; set; }
 
         /// <summary>
-        /// Category.
+        /// Completed.
         /// </summary>
-        public string? Category { get; set; }
+        public bool Completed { get; set; }
 
         /// <summary>
-        /// Approved.
+        /// Amount of groups.
         /// </summary>
-        public bool? Approved { get; set; }
+        public int TotalGroups { get; set; }
 
         /// <summary>
         /// Amount of participants.
@@ -31,9 +31,14 @@
         public int TotalParticipants { get; set; }
 
         /// <summary>
-        /// Contact participant.
+        /// AES-Encrypted PKCS#8 RSA private key.
         /// </summary>
-        public required ParticipantOutputModel Contact { get; set; }
+        public required string EncryptedPrivateKey { get; set; }
+
+        /// <summary>
+        /// List of groups.
+        /// </summary>
+        public required List<GroupOutputModel> Groups { get; set; }
 
         /// <summary>
         /// Create timestamp.

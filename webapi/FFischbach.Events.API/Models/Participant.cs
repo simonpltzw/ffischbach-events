@@ -3,7 +3,7 @@
     public class Participant
     {
         public int Id { get; set; }
-        public required string EncryptedData { get;set; }
+        public required byte[] EncryptedData { get;set; }
         public bool IsContact { get; set; }
         public bool? VIP { get; set; }
         public int GroupId { get; set; }

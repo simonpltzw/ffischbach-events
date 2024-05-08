@@ -1,8 +1,9 @@
 ﻿namespace FFischbach.Events.API.Models.OutputModels
 {
     /// <summary>
-    /// Event output model.
+    /// Event list item output model.
     /// </summary>
+
     public class EventOutputModel
     {
         /// <summary>
@@ -16,9 +17,19 @@
         public string? Description { get; set; }
 
         /// <summary>
-        /// List of groups.
+        /// Completed.
         /// </summary>
-        public required List<GroupOutputModel> Groups { get; set; }
+        public bool Completed { get; set; }
+
+        /// <summary>
+        /// Amount of groups.
+        /// </summary>
+        public int TotalGroups { get; set; }
+
+        /// <summary>
+        /// Amount of participants.
+        /// </summary>
+        public int TotalParticipants { get; set; }
 
         /// <summary>
         /// Create timestamp.

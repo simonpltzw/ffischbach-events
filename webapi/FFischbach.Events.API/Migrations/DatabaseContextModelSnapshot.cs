@@ -28,6 +28,9 @@ namespace FFischbach.Events.API.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<bool>("Completed")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -40,13 +43,17 @@ namespace FFischbach.Events.API.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<string>("EncryptedPrivateKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("PublicKey")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.EventManager", b =>
@@ -73,7 +80,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("EventManagers");
+                    b.ToTable("EventManagers", (string)null);
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Group", b =>
@@ -107,7 +114,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Groups");
+                    b.ToTable("Groups", (string)null);
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Manager", b =>
@@ -128,7 +135,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Managers");
+                    b.ToTable("Managers", (string)null);
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Participant", b =>
@@ -142,9 +149,9 @@ namespace FFischbach.Events.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("EncryptedData")
+                    b.Property<byte[]>("EncryptedData")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("bytea");
 
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
@@ -159,7 +166,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("Participants");
+                    b.ToTable("Participants", (string)null);
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.EventManager", b =>

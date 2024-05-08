@@ -17,15 +17,28 @@ namespace FFischbach.Events.API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     PublicKey = table.Column<string>(type: "text", nullable: false),
-                    PrivateKeyHash = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Events", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Managers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Managers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -52,12 +65,39 @@ namespace FFischbach.Events.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EventManagers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ManagerId = table.Column<int>(type: "integer", nullable: false),
+                    EventId = table.Column<string>(type: "character varying(20)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EventManagers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EventManagers_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EventManagers_Managers_ManagerId",
+                        column: x => x.ManagerId,
+                        principalTable: "Managers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Participants",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    EncryptedData = table.Column<string>(type: "text", nullable: false),
+                    EncryptedData = table.Column<byte[]>(type: "bytea", nullable: false),
                     IsContact = table.Column<bool>(type: "boolean", nullable: false),
                     VIP = table.Column<bool>(type: "boolean", nullable: true),
                     GroupId = table.Column<int>(type: "integer", nullable: false),
@@ -75,6 +115,16 @@ namespace FFischbach.Events.API.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_EventManagers_EventId",
+                table: "EventManagers",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventManagers_ManagerId",
+                table: "EventManagers",
+                column: "ManagerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Groups_EventId",
                 table: "Groups",
                 column: "EventId");
@@ -89,7 +139,13 @@ namespace FFischbach.Events.API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "EventManagers");
+
+            migrationBuilder.DropTable(
                 name: "Participants");
+
+            migrationBuilder.DropTable(
+                name: "Managers");
 
             migrationBuilder.DropTable(
                 name: "Groups");

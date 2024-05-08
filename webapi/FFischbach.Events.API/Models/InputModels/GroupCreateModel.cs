@@ -23,7 +23,7 @@ namespace FFischbach.Events.API.Models.InputModels
         /// Id of the event this group belongs to.
         /// </summary>
         [Required]
-        public int? EventId { get; set; }
+        public string? EventId { get; set; }
 
         /// <summary>
         /// Contact participant.

@@ -1,9 +1,9 @@
 ﻿namespace FFischbach.Events.API.Models.OutputModels
 {
     /// <summary>
-    /// Group output model.
+    /// Group details output model.
     /// </summary>
-    public class GroupOutputModel
+    public class GroupDetailOutputModel
     {
         /// <summary>
         /// Id.
@@ -34,6 +34,11 @@
         /// Contact participant.
         /// </summary>
         public required ParticipantOutputModel Contact { get; set; }
+
+        /// <summary>
+        /// Other participants.
+        /// </summary>
+        public required List<ParticipantOutputModel> Participants { get; set; }
 
         /// <summary>
         /// Create timestamp.

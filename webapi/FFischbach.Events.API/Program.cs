@@ -108,15 +108,21 @@ namespace FFischbach.Events.API
 
             #region Swagger
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI(c =>
+            //    {
+            //        c.SwaggerEndpoint("/swagger/v1/swagger.json", "FFischbach.Events.API");
+            //        c.OAuthClientId("979c1c0e-193c-4bb7-8024-c24c493b2e41");
+            //    });
+            //}
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
             {
-                app.UseSwagger();
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FFischbach.Events.API");
-                    c.OAuthClientId("979c1c0e-193c-4bb7-8024-c24c493b2e41");
-                });
-            }
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "FFischbach.Events.API");
+                c.OAuthClientId("979c1c0e-193c-4bb7-8024-c24c493b2e41");
+            });
             #endregion Swagger
 
             #region Exception Handler Middleware
@@ -126,7 +132,7 @@ namespace FFischbach.Events.API
                 var exception = exceptionHandlerPathFeature?.Error;
 
                 var problem = new ProblemDetails { 
-                    Title = "An unexpected error occured.", 
+                    Title = "Ein unerwarteter Fehler ist aufgetreten.", 
                     Detail = exception?.Message, 
                     Status = 500 
                 };
@@ -136,7 +142,7 @@ namespace FFischbach.Events.API
             #endregion Exception Handler Middleware
 
             #region Https Redirection
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             #endregion Https Redirection
 
             #region Auth

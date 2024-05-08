@@ -5,20 +5,15 @@
 namespace FFischbach.Events.API.Migrations
 {
     /// <inheritdoc />
-    public partial class EventDescription : Migration
+    public partial class EventEncryptedPrivateKey : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Name",
-                table: "Events");
-
             migrationBuilder.AddColumn<string>(
-                name: "Description",
+                name: "EncryptedPrivateKey",
                 table: "Events",
-                type: "character varying(1000)",
-                maxLength: 1000,
+                type: "text",
                 nullable: false,
                 defaultValue: "");
         }
@@ -27,16 +22,8 @@ namespace FFischbach.Events.API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Description",
+                name: "EncryptedPrivateKey",
                 table: "Events");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Name",
-                table: "Events",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: false,
-                defaultValue: "");
         }
     }
 }
