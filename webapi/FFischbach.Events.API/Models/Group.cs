@@ -3,7 +3,8 @@
     public class Group
     {
         public int Id { get; set; }
-        public required string Name { get; set; }
+        public required string HashedName { get; set; }
+        public required byte[] EncryptedName { get; set; }
         public string? Category { get; set; }
         public bool? Approved { get; set; }
         public required string EventId { get; set; }

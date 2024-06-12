@@ -78,8 +78,11 @@ namespace FFischbach.Events.API.Data
                     .IsRequired()
                     .OnDelete(DeleteBehavior.Cascade);
 
-                c.Property(x => x.Name)
-                    .HasMaxLength(100)
+                c.Property(x => x.HashedName)
+                    .HasMaxLength(64)
+                    .IsRequired();
+
+                c.Property(x => x.EncryptedName)
                     .IsRequired();
 
                 c.Property(x => x.Category)

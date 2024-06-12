@@ -96,15 +96,6 @@ namespace FFischbach.Events.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Check if the group already exists.
-#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            if (await DatabaseContext.Groups.AnyAsync(x => x.Name == group!.Name && x.EventId.ToLower() == group!.EventId!.ToLower()))
-            {
-                // Group already exists.
-                Logger.LogError("Attempt to create group '{GroupId}' failed as it already exists.", group!.Name);
-                return Problem(title: "Dieser Gruppenname ist bereits vergeben.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
             // Get event from the database.
             Models.Event? dbEvent = (await DatabaseContext.Events.FirstOrDefaultAsync(x => x.Id.ToLower() == group!.EventId!.ToLower()));
 #pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
@@ -118,6 +109,15 @@ namespace FFischbach.Events.API.Controllers
 
             // Map the group input.
             Models.Group dbGroup = Mapper.Map<Models.Group>(group, opt => opt.Items["PublicKey"] = dbEvent.PublicKey);
+
+            // Check if the group already exists.
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+            if (await DatabaseContext.Groups.AnyAsync(x => x.HashedName == dbGroup!.HashedName && x.EventId.ToLower() == group!.EventId!.ToLower()))
+            {
+                // Group already exists.
+                Logger.LogError("Attempt to create group '{GroupId}' failed as it already exists.", group!.Name);
+                return Problem(title: "Dieser Gruppenname ist bereits vergeben.", statusCode: StatusCodes.Status400BadRequest);
+            }
 
             // Create the group.
             DatabaseContext.Groups.Add(dbGroup);
