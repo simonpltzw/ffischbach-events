@@ -80,7 +80,7 @@ namespace FFischbach.Events.API.Controllers
 
         // POST api/<GroupsController>
         /// <summary>
-        /// Creates an group.
+        /// Creates a group.
         /// </summary>
         /// <param name="group"></param>
         /// <returns></returns>
