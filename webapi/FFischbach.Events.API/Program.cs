@@ -49,6 +49,13 @@ namespace FFischbach.Events.API
             #region Swagger
             builder.Services.AddSwaggerGen(c =>
             {
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "Event-Management Freiwillige Feuerwehr Fischbach",
+                    Description = "DateOnly Eingaben werden fälschlicherweise als JSON-Objekte angezeigt. Sie müssen jedoch in dem Format <code>\"birthDate\": \"yyyy-MM-dd\"</code> angegeben werden.",
+                    Contact = new Microsoft.OpenApi.Models.OpenApiContact { Email = "ffischbach-events.rhyme209@passmail.net" }
+                });
+
                 c.AddSecurityDefinition("msid", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
                     Type = Microsoft.OpenApi.Models.SecuritySchemeType.OAuth2,
