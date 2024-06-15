@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { Event } from "../models/in/Event";
-import { test_data } from "../assets/test";
+import { test_data } from "@/assets/test";
 
 export const getEvents = async (token: string): Promise<Event[]> => {
   /*const response = await axios.get<Event[]>(`${process.env.WEB_API}/api/Events`, {

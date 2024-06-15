@@ -1,16 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useReducer, useState } from "react";
-import { getEventById } from "../services/eventsService";
-import { Event } from "../models/in/Event";
+import { useEffect, useReducer } from "react";
 import { useMsal } from "@azure/msal-react";
-import { getToken } from "../services/tokenService";
-import { AuthenticationResult } from "@azure/msal-browser";
-import { Group } from "../models/in/Group";
-import { test_data } from "../assets/test";
-import { ToggleButton } from "../components/ToggleButton";
+import { test_data } from "../../assets/test";
 import { useRouter } from "next/navigation";
-import { GroupProvider, useGroupContext } from "../context/group";
+import { ToggleButton } from "@/components/ToggleButton";
+import { useGroupContext } from "@/context/group";
+import { Group } from "@/models/in/Group";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const reducer = (state: any, action: any): any => {
@@ -65,7 +61,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         <div
           className="ml-10 p-3 bg-gray-700 h-fit w-fit rounded-md cursor-pointer"
           onClick={() => {
-            setGroup(group)
+            //setGroup({type: group.})
             router.push(`/${state.id}/${state.groups[index].name}`);
           }}
         ></div>

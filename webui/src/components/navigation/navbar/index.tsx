@@ -1,4 +1,4 @@
-import { loginRequest, logoutRequest } from "@/app/config/authConfig";
+import { loginRequest, logoutRequest } from "@/config/authConfig";
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import React, { FC, HTMLAttributes } from "react";
 import SidebarBurger from "../sidebar/burger";

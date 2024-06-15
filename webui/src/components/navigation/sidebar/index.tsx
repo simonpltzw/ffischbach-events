@@ -22,7 +22,7 @@ const Sidebar: FC<NavigationProps> = (props: NavigationProps) => {
       leaveTo="transform opacity-0 scale-95"
     >
       <div className="sm:hidden" id="mobile-menu">
-        <Links className="space-y-1 px-2 pb-3 pt-2" setActive={props.setActive} active={0}/>
+        <Links className="flex flex-col gap-4 px-2 pb-3 pt-2" setActive={props.setActive} active={0}/>
       </div>
     </Transition>
     </div>

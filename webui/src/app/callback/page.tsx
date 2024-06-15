@@ -10,18 +10,16 @@ const Callback: FC<any> = (props: any) => {
     const pathName = usePathname()
     const {instance, accounts} = useMsal()
 
-    const [u, setU] = useState("BBB")
-    console.log(isAuthenticated)
+
+    
     useEffect(() => {
-      if (accounts.length) {
-        console.log("pathname", pathName)
-        setU("AAAAA")
-        router.push("/dashboard");
+      console.log(isAuthenticated)
+      if (accounts.length && isAuthenticated) {
+        //router.push("/dashboard");
       } 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated]);
   
-    return <>{u}</>;
+    return <></>;
   };
   
   export default Callback;

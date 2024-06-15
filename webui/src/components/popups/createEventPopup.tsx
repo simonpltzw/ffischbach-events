@@ -1,6 +1,6 @@
-import { Event } from "@/app/models/in/Event";
-import { createEvent } from "@/app/services/eventsService";
-import { getToken } from "@/app/services/tokenService";
+import { Event } from "@/models/in/Event";
+import { createEvent } from "@/services/eventsService";
+import { getToken } from "@/services/tokenService";
 import { AuthenticationResult } from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
 import { Dialog, Transition } from "@headlessui/react";

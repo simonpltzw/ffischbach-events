@@ -1,4 +1,4 @@
-import { useNavigation } from "@/app/context/navigation";
+import { useNavigation } from "@/context/navigation";
 import Link from "next/link";
 import { FC, HTMLAttributes, useCallback, useEffect } from "react";
 

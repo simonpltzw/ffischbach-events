@@ -1,15 +1,13 @@
 "use client";
 
-import { getEvents } from "@/app/services/eventsService";
 import { useRouter } from "next/navigation";
 import { ReactNode, useCallback, useEffect, useState } from "react";
-import Navigation from "../components/navigation/navbar";
 import { useMsal } from "@azure/msal-react";
 import { AuthenticationResult } from "@azure/msal-browser";
-import { getToken } from "../services/tokenService";
-import { Event } from "../models/in/Event";
-import { CreateEventPopup } from "../components/popups/createEventPopup";
-import { Scrollbars } from "rc-scrollbars";
+import { Event } from "../../models/in/Event";
+import { getEvents } from "@/services/eventsService";
+import { getToken } from "@/services/tokenService";
+import { CreateEventPopup } from "@/components/popups/createEventPopup";
 
 const Dashboard = () => {
   const [eventList, setEventList] = useState<Event[]>([]);

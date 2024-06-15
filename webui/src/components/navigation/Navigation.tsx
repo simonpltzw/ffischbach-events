@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Navbar from "./navbar";
 import Sidebar from "./sidebar";
-import { NavigationProvider } from "@/app/context/navigation";
+import { NavigationProvider } from "@/context/navigation";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
