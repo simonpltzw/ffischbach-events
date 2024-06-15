@@ -86,7 +86,7 @@ namespace FFischbach.Events.API.Controllers
         /// <summary>
         /// Gets a single event.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">Id of the event</param>
         /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -159,7 +159,7 @@ namespace FFischbach.Events.API.Controllers
         /// <summary>
         /// Creates an event.
         /// </summary>
-        /// <param name="event"></param>
+        /// <param name="event">The event to be created</param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(Models.OutputModels.EventDetailOutputModel), StatusCodes.Status200OK)]
@@ -231,8 +231,8 @@ namespace FFischbach.Events.API.Controllers
         /// <summary>
         /// Adds a new manager to an event.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="email"></param>
+        /// <param name="id">Id of the event</param>
+        /// <param name="email">Email of the manager</param>
         /// <remarks>Permit other users to manage the event using their email.</remarks>
         [HttpPost("{id}/EventManager")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -314,7 +314,7 @@ namespace FFischbach.Events.API.Controllers
         /// <summary>
         /// Completes an event.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">Id of the event</param>
         [HttpPost("{id}/Complete")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -365,9 +365,9 @@ namespace FFischbach.Events.API.Controllers
 
         // DELETE api/<EventsController>/5
         /// <summary>
-        /// Deletes an event.
+        /// Deletes an event as well as all connected groups and participants.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">Id of the event</param>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]

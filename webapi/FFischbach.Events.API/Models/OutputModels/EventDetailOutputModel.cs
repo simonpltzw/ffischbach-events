@@ -31,6 +31,11 @@
         public int TotalParticipants { get; set; }
 
         /// <summary>
+        /// RSA public key.
+        /// </summary>
+        public required string PublicKey { get; set; }
+
+        /// <summary>
         /// AES-Encrypted PKCS#8 RSA private key.
         /// </summary>
         public required string EncryptedPrivateKey { get; set; }
