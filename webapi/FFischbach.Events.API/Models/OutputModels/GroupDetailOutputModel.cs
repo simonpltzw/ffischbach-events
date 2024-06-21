@@ -38,9 +38,9 @@ namespace FFischbach.Events.API.Models.OutputModels
         public int TotalParticipants { get; set; }
 
         /// <summary>
-        /// Id of the event this group belongs to.
+        /// Event.
         /// </summary>
-        public required string EventId { get; set; }
+        public required GroupEventOutputModel Event { get; set; }
 
         /// <summary>
         /// Contact participant.
