@@ -11,7 +11,7 @@ namespace FFischbach.Events.API.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [Produces("application/json")]
     [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -22,7 +22,7 @@ namespace FFischbach.Events.API.Controllers
         private IMapper Mapper { get; } = mapper;
         private DatabaseContext DatabaseContext { get; } = databaseContext;
 
-        // GET: api/<GroupsController>/5
+        // GET: <GroupsController>/5
         /// <summary>
         /// Gets a single group.
         /// </summary>
@@ -76,7 +76,7 @@ namespace FFischbach.Events.API.Controllers
             return Ok(returnValue);
         }
 
-        // POST api/<GroupsController>
+        // POST <GroupsController>
         /// <summary>
         /// Creates a group.
         /// </summary>
@@ -123,7 +123,7 @@ namespace FFischbach.Events.API.Controllers
             return Created();
         }
 
-        // POST api/<GroupsController>/5/Participant?isContact=false
+        // POST <GroupsController>/5/Participant?isContact=false
         /// <summary>
         /// Adds a participant to an event.
         /// </summary>
@@ -207,14 +207,14 @@ namespace FFischbach.Events.API.Controllers
             return Ok(returnValue);
         }
 
-        // PUT: api/<GroupsController>/5
+        // PUT: <GroupsController>/5
         /// <summary>
         /// Updates a group and its participants.
         /// </summary>
         /// <param name="id">Id of the group</param>
         /// <param name="group">The updated group</param>
         /// <returns></returns>
-        /// <remarks>You can update and remove participants here. New ones can only be added using the POST /api/Groups/{id}/Participant endpoint.</remarks>
+        /// <remarks>You can update and remove participants here. New ones can only be added using the POST /Groups/{id}/Participant endpoint.</remarks>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -331,7 +331,7 @@ namespace FFischbach.Events.API.Controllers
             }
         }
 
-        // DELETE api/<GroupsController>/5
+        // DELETE <GroupsController>/5
         /// <summary>
         /// Deletes a group and all of its participants.
         /// </summary>

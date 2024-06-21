@@ -13,7 +13,7 @@ namespace FFischbach.Events.API.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [Produces("application/json")]
     [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -25,7 +25,7 @@ namespace FFischbach.Events.API.Controllers
         private IMapper Mapper { get; } = mapper;
         private DatabaseContext DatabaseContext { get; } = databaseContext;
 
-        // GET: api/<EventsController>
+        // GET: <EventsController>
         /// <summary>
         /// Gets all events.
         /// </summary>
@@ -82,7 +82,7 @@ namespace FFischbach.Events.API.Controllers
 
         }
 
-        // GET: api/<EventsController>/5
+        // GET: <EventsController>/5
         /// <summary>
         /// Gets a single event.
         /// </summary>
@@ -155,7 +155,7 @@ namespace FFischbach.Events.API.Controllers
             return Ok(returnValue);
         }
 
-        // POST api/<EventsController>
+        // POST <EventsController>
         /// <summary>
         /// Creates an event.
         /// </summary>
@@ -227,7 +227,7 @@ namespace FFischbach.Events.API.Controllers
             return CreatedAtAction(nameof(Get), new { id = dbEvent.Id }, Mapper.Map<Models.OutputModels.EventDetailOutputModel>(dbEvent));
         }
 
-        // POST api/<EventsController>/5/EventManager
+        // POST <EventsController>/5/EventManager
         /// <summary>
         /// Adds a new manager to an event.
         /// </summary>
@@ -310,7 +310,7 @@ namespace FFischbach.Events.API.Controllers
             return NoContent();
         }
 
-        // POST api/<EventsController>/5/EventManager
+        // POST <EventsController>/5/EventManager
         /// <summary>
         /// Completes an event.
         /// </summary>
@@ -363,7 +363,7 @@ namespace FFischbach.Events.API.Controllers
             return NoContent();
         }
 
-        // DELETE api/<EventsController>/5
+        // DELETE <EventsController>/5
         /// <summary>
         /// Deletes an event as well as all connected groups and participants.
         /// </summary>
