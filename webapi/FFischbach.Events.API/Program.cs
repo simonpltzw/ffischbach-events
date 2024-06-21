@@ -53,7 +53,8 @@ namespace FFischbach.Events.API
                 {
                     Title = "Event-Management Freiwillige Feuerwehr Fischbach",
                     Description = "DateOnly Eingaben werden fälschlicherweise als JSON-Objekte angezeigt. Sie müssen jedoch in dem Format <code>\"birthDate\": \"yyyy-MM-dd\"</code> angegeben werden.",
-                    Contact = new Microsoft.OpenApi.Models.OpenApiContact { Email = "ffischbach-events.rhyme209@passmail.net" }
+                    Contact = new Microsoft.OpenApi.Models.OpenApiContact { Email = "ffischbach-events.rhyme209@passmail.net" },
+                    Version = "v1"
                 });
 
                 c.AddSecurityDefinition("msid", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
