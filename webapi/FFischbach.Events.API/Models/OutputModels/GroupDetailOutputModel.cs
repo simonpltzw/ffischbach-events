@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿#nullable enable
 
 namespace FFischbach.Events.API.Models.OutputModels
 {
@@ -25,7 +25,7 @@ namespace FFischbach.Events.API.Models.OutputModels
         /// <summary>
         /// Category.
         /// </summary>
-        public string? Category { get; set; }
+        public required string Category { get; set; }
 
         /// <summary>
         /// Approved.

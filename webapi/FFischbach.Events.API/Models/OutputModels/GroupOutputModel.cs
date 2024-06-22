@@ -18,7 +18,7 @@
         /// <summary>
         /// Category.
         /// </summary>
-        public string? Category { get; set; }
+        public required string Category { get; set; }
 
         /// <summary>
         /// Approved.

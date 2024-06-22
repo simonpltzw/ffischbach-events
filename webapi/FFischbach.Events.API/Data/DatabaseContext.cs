@@ -86,7 +86,8 @@ namespace FFischbach.Events.API.Data
                     .IsRequired();
 
                 c.Property(x => x.Category)
-                    .HasMaxLength(50);
+                    .HasMaxLength(50)
+                    .IsRequired();
 
                 c.Property(x => x.CreatedAt);
             });

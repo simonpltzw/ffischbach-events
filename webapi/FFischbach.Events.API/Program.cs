@@ -49,6 +49,8 @@ namespace FFischbach.Events.API
             #region Swagger
             builder.Services.AddSwaggerGen(c =>
             {
+                c.SupportNonNullableReferenceTypes();
+
                 c.MapType<DateOnly>(() => new Microsoft.OpenApi.Models.OpenApiSchema
                 {
                     Type = "string",
