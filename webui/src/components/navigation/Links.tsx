@@ -1,6 +1,7 @@
 import { useNavigation } from "@/context/navigation";
 import Link from "next/link";
-import { FC, HTMLAttributes, useCallback, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { FC, HTMLAttributes, useCallback, useEffect, useMemo } from "react";
 
 export interface LinksProps extends HTMLAttributes<HTMLElement> {
   active: number;
@@ -8,26 +9,39 @@ export interface LinksProps extends HTMLAttributes<HTMLElement> {
 }
 
 export const Links: FC<LinksProps> = (props: LinksProps) => {
-  const [location, setLocation] = useNavigation()
+  const [location, setLocation] = useNavigation();
+  const pathName = usePathname();
 
-  const links = [
-    {
-      href: "/dashboard",
-      name: "Dashboard",
-    },
-    {
-      href: "/",
-      name: "Home",
-    },
-  ];
+  const links = useMemo(
+    () => [
+      {
+        href: "/dashboard",
+        name: "Dashboard",
+      },
+    ],
+    []
+  );
 
-  const generateStyle = useCallback((index: number) => {
-    if (location != index) {
-      return "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 font-medium text-center my-auto";
-    } else {
-      return "bg-gray-900 text-white block rounded-md px-3 py-2 text-center my-auto font-medium";
-    }
-  }, [location]);
+  useEffect(() => {
+    links.forEach((link, index) => {
+      if(link.href == pathName) {
+        setLocation(index)
+      }
+    });
+
+    console.log(pathName);
+  }, [pathName]);
+
+  const generateStyle = useCallback(
+    (index: number) => {
+      if (location != index) {
+        return "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 font-medium text-center my-auto";
+      } else {
+        return "bg-gray-900 text-white block rounded-md px-3 py-2 text-center my-auto font-medium";
+      }
+    },
+    [location]
+  );
 
   return (
     <div className={props.className}>
