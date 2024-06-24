@@ -1,10 +1,12 @@
 import { Event } from "@/models/in/Event";
+import { EventOut } from "@/models/out/EventOut";
 import { createEvent } from "@/services/eventsService";
+import { encryptWithPassword } from "@/services/passwordService";
 import { getToken } from "@/services/tokenService";
 import { AuthenticationResult } from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
 import { Dialog, Transition } from "@headlessui/react";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import {
   Dispatch,
   FC,
@@ -29,6 +31,7 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
 
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
   const [errors, setErrors] = useState<string[]>([]);
   const { instance, accounts } = useMsal();
@@ -44,28 +47,29 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
   const onSubmit = async () => {
     getToken(instance, accounts[0]).then((res: AuthenticationResult) => {
       const token: string = res.accessToken;
-      const newEvent: any = {
-        id: `${name}${new Date().getFullYear()}`,
-        description: description,
-        publicKey: "string"
-      };
+      encryptWithPassword(password).then(({ encryptedPrivateKey, publicKey }) => {
+        const newEvent: EventOut = {
+          id: `${name}${new Date().getFullYear()}`,
+          description: description,
+          encryptedPrivateKey,
+          publicKey,
+        };
 
-      createEvent(token, newEvent)
-        .then((r: AxiosResponse) => {
-          props.done(r.data);
-          props.state.setOpen(false);
-        })
-        .catch((error: any) => {
-          const errors: any = error.response?.data.errors;
-          for (let key in errors) {
-            for (let error of errors[key]) {
-              setErrors((errors: string[]) => [...errors, error]);
+        createEvent(token, newEvent)
+          .then((r: AxiosResponse) => {
+            props.done(r.data);
+            props.state.setOpen(false);
+          })
+          .catch((error: any) => {
+            const errors: any = error.response?.data.errors;
+            for (let key in errors) {
+              for (let error of errors[key]) {
+                setErrors((errors: string[]) => [...errors, error]);
+              }
             }
-          }
-
-          console.log();
-          //setError()
-        });
+            //setError()
+          });
+      });
     });
   };
 
@@ -129,6 +133,13 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
                           className="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-red-600"
                           value={description}
                           onChange={(e) => setDescription(e.target.value)}
+                        />
+                        <input
+                          type="password"
+                          placeholder="Passwort"
+                          className="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-red-600"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
                         />
                       </div>
                       <div className="flex flex-col gap-2">
