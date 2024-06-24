@@ -7,7 +7,7 @@ import { AuthenticationResult } from "@azure/msal-browser";
 import { Event } from "../../models/in/Event";
 import { getEvents } from "@/services/eventsService";
 import { getToken } from "@/services/tokenService";
-import { CreateEventPopup } from "@/components/popups/createEventPopup";
+import { CreateEventPopup } from "@/components/popups/CreateEventPopup";
 
 const Dashboard = () => {
   const [eventList, setEventList] = useState<Event[]>([]);
@@ -38,16 +38,14 @@ const Dashboard = () => {
 
   return (
     <div className="relative flex flex-row justify-center w-screen h-screen mx-auto">
-      <div className="mx-5 pt-5 bg-gray-700 p-2 h-fit w-[80%] rounded-b-md">
+      <div className="mx-5 mt-5 bg-gray-700 h-fit w-[80%] rounded-b-md p-4 bg-gray-600 rounded-md">
         <div className="flex flex-row justify-between gap-3 items-center mb-5">
           <span>Events</span>
-        <button className="rounded-md bg-blue-600 text-white p-2" onClick={onOpenCreate}>Create Event</button>
+          <button className="rounded-md bg-blue-600 text-white p-2" onClick={onOpenCreate}>
+            Create Event
+          </button>
         </div>
-
-        <div
-          className="flex flex-col gap-3 overflow-y-scroll"
-          style={{ clipPath: "inset(0 20px 0 0)" }}
-        >
+        <div className="flex flex-col gap-3">
           {eventList.map((event: Event) => {
             return (
               <div
@@ -61,7 +59,6 @@ const Dashboard = () => {
                   <div>{event.id}</div>
                   <span className="font-light">{event.description}</span>
                 </div>
-                
               </div>
             );
           })}
