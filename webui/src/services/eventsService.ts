@@ -1,21 +1,19 @@
 import axios, { AxiosResponse } from "axios";
 import { Event } from "../models/in/Event";
-import { test_data } from "@/assets/test";
+import { EventOut } from "@/models/out/EventOut";
 
 export const getEvents = async (token: string): Promise<Event[]> => {
-  /*const response = await axios.get<Event[]>(`${process.env.WEB_API}/api/Events`, {
+  const response = await axios.get<Event[]>(`${process.env.NEXT_PUBLIC_WEB_API}/Events`, {
     headers: {
       Authorization: "Bearer " + token,
     },
   });
-  return response.data;*/
-
-  return test_data as Event[];
+  return response.data;
 };
 
 export const getEventById = async (token: string, id: string): Promise<Event> => {
   const response: AxiosResponse<Event> = await axios.get<Event>(
-    `${process.env.WEB_API}/api/Events/${id}`,
+    `${process.env.NEXT_PUBLIC_WEB_API}/Events/${id}`,
     {
       headers: {
         Authorization: "Bearer " + token,
@@ -25,9 +23,9 @@ export const getEventById = async (token: string, id: string): Promise<Event> =>
   return response.data;
 };
 
-export const createEvent = async (token: string, newEvent: Event) => {
+export const createEvent = async (token: string, newEvent: EventOut) => {
   const response: AxiosResponse<Event> = await axios.post(
-    `${process.env.WEB_API}/api/Events`,
+    `${process.env.NEXT_PUBLIC_WEB_API}/Events`,
     newEvent,
     {
       headers: {
