@@ -5,52 +5,24 @@
       "name": "Next.js: debug server-side",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev --prefix webui",
-      "cwd": "${workspaceFolder}/webui"
+      "command": "npm run dev"
     },
     {
       "name": "Next.js: debug client-side",
       "type": "msedge",
       "request": "launch",
-      "url": "http://localhost:3000",
-      "cwd": "${workspaceFolder}/webui"
+      "url": "http://localhost:3000"
     },
     {
       "name": "Next.js: debug full stack",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev",
+      "command": "npm run dev --prefix .\\webui\\",
       "serverReadyAction": {
         "pattern": "- Local:.+(https?://.+)",
         "uriFormat": "%s",
         "action": "debugWithEdge"
-      },
-      "cwd": "${workspaceFolder}/webui"
-    },
-    {
-      "name": "Launch API",
-      "type": "dotnet",
-      "request": "launch",
-      "projectPath": "${workspaceFolder}/webapi/FFischbach.Events.API/FFischbach.Events.API.csproj"
-    },
-    {
-      "name": "C/C++ Runner: Debug Session",
-      "type": "cppdbg",
-      "request": "launch",
-      "args": [],
-      "stopAtEntry": false,
-      "externalConsole": true,
-      "cwd": "c:/Users/lukah/Desktop/ffischbach-events/webapi",
-      "program": "c:/Users/lukah/Desktop/ffischbach-events/webapi/build/Debug/outDebug",
-      "MIMode": "gdb",
-      "miDebuggerPath": "gdb",
-      "setupCommands": [
-        {
-          "description": "Enable pretty-printing for gdb",
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        }
-      ]
+      }
     }
   ]
 }
