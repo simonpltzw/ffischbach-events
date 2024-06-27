@@ -25,11 +25,10 @@ export const Links: FC<LinksProps> = (props: LinksProps) => {
   useEffect(() => {
     links.forEach((link, index) => {
       if(link.href == pathName) {
-        setLocation(index)
+        //setLocation(index)
+        return
       }
     });
-
-    console.log(pathName);
   }, [pathName]);
 
   const generateStyle = useCallback(

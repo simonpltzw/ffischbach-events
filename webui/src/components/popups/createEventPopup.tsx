@@ -5,7 +5,7 @@ import { encryptWithPassword } from "@/services/passwordService";
 import { getToken } from "@/services/tokenService";
 import { AuthenticationResult } from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { AxiosResponse } from "axios";
 import {
   Dispatch,
@@ -82,13 +82,13 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
   };
 
   return (
-    <Transition.Root show={props.state.open} as={Fragment}>
+    <Transition show={props.state.open} as={Fragment}>
       <Dialog
         className="relative z-10"
         initialFocus={cancelButtonRef}
         onClose={props.state.setOpen}
       >
-        <Transition.Child
+        <Transition
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -98,11 +98,11 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-        </Transition.Child>
+        </Transition>
 
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -111,13 +111,13 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+              <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                 <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                   <div className="sm:flex sm:items-start">
                     <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                      <Dialog.Title className="text-base font-semibold leading-6 text-gray-900">
+                      <DialogTitle className="text-base font-semibold leading-6 text-gray-900">
                         Event erstellen
-                      </Dialog.Title>
+                      </DialogTitle>
                       <div id="form" className="mt-2 flex flex-col gap-3 text-gray-900">
                         <input
                           type="text"
@@ -167,11 +167,11 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
                     Abbrechen
                   </button>
                 </div>
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Transition>
   );
 };

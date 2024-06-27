@@ -47,7 +47,7 @@ export const GroupProvider = ({ children }: any) => {
         newState.approved = action.value;
         break;
       case GroupEvent.contact_new:
-        newState.contact = action.value
+        newState.contact = action.value;
         break;
       case GroupEvent.contact_email:
         newState.contact!.Email = action.value;
@@ -72,7 +72,7 @@ export const GroupProvider = ({ children }: any) => {
 
   const [groupState, dispatchGroup] = useReducer<Reducer<Group, GroupAction>>(
     groupReducer,
-    new Group(-1, "", "", false, new Participant(-1, "", "", "", "", false, ""), [], "")
+    new Group(-1, "", "", "", false, new Participant(-1, "", "", "", "", false, ""), [], "", "")
   );
 
   return <Context.Provider value={[groupState, dispatchGroup]}>{children}</Context.Provider>;

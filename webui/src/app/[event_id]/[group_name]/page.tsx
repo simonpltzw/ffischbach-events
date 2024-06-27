@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@/components/Input";
+import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { GroupEvent, useGroupContext } from "@/context/group";
 import { Group } from "@/models/in/Group";
 import { Participant } from "@/models/in/Participant";
@@ -10,11 +11,12 @@ import { PrivateKeyService } from "@/services/privateKeyService";
 import { getToken } from "@/services/tokenService";
 import { AuthenticationResult } from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const GroupPage = ({ params }: { params: { group_name: string } }) => {
   const [groupState, dispatchGroup] = useGroupContext();
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
   const { instance, accounts } = useMsal();
 
   useEffect(() => {
@@ -40,8 +42,8 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
     });
   };
 
-  const onDecryptData = async () => {
-    const privateKey = decryptKeyWithPassword(groupState.event!.encryptedPrivateKey, "1");
+  const onDecryptData = async (password: string) => {
+    const privateKey = decryptKeyWithPassword(groupState.event!.encryptedPrivateKey, password);
     const key: CryptoKey = await PrivateKeyService.importPrivateKey(privateKey);
 
     const decryptedName = await PrivateKeyService.decryptData(key, groupState.encryptedName!);
@@ -96,7 +98,7 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
     <div className="relative w-full h-full mx-auto">
       <div className="flex pt-5 justify-center">
         <div className="flex flex-col gap-10">
-          <button className="rounded-md bg-blue-600 text-white p-2" onClick={onDecryptData}>
+          <button className="rounded-md bg-blue-600 text-white p-2" onClick={() => setPasswordPopupVisible(true)}>
             Entschlüsseln
           </button>
           <Input
@@ -207,6 +209,10 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
           </button>
         </div>
       </div>
+      <PasswordPopup
+        state={{ open: passwordPopupVisible, setOpen: setPasswordPopupVisible }}
+        done={onDecryptData}
+      />
     </div>
   );
 };

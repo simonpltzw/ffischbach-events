@@ -131,7 +131,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       </div>
       <PasswordPopup
         state={{ open: passwordPopupVisible, setOpen: setPasswordPopupVisible }}
-        done={(password: string) => onDecryptData(password)}
+        done={onDecryptData}
       />
     </div>
   );
