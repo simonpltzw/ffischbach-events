@@ -9,15 +9,12 @@ import { getGroup, updateGroup } from "@/services/groupsService";
 import { decryptKeyWithPassword } from "@/services/passwordService";
 import { PrivateKeyService } from "@/services/privateKeyService";
 import useToken from "@/services/tokenService";
-import { AuthenticationResult } from "@azure/msal-browser";
-import { useMsal } from "@azure/msal-react";
 import { useEffect, useState } from "react";
 
 const GroupPage = ({ params }: { params: { group_name: string } }) => {
   const [groupState, dispatchGroup] = useGroupContext();
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
-  const { instance, accounts } = useMsal();
   const {getToken} = useToken()
 
   useEffect(() => {

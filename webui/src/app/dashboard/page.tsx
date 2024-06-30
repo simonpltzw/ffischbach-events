@@ -1,9 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FC, useCallback, useEffect, useState } from "react";
-import { useMsal } from "@azure/msal-react";
-import { AuthenticationResult } from "@azure/msal-browser";
+import { FC, useEffect, useState } from "react";
 import { getEvents } from "@/services/eventsService";
 import { CreateEventPopup } from "@/components/popups/CreateEventPopup";
 import { Event } from "@/models/in/Event";

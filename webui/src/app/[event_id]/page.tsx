@@ -1,11 +1,9 @@
 "use client";
 
 import { Reducer, useEffect, useReducer, useState } from "react";
-import { useMsal } from "@azure/msal-react";
 import { useRouter } from "next/navigation";
 import { ToggleButton } from "@/components/ToggleButton";
 import { Group } from "@/models/in/Group";
-import { AuthenticationResult } from "@azure/msal-browser";
 import { Event } from "@/models/in/Event";
 import { addEventManager, getEventById, setEventCompleted } from "@/services/eventsService";
 import { decryptKeyWithPassword } from "@/services/passwordService";
@@ -15,7 +13,6 @@ import { AddEventManagerPopup } from "@/components/popups/AddEventManager";
 import useToken from "@/services/tokenService";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
-  const { instance, accounts } = useMsal();
   const router = useRouter();
   const {getToken} = useToken()
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);

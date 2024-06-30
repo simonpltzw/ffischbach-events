@@ -1,21 +1,12 @@
-import { AuthenticationResult } from "@azure/msal-browser";
-import { useMsal } from "@azure/msal-react";
 import {
-  Button,
   Dialog,
   DialogBackdrop,
   DialogPanel,
-  DialogTitle,
-  Transition,
-  TransitionChild,
+  DialogTitle
 } from "@headlessui/react";
-import { AxiosResponse } from "axios";
 import {
-  Dispatch,
   FC,
-  Fragment,
   HTMLAttributes,
-  SetStateAction,
   useEffect,
   useRef,
   useState,
@@ -33,7 +24,6 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
   const cancelButtonRef = useRef(null);
 
   const [password, setPassword] = useState<string>("");
-  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const [errors, setErrors] = useState<string[]>([]);
 

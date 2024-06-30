@@ -3,15 +3,12 @@ import { EventOut } from "@/models/out/EventOut";
 import { createEvent } from "@/services/eventsService";
 import { encryptWithPassword } from "@/services/passwordService";
 import useToken from "@/services/tokenService";
-import { useMsal } from "@azure/msal-react";
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { AxiosResponse } from "axios";
 import {
-  Dispatch,
   FC,
   Fragment,
   HTMLAttributes,
-  SetStateAction,
   useEffect,
   useRef,
   useState,
