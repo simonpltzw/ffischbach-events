@@ -3,6 +3,8 @@ import { Event } from "../models/in/Event";
 import { EventOut } from "@/models/out/EventOut";
 
 export const getEvents = async (token: string): Promise<Event[]> => {
+  console.log(`${process.env.NEXT_PUBLIC_WEB_API}/Events`)
+
   const response = await axios.get<Event[]>(`${process.env.NEXT_PUBLIC_WEB_API}/Events`, {
     headers: {
       Authorization: "Bearer " + token,

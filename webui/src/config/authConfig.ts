@@ -24,9 +24,6 @@ export const msalConfig = {
     }
 };
 
-//b2524bda-98bb-4568-a36d-831fa67efac2
-//b2524bda-98bb-4568-a36d-831fa67efac2
-
 /**
  * Scopes you add here will be prompted for user consent during sign-in.
  * By default, MSAL.js will add OIDC scopes (openid, profile, email) to any login request.
@@ -35,11 +32,11 @@ export const msalConfig = {
  */
 export const loginRequest: PopupRequest  = {
     scopes: ["User.Read"],
-    redirectUri: "http://localhost:3000"
+    redirectUri: process.env.NEXT_PUBLIC_REDIRECT_URI
 };
 
 export const logoutRequest: EndSessionRequest = {
-    postLogoutRedirectUri: 'http://localhost:3000'
+    postLogoutRedirectUri: process.env.NEXT_PUBLIC_REDIRECT_URI
 }
 
 /**

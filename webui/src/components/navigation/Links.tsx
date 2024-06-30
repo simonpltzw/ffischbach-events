@@ -15,7 +15,7 @@ export const Links: FC<LinksProps> = (props: LinksProps) => {
   const links = useMemo(
     () => [
       {
-        href: "/dashboard",
+        href: "/",
         name: "Dashboard",
       },
     ],
@@ -25,7 +25,7 @@ export const Links: FC<LinksProps> = (props: LinksProps) => {
   useEffect(() => {
     links.forEach((link, index) => {
       if(link.href == pathName) {
-        //setLocation(index)
+        setLocation(index)
         return
       }
     });
