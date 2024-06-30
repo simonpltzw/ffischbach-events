@@ -8,16 +8,17 @@ import { Group } from "@/models/in/Group";
 import { AuthenticationResult } from "@azure/msal-browser";
 import { getToken } from "@/services/tokenService";
 import { Event } from "@/models/in/Event";
-import { getEventById } from "@/services/eventsService";
-import { useGroupContext } from "@/context/group";
+import { addEventManager, getEventById, setEventCompleted } from "@/services/eventsService";
 import { decryptKeyWithPassword } from "@/services/passwordService";
 import { PrivateKeyService } from "@/services/privateKeyService";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
+import { AddEventManagerPopup } from "@/components/popups/AddEventManager";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const { instance, accounts } = useMsal();
   const router = useRouter();
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
+  const [managerPopupVisible, setManagerPopupVisible] = useState<boolean>(false);
   const [state, dispatch] = useReducer<Reducer<Event, any>>((state: Event, action: any): any => {
     if (action.type === "updateApproved") {
       const groups: Group[] = state.groups!;
@@ -44,27 +45,32 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     });
   }, []);
 
+  const onCompleteEvent = () => {
+    getToken(instance, accounts[0]).then((res: AuthenticationResult) => {
+      const token: string = res.accessToken;
+      setEventCompleted(token, params.event_id);
+    });
+  };
+
   const onDecryptData = async (password: string) => {
     //todo add password
     try {
       const privateKey = decryptKeyWithPassword(state.encryptedPrivateKey, password);
       const key: CryptoKey = await PrivateKeyService.importPrivateKey(privateKey);
-  
+
       state.groups = await Promise.all(
         state.groups!.map(async (group) => {
           const decrypted = await PrivateKeyService.decryptData(key, group.encryptedName!);
           group.name = decrypted;
-  
+
           return group;
         })
       );
-  
+
       dispatch({ type: "decGroups", value: state.groups });
-    } catch(e) {
-      console.log("joe mama")
-      throw new Error("wrong passweord")
+    } catch (e) {
+      throw new Error("Wrong password");
     }
-    
   };
 
   const getLocalDateTime = (dateStr: string): string => {
@@ -74,6 +80,12 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       month: "2-digit",
       year: "numeric",
     })} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+  };
+
+  const onAddEventManager = async (email: string) => {
+    const res = await getToken(instance, accounts[0]);
+    const token: string = res.accessToken;
+    await addEventManager(token, params.event_id, email);
   };
 
   const generateGroupEntry = (group: Group, index: number) => {
@@ -118,6 +130,15 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             >
               Entschlüsseln
             </button>
+            <button
+              className="rounded-md bg-blue-600 text-white p-2"
+              onClick={() => setManagerPopupVisible(true)}
+            >
+              Manager hinzufügen
+            </button>
+            <button className="rounded-md bg-blue-600 text-white p-2" onClick={onCompleteEvent}>
+              Beenden
+            </button>
             <div className="font-bold col-span-6">Gruppen</div>
             <div>Name</div>
             <div>Kategorie</div>
@@ -132,6 +153,10 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       <PasswordPopup
         state={{ open: passwordPopupVisible, setOpen: setPasswordPopupVisible }}
         done={onDecryptData}
+      />
+      <AddEventManagerPopup
+        state={{ open: managerPopupVisible, setOpen: setManagerPopupVisible }}
+        done={onAddEventManager}
       />
     </div>
   );
