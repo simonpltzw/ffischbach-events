@@ -5,9 +5,9 @@ import { FC, useCallback, useEffect, useState } from "react";
 import { useMsal } from "@azure/msal-react";
 import { AuthenticationResult } from "@azure/msal-browser";
 import { getEvents } from "@/services/eventsService";
-import { getToken } from "@/services/tokenService";
 import { CreateEventPopup } from "@/components/popups/CreateEventPopup";
 import { Event } from "@/models/in/Event";
+import useToken from "@/services/tokenService";
 
 const Root: FC<any> = () => {
   const [eventList, setEventList] = useState<Event[]>([]);
@@ -15,12 +15,11 @@ const Root: FC<any> = () => {
   const [createPopupOpen, setCreatePopupOpen] = useState<boolean>(false);
 
   const router = useRouter();
-  const { instance, accounts } = useMsal();
+  const {getToken} = useToken()
 
   const generateEventsList = async (): Promise<Event[]> => {
-    return getToken(instance, accounts[0]).then(
-      async (accessTokenResponse: AuthenticationResult) => {
-        const token = accessTokenResponse.accessToken;
+    return getToken().then(
+      async (token: string) => {
         const eventIds: Event[] = await getEvents(token);
         return eventIds;
       }

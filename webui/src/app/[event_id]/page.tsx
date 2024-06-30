@@ -6,17 +6,18 @@ import { useRouter } from "next/navigation";
 import { ToggleButton } from "@/components/ToggleButton";
 import { Group } from "@/models/in/Group";
 import { AuthenticationResult } from "@azure/msal-browser";
-import { getToken } from "@/services/tokenService";
 import { Event } from "@/models/in/Event";
 import { addEventManager, getEventById, setEventCompleted } from "@/services/eventsService";
 import { decryptKeyWithPassword } from "@/services/passwordService";
 import { PrivateKeyService } from "@/services/privateKeyService";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { AddEventManagerPopup } from "@/components/popups/AddEventManager";
+import useToken from "@/services/tokenService";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const { instance, accounts } = useMsal();
   const router = useRouter();
+  const {getToken} = useToken()
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
   const [managerPopupVisible, setManagerPopupVisible] = useState<boolean>(false);
   const [state, dispatch] = useReducer<Reducer<Event, any>>((state: Event, action: any): any => {
@@ -34,9 +35,9 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   }, new Event("", "", "", 1, 1, false, "", "", "", []));
 
   useEffect(() => {
-    getToken(instance, accounts[0]).then((result: AuthenticationResult | undefined) => {
-      if (result) {
-        getEventById(result!.accessToken, params.event_id).then((event) => {
+    getToken().then((token: string) => {
+      if (token) {
+        getEventById(token, params.event_id).then((event) => {
           event.groups;
 
           dispatch({ type: "set", value: event });
@@ -46,8 +47,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   }, []);
 
   const onCompleteEvent = () => {
-    getToken(instance, accounts[0]).then((res: AuthenticationResult) => {
-      const token: string = res.accessToken;
+    getToken().then((token: string) => {
       setEventCompleted(token, params.event_id);
     });
   };
@@ -83,8 +83,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   };
 
   const onAddEventManager = async (email: string) => {
-    const res = await getToken(instance, accounts[0]);
-    const token: string = res.accessToken;
+    const token = await getToken();
     await addEventManager(token, params.event_id, email);
   };
 

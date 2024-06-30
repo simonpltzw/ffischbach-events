@@ -1,26 +1,41 @@
-import { AccountInfo, AuthenticationResult, IPublicClientApplication } from "@azure/msal-browser";
+import { useMsal } from "@azure/msal-react";
+import { useState } from "react";
 
-/*export class TokenService {
-  private static instance: TokenService
+const useToken = () => {
+  const [token, setToken] = useState<string>("");
+  const { instance, accounts } = useMsal();
 
-  private constructor(public instance: IPublicClientApplication, account: AccountInfo) {
+  const checkToken = (token: string): boolean => {
+    if (token.length) {
+      const decode = JSON.parse(atob(token.split(".")[1]));
+      if (decode.exp * 1000 < new Date().getTime()) {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  };
 
-  }
+  const getToken = async () => {
+    const isValid = checkToken(token);
 
-  
+    if (isValid) {
+      return token;
+    } else {
+      await instance.initialize();
+      const res = await instance.acquireTokenSilent({
+        scopes: ["api://ee995dcc-a9ec-4203-93ea-81b5f8621033/access_as_user"],
+        account: accounts[0],
+      });
 
-  getToken = async () => {
+      setToken(res.accessToken);
+      return res.accessToken;
+    }
+  };
 
-  }
-}*/
-
-export const getToken = async (
-  instance: IPublicClientApplication,
-  account: AccountInfo
-): Promise<AuthenticationResult> => {
-    await instance.initialize()
-    return instance.acquireTokenSilent({
-      scopes: ["api://ee995dcc-a9ec-4203-93ea-81b5f8621033/access_as_user"],
-      account,
-    });
+  return {
+    getToken,
+  };
 };
+
+export default useToken;

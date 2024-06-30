@@ -8,7 +8,7 @@ import { Participant } from "@/models/in/Participant";
 import { getGroup, updateGroup } from "@/services/groupsService";
 import { decryptKeyWithPassword } from "@/services/passwordService";
 import { PrivateKeyService } from "@/services/privateKeyService";
-import { getToken } from "@/services/tokenService";
+import useToken from "@/services/tokenService";
 import { AuthenticationResult } from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
 import { useEffect, useState } from "react";
@@ -18,10 +18,10 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
   const { instance, accounts } = useMsal();
+  const {getToken} = useToken()
 
   useEffect(() => {
-    getToken(instance, accounts[0]).then((res: AuthenticationResult) => {
-      const token: string = res.accessToken;
+    getToken().then((token: string) => {
       getGroup(token, params.group_name).then((group: Group) => {
         dispatchGroup({ type: GroupEvent.new, value: group });
         setParticipants([...group.participants]);
@@ -35,8 +35,7 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
     //todo
     groupState.participants = participants;
 
-    getToken(instance, accounts[0]).then((res: AuthenticationResult) => {
-      const token: string = res.accessToken;
+    getToken().then((token: string) => {
       updateGroup(token, groupState);
       dispatchGroup({ type: GroupEvent.new, value: groupState });
     });

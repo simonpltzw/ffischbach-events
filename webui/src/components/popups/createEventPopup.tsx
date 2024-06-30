@@ -2,8 +2,7 @@ import { Event } from "@/models/in/Event";
 import { EventOut } from "@/models/out/EventOut";
 import { createEvent } from "@/services/eventsService";
 import { encryptWithPassword } from "@/services/passwordService";
-import { getToken } from "@/services/tokenService";
-import { AuthenticationResult } from "@azure/msal-browser";
+import useToken from "@/services/tokenService";
 import { useMsal } from "@azure/msal-react";
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { AxiosResponse } from "axios";
@@ -34,7 +33,7 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
   const [password, setPassword] = useState<string>("");
 
   const [errors, setErrors] = useState<string[]>([]);
-  const { instance, accounts } = useMsal();
+  const {getToken} = useToken()
 
   useEffect(() => {
     if (!props.state.open) {
@@ -45,8 +44,7 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
   }, [props.state.open]);
 
   const onSubmit = async () => {
-    getToken(instance, accounts[0]).then((res: AuthenticationResult) => {
-      const token: string = res.accessToken;
+    getToken().then((token: string) => {
       encryptWithPassword(password).then(({ encryptedPrivateKey, publicKey }) => {
         const newEvent: EventOut = {
           id: `${name}${new Date().getFullYear()}`,
