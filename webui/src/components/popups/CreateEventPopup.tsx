@@ -1,0 +1,3 @@
+              className="block w-full rounded-md border-0 py-1.5 px-7 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:outline-none focus:ring-red-600 dark:bg-gray-900 dark:border-0 dark:ring-0"
+              className="block w-full rounded-md border-0 py-1.5 px-7 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:outline-none focus:ring-red-600 dark:bg-gray-900 dark:border-0 dark:ring-0"
+              className="block w-full rounded-md border-0 py-1.5 px-7 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:outline-none focus:ring-red-600 dark:bg-gray-900 dark:border-0 dark:ring-0"

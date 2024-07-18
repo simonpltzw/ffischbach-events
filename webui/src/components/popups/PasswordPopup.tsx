@@ -59,13 +59,13 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
           setPassword("");
           props.state.setOpen(false);
         }}
-        className="relative z-10 focus:outline-none dark:text-white"
+        className="relative z-10 focus:outline-none"
       >
         <DialogBackdrop className="fixed inset-0 bg-gray-400/30 blur-lg" />
-        <div className="fixed inset-0 flex w-screen items-center justify-center p-4 dark:text-white">
+        <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
           <DialogPanel
             transition
-            className="w-full max-w-md rounded-xl bg-gray-700 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
+            className="w-full max-w-md rounded-xl border border-2 dark:border-0 bg-gray-400 dark:bg-gray-700 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
           >
             <DialogTitle className="text-base font-semibold leading-6">
               Event erstellen
@@ -84,7 +84,7 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
                 return generateErrorMessage(error, index);
               })}
             </div>
-            <div className="flex flex-row py-3  ">
+            <div className="flex flex-row py-3">
               <button
                 type="button"
                 className="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold shadow-sm hover:bg-red-500 mr-3 sm:w-auto"

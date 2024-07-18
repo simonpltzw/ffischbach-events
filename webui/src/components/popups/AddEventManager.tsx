@@ -49,22 +49,22 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
           setEmail("");
           props.state.setOpen(false);
         }}
-        className="relative z-10 focus:outline-none dark:text-white"
+        className="relative z-10 focus:outline-none"
       >
         <DialogBackdrop className="fixed inset-0 bg-gray-400/30 blur-lg" />
-        <div className="fixed inset-0 flex w-screen items-center justify-center p-4 dark:text-white">
+        <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
           <DialogPanel
             transition
-            className="w-full max-w-md rounded-xl bg-gray-700 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
+            className="w-full max-w-md rounded-xl border border-2 dark:border-0 dark:bg-gray-700 bg-gray-400 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
           >
-            <DialogTitle className="text-base font-semibold leading-6">
+            <DialogTitle className="text-black dark:text-white text-base font-semibold leading-6">
               Event Manager hinzufügen
             </DialogTitle>
             <div id="form" className="mt-2 flex flex-col gap-3">
               <input
                 type="text"
                 placeholder="Email"
-                className="block w-full rounded-md border-0 py-1.5 px-7 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:outline-none focus:ring-red-600 dark:bg-gray-800 dark:border-0 dark:ring-0"
+                className="block w-full rounded-md border-0 py-1.5 px-7 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:outline-none focus:ring-green-600 dark:bg-gray-800 dark:border-0 dark:ring-0"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -77,7 +77,7 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
             <div className="flex flex-row py-3  ">
               <button
                 type="button"
-                className="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold shadow-sm hover:bg-red-500 mr-3 sm:w-auto"
+                className="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold shadow-sm mr-3 sm:w-auto"
                 onClick={onSubmit}
               >
                 Bestätigen

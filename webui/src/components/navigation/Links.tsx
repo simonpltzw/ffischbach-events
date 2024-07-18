@@ -34,16 +34,16 @@ export const Links: FC<LinksProps> = (props: LinksProps) => {
   const generateStyle = useCallback(
     (index: number) => {
       if (location != index) {
-        return "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 font-medium text-center my-auto";
+        return " hover:bg-gray-600 hover:text-white rounded-md px-3 py-2 font-medium text-center my-auto";
       } else {
-        return "bg-gray-900 text-white block rounded-md px-3 py-2 text-center my-auto font-medium";
+        return "bg-gray-600 dark:bg-gray-900 block rounded-md px-3 py-2 text-center my-auto font-medium";
       }
     },
     [location]
   );
 
   return (
-    <div className={props.className}>
+    <div className={`${props.className} text-white`}>
       {links.map((e: any, index: number) => {
         return (
           <Link
