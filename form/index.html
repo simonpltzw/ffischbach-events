@@ -53,8 +53,10 @@
     }
 
     input[type="text"],
+    input[type="date"],
+    input[type="email"],
     select {
-      height: 2em;
+      height: 3em;
       display: inline-block;
       border: 1px solid #ccc;
       border-radius: 3px;
@@ -103,11 +105,7 @@
         <input id="contactFirst" type="text" placeholder="Vorname" />
         <input id="contactLast" type="text" placeholder="Nachname" />
 
-        <input
-          id="contact_BirthDate"
-          type="date"
-          placeholder="Geburtstag"
-        />
+        <input id="contact_BirthDate" type="date" placeholder="Geburtstag" />
         <input id="contactEmail" type="email" placeholder="E-Mail" />
 
         <input id="group" type="text" placeholder="Gruppenname" />
@@ -169,7 +167,8 @@
     const addBtn = document.getElementById("add");
     const submitBtn = document.getElementById("submit");
     const agbCheck = document.getElementById("agbCheck");
-
+    const agbText = document.getElementById("agb");
+    const category = document.getElementById("category");
     const category_error = document.getElementById("category_error");
 
     /*api model*/
@@ -205,7 +204,7 @@
     };
 
     const setInputsDisables = (isDisabled) => {
-      groupName.disabled = isDisabled
+      groupName.disabled = isDisabled;
       contactFirst.disabled = isDisabled;
       contactLast.disabled = isDisabled;
       contact_BirthDate.disabled = isDisabled;
@@ -214,6 +213,16 @@
 
       if (stayDisabled) {
         submitBtn.disabled = true;
+      }
+    };
+
+    const isAGBOverflown = () => {
+      return agbText.scrollHeight > agbText.clientHeight;
+    };
+
+    const setAGBCheckEnabled = () => {
+      if (!isAGBOverflown()) {
+        agbCheck.disabled = false;
       }
     };
 
@@ -230,7 +239,7 @@
       group.addEventListener("change", (evt) => (form.name = evt.target.value));
 
       /*Category*/
-      document.getElementById("category").addEventListener("change", (evt) => {
+      category.addEventListener("change", (evt) => {
         const selection = dates[evt.target.value];
 
         form.category = selection;
@@ -244,8 +253,15 @@
       });
 
       /*AGB check*/
-      document.getElementById("agb").addEventListener("scrollend", (evt) => {
-        const submitBtn = document.getElementById("submit");
+      agbCheck.addEventListener("change", (evt) => {
+        if (agbCheck.checked) {
+          submitBtn.disabled = false;
+        } else {
+          submitBtn.disabled = true;
+        }
+      });
+
+      agbText.addEventListener("scrollend", (evt) => {
         if (!stayDisabled) {
           submitBtn.disabled = false;
           agbCheck.checked = true;
@@ -317,5 +333,6 @@
 
     /*initial function calls*/
     addListeners();
+    setAGBCheckEnabled();
   </script>
 </html>
