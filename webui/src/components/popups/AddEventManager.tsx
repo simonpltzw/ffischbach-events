@@ -1,5 +1,6 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { FC, HTMLAttributes, useEffect, useRef, useState } from "react";
+import { Input } from "../Input";
 
 export interface AddEventManagerPopupProps extends HTMLAttributes<HTMLElement> {
   state: {
@@ -61,12 +62,11 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
               Event Manager hinzufügen
             </DialogTitle>
             <div id="form" className="mt-2 flex flex-col gap-3">
-              <input
+              <Input
                 type="text"
                 placeholder="Email"
-                className="block w-full rounded-md border-0 py-1.5 px-7 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:outline-none focus:ring-green-600 dark:bg-gray-800 dark:border-0 dark:ring-0"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: any) => setEmail(e.target.value)}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -84,7 +84,7 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
               </button>
               <button
                 type="button"
-                className="mt-3 w-full rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                className="mt-3 w-full rounded-md bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                 onClick={() => props.state.setOpen(false)}
                 ref={cancelButtonRef}
               >

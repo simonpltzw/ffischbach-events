@@ -13,7 +13,7 @@ export const ThemeToggle: FC<any> = () => {
         isDarkMode,
       };
     });
-  });
+  }, [isDarkMode]);
 
   return (
     <div>

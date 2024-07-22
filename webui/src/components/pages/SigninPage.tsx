@@ -8,7 +8,9 @@ const SignIn = () => {
   const { instance } = useMsal();
 
   useEffect(() => {
-    instance.loginRedirect(loginRequest);
+    if (instance) {
+      instance.loginRedirect(loginRequest)
+    }
   }, []);
 
   return <></>;

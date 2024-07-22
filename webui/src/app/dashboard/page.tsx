@@ -6,24 +6,26 @@ import { getEvents } from "@/services/eventsService";
 import { CreateEventPopup } from "@/components/popups/CreateEventPopup";
 import { Event } from "@/models/in/Event";
 import useToken from "@/services/tokenService";
+import { Input } from "@/components/Input";
+import { ToggleButton } from "@/components/ToggleButton";
 import { useToast } from "@/context/toast";
 
 const Root: FC<any> = () => {
   const { addToast } = useToast();
   const [eventList, setEventList] = useState<Event[]>([]);
+  const [filter, setFilter] = useState<string>("");
+  const [isFilterComplete, setFilterComplete] = useState<boolean>(false);
 
   const [createPopupOpen, setCreatePopupOpen] = useState<boolean>(false);
 
   const router = useRouter();
-  const {getToken} = useToken()
+  const { getToken } = useToken();
 
   const generateEventsList = async (): Promise<Event[]> => {
-    return getToken().then(
-      async (token: string) => {
-        const eventIds: Event[] = await getEvents(token);
-        return eventIds;
-      }
-    );
+    return getToken().then(async (token: string) => {
+      const eventIds: Event[] = await getEvents(token);
+      return eventIds;
+    });
   };
 
   const onOpenCreate = () => {
@@ -37,31 +39,61 @@ const Root: FC<any> = () => {
   }, []);
 
   return (
-    <div className="relative flex flex-row justify-center w-screen h-screen mx-auto">
-      <div className="mx-5 mt-5 bg-gray-700 h-fit w-[80%] rounded-b-md p-4 bg-gray-600 rounded-md">
+    <div className="relative flex flex-row justify-center">
+      <div className="mx-5 mt-5 dark:bg-gray-800 border border-2 dark:border-0 h-fit w-full md:w-[80%] rounded-b-md p-4 rounded-md">
         <div className="flex flex-row justify-between gap-3 items-center mb-5">
-          <span>Events</span>
+          <span className="text-xl font-bold">Events</span>
           <button className="rounded-md bg-blue-600 text-white p-2" onClick={onOpenCreate}>
-            Create Event
+            Event erstellen
           </button>
         </div>
         <div className="flex flex-col gap-3">
-          {eventList.map((event: Event) => {
-            return (
-              <div
-                key={event.id}
-                className="cursor-pointer"
-                onClick={() => {
-                  router.push(`/${event.id}`);
-                }}
-              >
-                <div className="flex flex-row gap-6 items-center p-2 dark:bg-gray-800 rounded w-fit">
-                  <div>{event.id}</div>
-                  <span className="font-light">{event.description}</span>
-                </div>
-              </div>
-            );
-          })}
+          <div className="flex flex-row-reverse gap-3 items-end mb-5">
+            <Input
+              containerClassName="w-full"
+              value={filter}
+              title="Suche"
+              placeholder=""
+              onChange={(e: any) => setFilter(e.target.value)}
+            />
+            <div className="flex flex-col">
+              <label className={`block text-sm font-bold h-fit mb-2`} htmlFor="username">
+                Beendet
+              </label>
+              <ToggleButton
+                value={isFilterComplete}
+                className="h-10 w-20"
+                onChange={(e: any) => setFilterComplete(e.target.value == "true" ? true : false)}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-3">
+            {eventList
+              .filter((event: Event) => {
+                return (
+                  (event.id.includes(filter) ||
+                    event.description.includes(filter) ||
+                    filter == "") &&
+                  isFilterComplete == event.completed
+                );
+              })
+              .map((event: Event) => {
+                return (
+                  <div
+                    key={event.id}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      router.push(`/${event.id}`);
+                    }}
+                  >
+                    <div className="flex flex-row gap-6 items-center p-2 dark:bg-gray-900 rounded w-fit border border-2 dark:border-0 hover:bg-gray-100">
+                      <div>{event.id}</div>
+                      <span className="font-light">{event.description}</span>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
         </div>
       </div>
 

@@ -1,16 +1,6 @@
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-  DialogTitle
-} from "@headlessui/react";
-import {
-  FC,
-  HTMLAttributes,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
+import { FC, HTMLAttributes, useEffect, useRef, useState } from "react";
+import { Input } from "../Input";
 
 export interface PasswordPopupProps extends HTMLAttributes<HTMLElement> {
   state: {
@@ -67,18 +57,16 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
             transition
             className="w-full max-w-md rounded-xl border border-2 dark:border-0 bg-gray-400 dark:bg-gray-700 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
           >
-            <DialogTitle className="text-base font-semibold leading-6">
-              Event erstellen
-            </DialogTitle>
-            <div id="form" className="mt-2 flex flex-col gap-3">
-              <input
+            <DialogTitle className="text-base font-semibold leading-6">Event erstellen</DialogTitle>
+            <form id="form" className="mt-2 flex flex-col gap-3">
+              <Input
                 type="password"
                 placeholder="Passwort"
-                className="block w-full rounded-md border-0 py-1.5 px-7 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:outline-none focus:ring-red-600 dark:bg-gray-800 dark:border-0 dark:ring-0"
+                autoComplete="current-password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: any) => setPassword(e.target.value)}
               />
-            </div>
+            </form>
             <div className="flex flex-col gap-2">
               {errors.map((error: string, index: number) => {
                 return generateErrorMessage(error, index);

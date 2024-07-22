@@ -3,16 +3,15 @@ import { EventOut } from "@/models/out/EventOut";
 import { createEvent } from "@/services/eventsService";
 import { encryptWithPassword } from "@/services/passwordService";
 import useToken from "@/services/tokenService";
-import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
-import { AxiosResponse } from "axios";
 import {
-  FC,
-  Fragment,
-  HTMLAttributes,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
+import { AxiosResponse } from "axios";
+import { FC, HTMLAttributes, useEffect, useRef, useState } from "react";
+import { Input } from "../Input";
 
 export interface CreateEventPopupProps extends HTMLAttributes<HTMLElement> {
   state: {
@@ -30,7 +29,7 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
   const [password, setPassword] = useState<string>("");
 
   const [errors, setErrors] = useState<string[]>([]);
-  const {getToken} = useToken()
+  const { getToken } = useToken();
 
   useEffect(() => {
     if (!props.state.open) {
@@ -77,96 +76,63 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
   };
 
   return (
-    <Transition show={props.state.open} as={Fragment}>
-      <Dialog
-        className="relative z-10"
-        initialFocus={cancelButtonRef}
-        onClose={props.state.setOpen}
-      >
-        <Transition
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
+    <Dialog
+      open={props.state.open}
+      className="relative z-10 focus:outline-none"
+      initialFocus={cancelButtonRef}
+      onClose={props.state.setOpen}
+    >
+      <DialogBackdrop className="fixed inset-0 bg-gray-400/30 blur-lg" />
+      <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+        <DialogPanel
+          transition
+          className="w-full max-w-md border border-2 dark:border-0 rounded-xl bg-gray-400 dark:bg-gray-800 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-        </Transition>
-
-        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <TransitionChild
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            >
-              <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                  <div className="sm:flex sm:items-start">
-                    <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                      <DialogTitle className="text-base font-semibold leading-6 text-gray-900">
-                        Event erstellen
-                      </DialogTitle>
-                      <div id="form" className="mt-2 flex flex-col gap-3 text-gray-900">
-                        <input
-                          type="text"
-                          placeholder="Name"
-                          autoComplete="none"
-                          className="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-red-600"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                        />
-                        <input
-                          type="text"
-                          placeholder="Beschreibung"
-                          className="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-red-600"
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                        />
-                        <input
-                          type="password"
-                          placeholder="Passwort"
-                          className="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-red-600"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        {errors.map((error: string, index: number) => {
-                          return generateErrorMessage(error, index);
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-row gap-3 bg-gray-50 px-4 py-3  ">
-                  <button
-                    type="button"
-                    className="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
-                    onClick={onSubmit}
-                  >
-                    Bestätigen
-                  </button>
-                  <button
-                    type="button"
-                    className="mt-3 w-full rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                    onClick={() => props.state.setOpen(false)}
-                    ref={cancelButtonRef}
-                  >
-                    Abbrechen
-                  </button>
-                </div>
-              </DialogPanel>
-            </TransitionChild>
+          <DialogTitle className="text-base font-semibold leading-6">Event erstellen</DialogTitle>
+          <div id="form" className="mt-2 flex flex-col gap-3">
+            <Input
+              type="text"
+              placeholder="Name"
+              value={name}
+              onChange={(e: any) => setName(e.target.value)}
+            />
+            <Input
+              type="text"
+              placeholder="Beschreibung"
+              value={description}
+              onChange={(e: any) => setDescription(e.target.value)}
+            />
+            <Input
+              type="password"
+              placeholder="Passwort"
+              value={password}
+              onChange={(e: any) => setPassword(e.target.value)}
+            />
           </div>
-        </div>
-      </Dialog>
-    </Transition>
+          <div className="flex flex-col gap-2">
+            {errors.map((error: string, index: number) => {
+              return generateErrorMessage(error, index);
+            })}
+          </div>
+          <div className="flex flex-row gap-3 py-3">
+            <button
+              type="button"
+              className="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold shadow-sm mr-3 sm:w-auto"
+              onClick={onSubmit}
+            >
+              Bestätigen
+            </button>
+            <button
+              type="button"
+              className="mt-3 w-full rounded-md bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+              onClick={() => props.state.setOpen(false)}
+              ref={cancelButtonRef}
+            >
+              Abbrechen
+            </button>
+          </div>
+        </DialogPanel>
+      </div>
+    </Dialog>
   );
 };
