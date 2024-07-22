@@ -2,6 +2,7 @@
 
 import { Input } from "@/components/Input";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
+import { ToggleButton } from "@/components/ToggleButton";
 import { GroupEvent, useGroupContext } from "@/context/group";
 import { useToast } from "@/context/toast";
 import { Group } from "@/models/in/Group";
@@ -16,7 +17,9 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
   const [groupState, dispatchGroup] = useGroupContext();
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
+  const { getToken } = useToken();
   const { addToast } = useToast();
+  const empty = "***";
 
   useEffect(() => {
     getToken().then((token: string) => {
@@ -26,8 +29,6 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
       });
     });
   }, []);
-
-  useEffect(() => console.log(groupState.category))
 
   const onSubmit = () => {
     //todo
@@ -64,7 +65,9 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
 
     const decryptedParticipants = await Promise.all(
       groupState.participants.map(async (participant: Participant) => {
-        const decryptedParticipant: Participant = JSON.parse(await PrivateKeyService.decryptData(key, participant.encryptedData!));
+        const decryptedParticipant: Participant = JSON.parse(
+          await PrivateKeyService.decryptData(key, participant.encryptedData!)
+        );
 
         const adaptedContact: Participant = new Participant(
           participant.id,
@@ -76,7 +79,7 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
           participant.createdAt
         );
 
-        return adaptedContact
+        return adaptedContact;
       })
     );
 
@@ -97,20 +100,25 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
   return (
     <div className="relative w-full h-full mx-auto">
       <div className="flex pt-5 justify-center">
-        <div className="flex flex-col gap-10">
-          <button className="rounded-md bg-blue-600 text-white p-2" onClick={() => setPasswordPopupVisible(true)}>
+        <div className="flex flex-col gap-10 p-3 rounded border border-2 dark:border-0 bg-white dark:bg-gray-800">
+          <button
+            className="rounded-md bg-blue-600 text-white p-2"
+            onClick={() => setPasswordPopupVisible(true)}
+          >
             Entschlüsseln
           </button>
           <Input
-            value={groupState.name}
+            value={groupState.name ?? empty}
             title="Name"
             placeholder=""
             onChange={(e: any) => dispatchGroup({ type: GroupEvent.name, value: e.target.value })}
           />
           <select
             title="1"
-            value={groupState.category}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            value={groupState.category ?? empty}
+            className="shadow border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
+              bg-gray-50 text-black dark:text-white dark:bg-gray-900 dark:border-0 h-10
+              dark:border-0 ring-0 block p-2.5 dark:bg-gray-700 dark:bg-gray-900 dark:placeholder-gray-400 dark:text-white dark:focus:ring-0 dark:focus:border-0"
             onChange={(e: any) =>
               dispatchGroup({ type: GroupEvent.category, value: e.target.value })
             }
@@ -119,11 +127,19 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
             <option value="verein">Verein</option>
             <option value="privat">Privat</option>
           </select>
+          <ToggleButton
+            title="Genehmigt"
+            className="w-20 h-10"
+            value={groupState.approved ?? false}
+            onChange={(e: any) => {
+              groupState.approved = e.target.value == "true" ? true : false;
+            }}
+          />
           <div className="ml-10 flex flex-col gap-3">
             <span>Kontakt</span>
             <div className="grid grid-cols-2 gap-3">
               <Input
-                value={groupState.contact.FirstName}
+                value={groupState.contact.FirstName ?? empty}
                 title="Vorname"
                 placeholder=""
                 onChange={(e: any) =>
@@ -131,25 +147,23 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
                 }
               />
               <Input
-                value={groupState.contact.LastName}
+                value={groupState.contact.LastName ?? empty}
                 title="Nachname"
                 placeholder=""
                 onChange={(e: any) =>
                   dispatchGroup({ type: GroupEvent.contact_lastName, value: e.target.value })
                 }
               />
-              {/*insert toggle button*/}
-              <Input
-                //value={groupState.contact.vip.toString() ?? false}
+              <ToggleButton
                 title="VIP"
-                placeholder=""
-                type="text"
-                onChange={(e: any) =>
-                  dispatchGroup({ type: GroupEvent.contact_vip, value: e.target.value })
-                }
+                className="w-20 h-10"
+                value={groupState.contact.vip ?? false}
+                onChange={(e: any) => {
+                  groupState.contact.vip = e.target.value == "true" ? true : false;
+                }}
               />
               <Input
-                value={groupState.contact.Email}
+                value={groupState.contact.Email ?? empty}
                 title="Email"
                 placeholder=""
                 type="email"
@@ -158,7 +172,7 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
                 }
               />
               <Input
-                value={groupState.contact.BirthDate}
+                value={groupState.contact.BirthDate ?? ""}
                 title="Geburtsdatum"
                 placeholder=""
                 type="date"
@@ -169,36 +183,37 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
             </div>
           </div>
 
-          {participants.map((p: Participant, i: number) => {
-            return (
-              <div key={`participant-${i}`} className="flex flex-row gap-3 p-2">
-                <Input
-                  value={p.FirstName}
-                  placeholder="***"
-                  onChange={(e: any) => {
-                    p.FirstName = e.target.value;
-                    updateParticipants(i, p);
-                  }}
-                />
-                <Input
-                  value={p.LastName}
-                  placeholder="***"
-                  onChange={(e: any) => {
-                    p.LastName = e.target.value;
-                    updateParticipants(i, p);
-                  }}
-                />
-                <Input
-                  value={p.BirthDate}
-                  placeholder="***"
-                  onChange={(e: any) => {
-                    p.BirthDate = e.target.value;
-                    updateParticipants(i, p);
-                  }}
-                />
-              </div>
-            );
-          })}
+          {participants.length > 0 &&
+            participants.map((p: Participant, i: number) => {
+              return (
+                <div key={`participant-${i}`} className="flex flex-row gap-3 p-2">
+                  <Input
+                    value={p.FirstName ?? empty}
+                    placeholder="***"
+                    onChange={(e: any) => {
+                      p.FirstName = e.target.value;
+                      updateParticipants(i, p);
+                    }}
+                  />
+                  <Input
+                    value={p.LastName ?? empty}
+                    placeholder="***"
+                    onChange={(e: any) => {
+                      p.LastName = e.target.value;
+                      updateParticipants(i, p);
+                    }}
+                  />
+                  <Input
+                    value={p.BirthDate ?? ""}
+                    placeholder="***"
+                    onChange={(e: any) => {
+                      p.BirthDate = e.target.value;
+                      updateParticipants(i, p);
+                    }}
+                  />
+                </div>
+              );
+            })}
 
           <button
             type="button"
