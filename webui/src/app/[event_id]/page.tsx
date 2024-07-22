@@ -11,10 +11,11 @@ import { PrivateKeyService } from "@/services/privateKeyService";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { AddEventManagerPopup } from "@/components/popups/AddEventManager";
 import useToken from "@/services/tokenService";
+import { useToast } from "@/context/toast";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const router = useRouter();
-  const {getToken} = useToken()
+  const { addToast } = useToast();
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
   const [managerPopupVisible, setManagerPopupVisible] = useState<boolean>(false);
   const [state, dispatch] = useReducer<Reducer<Event, any>>((state: Event, action: any): any => {
@@ -65,6 +66,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       );
 
       dispatch({ type: "decGroups", value: state.groups });
+      addToast({ message: "Entschlüsselt", type: "info" });
     } catch (e) {
       throw new Error("Wrong password");
     }

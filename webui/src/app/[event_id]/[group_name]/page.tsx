@@ -3,6 +3,7 @@
 import { Input } from "@/components/Input";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { GroupEvent, useGroupContext } from "@/context/group";
+import { useToast } from "@/context/toast";
 import { Group } from "@/models/in/Group";
 import { Participant } from "@/models/in/Participant";
 import { getGroup, updateGroup } from "@/services/groupsService";
@@ -15,7 +16,7 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
   const [groupState, dispatchGroup] = useGroupContext();
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
-  const {getToken} = useToken()
+  const { addToast } = useToast();
 
   useEffect(() => {
     getToken().then((token: string) => {
@@ -34,6 +35,8 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
 
     getToken().then((token: string) => {
       updateGroup(token, groupState);
+      addToast({ message: "Gruppe aktualisiert", type: "info" });
+
       dispatchGroup({ type: GroupEvent.new, value: groupState });
     });
   };
@@ -82,6 +85,7 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
     //dispatchGroup({ type: GroupEvent.participants, value: decryptedParticipant });
 
     setParticipants([...decryptedParticipants]);
+    addToast({ message: "Entschlüsselt", type: "info" });
   };
 
   const updateParticipants = (index: number, participant: Participant) => {

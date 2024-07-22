@@ -6,8 +6,10 @@ import { getEvents } from "@/services/eventsService";
 import { CreateEventPopup } from "@/components/popups/CreateEventPopup";
 import { Event } from "@/models/in/Event";
 import useToken from "@/services/tokenService";
+import { useToast } from "@/context/toast";
 
 const Root: FC<any> = () => {
+  const { addToast } = useToast();
   const [eventList, setEventList] = useState<Event[]>([]);
 
   const [createPopupOpen, setCreatePopupOpen] = useState<boolean>(false);
@@ -67,6 +69,7 @@ const Root: FC<any> = () => {
         state={{ open: createPopupOpen, setOpen: setCreatePopupOpen }}
         done={(newEvent: Event) => {
           setEventList([...eventList, newEvent]);
+          addToast({ message: "Event erstellt", type: "info" });
         }}
       />
     </div>
