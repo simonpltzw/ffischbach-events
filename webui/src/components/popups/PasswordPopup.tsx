@@ -1,5 +1,5 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
-import { FC, HTMLAttributes, useEffect, useRef, useState } from "react";
+import { ChangeEvent, FC, HTMLAttributes, useEffect, useRef, useState } from "react";
 import { Input } from "../Input";
 
 export interface PasswordPopupProps extends HTMLAttributes<HTMLElement> {
@@ -64,7 +64,7 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
                 placeholder="Passwort"
                 autoComplete="current-password"
                 value={password}
-                onChange={(e: any) => setPassword(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               />
             </form>
             <div className="flex flex-col gap-2">

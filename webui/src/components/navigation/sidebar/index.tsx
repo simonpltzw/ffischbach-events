@@ -11,7 +11,7 @@ export interface NavigationProps extends HTMLAttributes<HTMLElement> {
 
 const Sidebar: FC<NavigationProps> = (props: NavigationProps) => {
   return (
-    <div>
+    <div className="absolute bg-gray-300 dark:bg-gray-800 left-0 right-0 z-40">
       <Transition
       show={props.visible}
       enter="transition ease-out duration-100"

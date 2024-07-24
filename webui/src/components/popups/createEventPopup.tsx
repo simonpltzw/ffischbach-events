@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { AxiosResponse } from "axios";
-import { FC, HTMLAttributes, useEffect, useRef, useState } from "react";
+import { ChangeEvent, FC, HTMLAttributes, useEffect, useRef, useState } from "react";
 import { Input } from "../Input";
 
 export interface CreateEventPopupProps extends HTMLAttributes<HTMLElement> {
@@ -94,19 +94,19 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
               type="text"
               placeholder="Name"
               value={name}
-              onChange={(e: any) => setName(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
             />
             <Input
               type="text"
               placeholder="Beschreibung"
               value={description}
-              onChange={(e: any) => setDescription(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)}
             />
             <Input
               type="password"
               placeholder="Passwort"
               value={password}
-              onChange={(e: any) => setPassword(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
             />
           </div>
           <div className="flex flex-col gap-2">

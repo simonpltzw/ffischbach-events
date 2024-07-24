@@ -1,5 +1,5 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
-import { FC, HTMLAttributes, useEffect, useRef, useState } from "react";
+import { ChangeEvent, FC, HTMLAttributes, useEffect, useRef, useState } from "react";
 import { Input } from "../Input";
 
 export interface AddEventManagerPopupProps extends HTMLAttributes<HTMLElement> {
@@ -66,7 +66,7 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
                 type="text"
                 placeholder="Email"
                 value={email}
-                onChange={(e: any) => setEmail(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               />
             </div>
             <div className="flex flex-col gap-2">
