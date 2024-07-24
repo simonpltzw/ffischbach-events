@@ -1,4 +1,4 @@
-import { FC, HTMLAttributes, HTMLInputAutoCompleteAttribute, HTMLInputTypeAttribute, useEffect, useState } from "react";
+import { ChangeEvent, FC, HTMLAttributes, HTMLInputAutoCompleteAttribute, HTMLInputTypeAttribute, useEffect, useState } from "react";
 
 export interface InputProps extends HTMLAttributes<HTMLElement>, JSX.IntrinsicAttributes {
   title?: string;
@@ -19,7 +19,7 @@ export const Input: FC<InputProps> = (props: InputProps) => {
   };
 
   return (
-    <div className={`full ${props.containerClassName}`}>
+    <div className={`w-full ${props.containerClassName}`}>
       <label className={`block text-sm font-bold h-fit mb-2 ${props.labelClassName}`} htmlFor="username">
         {props.title}
       </label>
@@ -31,7 +31,7 @@ export const Input: FC<InputProps> = (props: InputProps) => {
         type={props.type}
         autoComplete=""
         placeholder={props.placeholder}
-        onChange={(e: any) => {
+        onChange={(e: ChangeEvent<HTMLInputElement>) => {
           if (props.onChange) {
             props.onChange(e);
           }
