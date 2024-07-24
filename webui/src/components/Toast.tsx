@@ -1,7 +1,7 @@
 import { useToast } from "@/context/toast";
 import { Toast, ToastType } from "@/models/toast";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import { FC, HTMLAttributes } from "react";
+import { FC, HTMLAttributes, useEffect } from "react";
 
 const getToastColor = (type: ToastType) => {
   switch (type) {
@@ -18,23 +18,21 @@ export interface ToastProps extends HTMLAttributes<HTMLElement> {
 }
 
 export const ToastComponent: FC<ToastProps> = (props: ToastProps) => {
-  const {
-    state: [, setToastList],
-  } = useToast();
+  const { removeToast } = useToast();
 
-  const closeToast = () => {
-    setToastList((toastList: Toast[]) =>
-      toastList.filter((toast: Toast, index: number) => index != props.index)
-    );
-  };
+  useEffect(() => {
+    setTimeout(() => {
+      removeToast(props.index);
+    }, 2500);
+  }, []);
 
   return (
     <div
-      className={`absolute right-0 top-0 z-10 mt-20 mr-3 flex flex-row gap-3 items-center rounded-md text-white p-4 
+      className={`absolute opacity-80 left-4 bottom-4 z-10 flex flex-row gap-3 items-center rounded-md text-white p-4 
         ${getToastColor(props.toast.type)}`}
     >
       <div>{props.toast.message}</div>
-      <XMarkIcon className="cursor-pointer" height={20} onClick={closeToast} />
+      <XMarkIcon className="cursor-pointer" height={20} onClick={() => removeToast(props.index)} />
     </div>
   );
 };

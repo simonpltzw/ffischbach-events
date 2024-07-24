@@ -5,21 +5,29 @@ import { createContext, Dispatch, SetStateAction, useContext, useState } from "r
 type stateType = {
   state: [Toast[], Dispatch<SetStateAction<Toast[]>>];
   addToast(t: Toast): void;
+  removeToast(i: number): void;
 };
 
-const Context = createContext<stateType>({ state: [[], () => {}], addToast: () => {} });
+const Context = createContext<stateType>({
+  state: [[], () => {}],
+  addToast: () => {},
+  removeToast: () => {},
+});
 
 export const ToastProvider = ({ children }: any) => {
   const [toastList, setToastList] = useState<Toast[]>([]);
 
+  const removeToast = (index: number) => {
+    setToastList((toastList: Toast[]) => toastList.filter((toast: Toast, i: number) => index != i));
+  };
+
   const addToast = (newToast: Toast) => {
-    console.log("123")
-    setToastList([...toastList, newToast]);
+    setToastList((list) => [...list, newToast]);
   };
 
   return (
-    <Context.Provider value={{state: [toastList, setToastList], addToast}}>
-      <div className="relative w-full h-full">
+    <Context.Provider value={{ state: [toastList, setToastList], addToast, removeToast }}>
+      <div className="relative w-full h-screen overscroll-none">
         <>
           {toastList.map((toast: Toast, index: number) => {
             return <ToastComponent key={`toast-${index}`} index={index} toast={toast} />;
