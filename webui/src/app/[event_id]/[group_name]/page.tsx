@@ -1,6 +1,8 @@
 "use client";
 
+import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
+import { Lock } from "@/components/Lock";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { ToggleButton } from "@/components/ToggleButton";
 import { GroupEvent, useGroupContext } from "@/context/group";
@@ -11,12 +13,13 @@ import { getGroup, updateGroup } from "@/services/groupsService";
 import { decryptKeyWithPassword } from "@/services/passwordService";
 import { PrivateKeyService } from "@/services/privateKeyService";
 import useToken from "@/services/tokenService";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 const GroupPage = ({ params }: { params: { group_name: string } }) => {
   const [groupState, dispatchGroup] = useGroupContext();
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
+  const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
   const { getToken } = useToken();
   const { addToast } = useToast();
   const empty = "***";
@@ -88,6 +91,7 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
     //dispatchGroup({ type: GroupEvent.participants, value: decryptedParticipant });
 
     setParticipants([...decryptedParticipants]);
+    setIsEncrypted(false);
     addToast({ message: "Entschlüsselt", type: "info" });
   };
 
@@ -98,137 +102,128 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
   };
 
   return (
-    <div className="relative w-full h-full mx-auto">
-      <div className="flex pt-5 justify-center">
-        <div className="flex flex-col gap-10 p-3 rounded border border-2 dark:border-0 bg-white dark:bg-gray-800">
-          <button
-            className="rounded-md bg-blue-600 text-white p-2"
-            onClick={() => setPasswordPopupVisible(true)}
-          >
-            Entschlüsseln
-          </button>
-          <Input
-            value={groupState.name ?? empty}
-            title="Name"
-            placeholder=""
-            onChange={(e: any) => dispatchGroup({ type: GroupEvent.name, value: e.target.value })}
-          />
-          <select
-            title="1"
-            value={groupState.category ?? empty}
-            className="shadow border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
+    <>
+      <Lock isLocked={isEncrypted} openPopup={() => setPasswordPopupVisible(true)} />
+      <Input
+        value={groupState.name ?? empty}
+        title="Name"
+        placeholder=""
+        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+          dispatchGroup({ type: GroupEvent.name, value: e.target.value })
+        }
+      />
+      <select
+        title="1"
+        value={groupState.category ?? empty}
+        className="shadow border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
               bg-gray-50 text-black dark:text-white dark:bg-gray-900 dark:border-0 h-10
               dark:border-0 ring-0 block p-2.5 dark:bg-gray-700 dark:bg-gray-900 dark:placeholder-gray-400 dark:text-white dark:focus:ring-0 dark:focus:border-0"
-            onChange={(e: any) =>
-              dispatchGroup({ type: GroupEvent.category, value: e.target.value })
+        onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+          dispatchGroup({ type: GroupEvent.category, value: e.target.value })
+        }
+      >
+        <option value="feuerwehr">Feuerwehr Fischbach</option>
+        <option value="verein">Verein</option>
+        <option value="privat">Privat</option>
+      </select>
+      <ToggleButton
+        title="Genehmigt"
+        className="w-20 h-10"
+        value={groupState.approved ?? false}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+          groupState.approved = e.target.value == "true" ? true : false;
+        }}
+      />
+      <div className="ml-10 flex flex-col gap-3">
+        <span>Kontakt</span>
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            value={groupState.contact.FirstName ?? empty}
+            title="Vorname"
+            placeholder=""
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              dispatchGroup({ type: GroupEvent.contact_firstName, value: e.target.value })
             }
-          >
-            <option value="feuerwehr">Feuerwehr Fischbach</option>
-            <option value="verein">Verein</option>
-            <option value="privat">Privat</option>
-          </select>
+          />
+          <Input
+            value={groupState.contact.LastName ?? empty}
+            title="Nachname"
+            placeholder=""
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              dispatchGroup({ type: GroupEvent.contact_lastName, value: e.target.value })
+            }
+          />
+          <Input
+            value={groupState.contact.Email ?? empty}
+            title="Email"
+            placeholder=""
+            type="email"
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              dispatchGroup({ type: GroupEvent.contact_email, value: e.target.value })
+            }
+          />
+          <Input
+            value={groupState.contact.BirthDate ?? ""}
+            title="Geburtsdatum"
+            placeholder=""
+            type="date"
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              dispatchGroup({ type: GroupEvent.contact_birthDate, value: e.target.value })
+            }
+          />
           <ToggleButton
-            title="Genehmigt"
+            title="VIP"
             className="w-20 h-10"
-            value={groupState.approved ?? false}
-            onChange={(e: any) => {
-              groupState.approved = e.target.value == "true" ? true : false;
+            value={groupState.contact.vip ?? false}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              groupState.contact.vip = e.target.value == "true" ? true : false;
             }}
           />
-          <div className="ml-10 flex flex-col gap-3">
-            <span>Kontakt</span>
-            <div className="grid grid-cols-2 gap-3">
+        </div>
+      </div>
+      {participants.length > 0 &&
+        participants.map((p: Participant, i: number) => {
+          return (
+            <div key={`participant-${i}`} className="flex flex-row gap-3 p-2">
               <Input
-                value={groupState.contact.FirstName ?? empty}
-                title="Vorname"
-                placeholder=""
-                onChange={(e: any) =>
-                  dispatchGroup({ type: GroupEvent.contact_firstName, value: e.target.value })
-                }
-              />
-              <Input
-                value={groupState.contact.LastName ?? empty}
-                title="Nachname"
-                placeholder=""
-                onChange={(e: any) =>
-                  dispatchGroup({ type: GroupEvent.contact_lastName, value: e.target.value })
-                }
-              />
-              <ToggleButton
-                title="VIP"
-                className="w-20 h-10"
-                value={groupState.contact.vip ?? false}
-                onChange={(e: any) => {
-                  groupState.contact.vip = e.target.value == "true" ? true : false;
+                value={p.FirstName ?? empty}
+                placeholder="***"
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  p.FirstName = e.target.value;
+                  updateParticipants(i, p);
                 }}
               />
               <Input
-                value={groupState.contact.Email ?? empty}
-                title="Email"
-                placeholder=""
-                type="email"
-                onChange={(e: any) =>
-                  dispatchGroup({ type: GroupEvent.contact_email, value: e.target.value })
-                }
+                value={p.LastName ?? empty}
+                placeholder="***"
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  p.LastName = e.target.value;
+                  updateParticipants(i, p);
+                }}
               />
               <Input
-                value={groupState.contact.BirthDate ?? ""}
-                title="Geburtsdatum"
-                placeholder=""
                 type="date"
-                onChange={(e: any) =>
-                  dispatchGroup({ type: GroupEvent.contact_birthDate, value: e.target.value })
-                }
+                value={p.BirthDate ?? ""}
+                placeholder="***"
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  p.BirthDate = e.target.value;
+                  updateParticipants(i, p);
+                }}
               />
             </div>
-          </div>
+          );
+        })}
+      {!isEncrypted && (
+        <Button type="button" onClick={onSubmit}>
+          Gruppe updaten
+        </Button>
+      )}
 
-          {participants.length > 0 &&
-            participants.map((p: Participant, i: number) => {
-              return (
-                <div key={`participant-${i}`} className="flex flex-row gap-3 p-2">
-                  <Input
-                    value={p.FirstName ?? empty}
-                    placeholder="***"
-                    onChange={(e: any) => {
-                      p.FirstName = e.target.value;
-                      updateParticipants(i, p);
-                    }}
-                  />
-                  <Input
-                    value={p.LastName ?? empty}
-                    placeholder="***"
-                    onChange={(e: any) => {
-                      p.LastName = e.target.value;
-                      updateParticipants(i, p);
-                    }}
-                  />
-                  <Input
-                    value={p.BirthDate ?? ""}
-                    placeholder="***"
-                    onChange={(e: any) => {
-                      p.BirthDate = e.target.value;
-                      updateParticipants(i, p);
-                    }}
-                  />
-                </div>
-              );
-            })}
-
-          <button
-            type="button"
-            className="rounded-md bg-blue-600 text-white p-2 mb-3"
-            onClick={onSubmit}
-          >
-            Gruppe updaten
-          </button>
-        </div>
-      </div>
       <PasswordPopup
         state={{ open: passwordPopupVisible, setOpen: setPasswordPopupVisible }}
         done={onDecryptData}
       />
-    </div>
+    </>
   );
 };
 

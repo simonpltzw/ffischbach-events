@@ -1,6 +1,6 @@
 "use client";
 
-import { Reducer, useEffect, useReducer, useState } from "react";
+import { ChangeEvent, Reducer, useEffect, useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ToggleButton } from "@/components/ToggleButton";
 import { Group } from "@/models/in/Group";
@@ -13,11 +13,13 @@ import { AddEventManagerPopup } from "@/components/popups/AddEventManager";
 import useToken from "@/services/tokenService";
 import { PencilIcon } from "@heroicons/react/24/solid";
 import { useToast } from "@/context/toast";
+import { Lock } from "@/components/Lock";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const router = useRouter();
   const { addToast } = useToast();
   const { getToken } = useToken();
+  const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
   const [managerPopupVisible, setManagerPopupVisible] = useState<boolean>(false);
   const [state, dispatch] = useReducer<Reducer<Event, any>>((state: Event, action: any): any => {
@@ -75,6 +77,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       );
 
       dispatch({ type: "decGroups", value: state.groups });
+      setIsEncrypted(false);
       addToast({ message: "Entschlüsselt", type: "info" });
     } catch (e) {
       throw new Error("Wrong password");
@@ -109,7 +112,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             className="h-6 w-12"
             disabled
             value={group.approved}
-            onChange={(e: any) => {
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
               dispatch({ type: "updateApproved", value: e.target.value, index: index });
             }}
           />
@@ -128,43 +131,34 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   };
 
   return (
-    <div className="relative flex flex-row justify-center">
-      <div className="mx-5 mt-5 border border-2 dark:border-0 bg-white dark:bg-gray-700 h-fit w-full md:w-[80%] p-4 rounded">
-        <div className="flex flex-col gap-10 p-4 rounded-md">
-          <button
-            className="rounded-md bg-blue-600 text-white p-2"
-            onClick={() => setPasswordPopupVisible(true)}
-          >
-            Entschlüsseln
-          </button>
-          <div className="flex flex-row gap-3">
-            <div>Event Name: </div>
-            <h3 className="text-base font-semibold">{state?.id}</h3>
-          </div>
-          <div className="flex flex-row gap-3">
-            <div>Beschreibung:</div>
-            <div className="text-base font-semibold">{state?.description}</div>
-          </div>
-          <div className="grid grid-cols-6 gap-3 justify-items-start">
-            <div className="font-bold col-span-6">Gruppen</div>
-            {state.groups!.length > 0 ? (
-              <>
-                <div className="col-span-1">Name</div>
-                <div className="col-span-1">Kategorie</div>
-                <div className="col-span-1">Kontakt</div>
-                <div className="col-span-1">Genehmigt</div>
-                <div className="col-span-1">Erstellt</div>
-                <div className="col-span-1"></div>
+    <>
+      <Lock isLocked={isEncrypted} openPopup={() => setPasswordPopupVisible(true)} />
+      <div className="flex flex-row gap-3">
+        <div>Event Name: </div>
+        <h3 className="text-base font-semibold">{state?.id}</h3>
+      </div>
+      <div className="flex flex-row gap-3">
+        <div>Beschreibung:</div>
+        <div className="text-base font-semibold">{state?.description}</div>
+      </div>
+      <div className="w-full">
+      <div className="grid grid-flow-row auto-rows-min gap-3 justify-items-start overflow-x-scroll md:overflow-x-auto">
+        <div className="font-bold col-span-6">Gruppen</div>
+        {state.groups!.length > 0 ? (
+          <>
+            <div>Name</div>
+            <div>Kategorie</div>
+            <div>Kontakt</div>
+            <div>Genehmigt</div>
+            <div>Erstellt</div>
+            <div></div>
 
-                {state.groups!.map((group: Group, index: number) =>
-                  generateGroupEntry(group, index)
-                )}
-              </>
-            ) : (
-              <span>Leer</span>
-            )}
-          </div>
-        </div>
+            {state.groups!.map((group: Group, index: number) => generateGroupEntry(group, index))}
+          </>
+        ) : (
+          <span>Leer</span>
+        )}
+      </div>
       </div>
       <PasswordPopup
         state={{ open: passwordPopupVisible, setOpen: setPasswordPopupVisible }}
@@ -174,7 +168,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         state={{ open: managerPopupVisible, setOpen: setManagerPopupVisible }}
         done={onAddEventManager}
       />
-    </div>
+    </>
   );
 };
 
