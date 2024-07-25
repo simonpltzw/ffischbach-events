@@ -104,14 +104,17 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
   return (
     <>
       <Lock isLocked={isEncrypted} openPopup={() => setPasswordPopupVisible(true)} />
-      <Input
-        value={groupState.name ?? empty}
-        title="Name"
-        placeholder=""
-        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-          dispatchGroup({ type: GroupEvent.name, value: e.target.value })
-        }
-      />
+
+      <div className="mt-10">
+        <Input
+          value={groupState.name ?? empty}
+          title="Name"
+          placeholder=""
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            dispatchGroup({ type: GroupEvent.name, value: e.target.value })
+          }
+        />
+      </div>
       <select
         title="1"
         value={groupState.category ?? empty}
@@ -135,7 +138,7 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
         }}
       />
       <div className="ml-10 flex flex-col gap-3">
-        <span>Kontakt</span>
+        <span className="font-bold">Kontakt</span>
         <div className="grid grid-cols-2 gap-3">
           <Input
             value={groupState.contact.FirstName ?? empty}

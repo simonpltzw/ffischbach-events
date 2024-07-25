@@ -124,7 +124,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             router.push(`/${state.id}/${state.groups![index].id}`);
           }}
         >
-          <PencilIcon height={20} />
+          {!isEncrypted && <PencilIcon height={20} />}
         </div>
       </div>
     );
