@@ -75,7 +75,7 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
             <div className="flex flex-row py-3">
               <button
                 type="button"
-                className="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold shadow-sm hover:bg-red-500 mr-3 sm:w-auto"
+                className="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold shadow-sm mr-3 sm:w-auto"
                 onClick={onSubmit}
               >
                 Bestätigen
