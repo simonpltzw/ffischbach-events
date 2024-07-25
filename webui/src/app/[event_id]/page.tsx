@@ -14,6 +14,8 @@ import useToken from "@/services/tokenService";
 import { PencilIcon } from "@heroicons/react/24/solid";
 import { useToast } from "@/context/toast";
 import { Lock } from "@/components/Lock";
+import { Button } from "@/components/Button";
+import { ConfirmPopup } from "@/components/popups/ConfirmPopup";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const router = useRouter();
@@ -22,6 +24,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
   const [managerPopupVisible, setManagerPopupVisible] = useState<boolean>(false);
+  const [confirmCompletePopupVisible, setConfirmCompletePopupVisible] = useState<boolean>(false);
   const [state, dispatch] = useReducer<Reducer<Event, any>>((state: Event, action: any): any => {
     if (action.type === "updateApproved") {
       const groups: Group[] = state.groups!;
@@ -51,6 +54,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const onCompleteEvent = () => {
     getToken().then((token: string) => {
       setEventCompleted(token, params.event_id);
+      addToast({ message: "Event beendet", type: "info" });
     });
   };
 
@@ -141,24 +145,33 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         <div>Beschreibung:</div>
         <div className="text-base font-semibold">{state?.description}</div>
       </div>
+      {!state.completed && !isEncrypted && (
+        <Button
+          className="w-1/5"
+          type="button"
+          onClick={() => setConfirmCompletePopupVisible(true)}
+        >
+          Event beenden
+        </Button>
+      )}
       <div className="w-full">
-      <div className="grid grid-flow-row auto-rows-min gap-3 justify-items-start overflow-x-scroll md:overflow-x-auto">
-        <div className="font-bold col-span-6">Gruppen</div>
-        {state.groups!.length > 0 ? (
-          <>
-            <div>Name</div>
-            <div>Kategorie</div>
-            <div>Kontakt</div>
-            <div>Genehmigt</div>
-            <div>Erstellt</div>
-            <div></div>
+        <div className="grid grid-flow-row auto-rows-min gap-3 justify-items-start overflow-x-scroll md:overflow-x-auto">
+          <div className="font-bold col-span-6">Gruppen</div>
+          {state.groups!.length > 0 ? (
+            <>
+              <div>Name</div>
+              <div>Kategorie</div>
+              <div>Kontakt</div>
+              <div>Genehmigt</div>
+              <div>Erstellt</div>
+              <div></div>
 
-            {state.groups!.map((group: Group, index: number) => generateGroupEntry(group, index))}
-          </>
-        ) : (
-          <span>Leer</span>
-        )}
-      </div>
+              {state.groups!.map((group: Group, index: number) => generateGroupEntry(group, index))}
+            </>
+          ) : (
+            <span>Leer</span>
+          )}
+        </div>
       </div>
       <PasswordPopup
         state={{ open: passwordPopupVisible, setOpen: setPasswordPopupVisible }}
@@ -167,6 +180,10 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       <AddEventManagerPopup
         state={{ open: managerPopupVisible, setOpen: setManagerPopupVisible }}
         done={onAddEventManager}
+      />
+      <ConfirmPopup
+        state={{ open: confirmCompletePopupVisible, setOpen: setConfirmCompletePopupVisible }}
+        done={onCompleteEvent}
       />
     </>
   );
