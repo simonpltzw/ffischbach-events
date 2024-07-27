@@ -16,6 +16,7 @@ import { useToast } from "@/context/toast";
 import { Lock } from "@/components/Lock";
 import { Button } from "@/components/Button";
 import { ConfirmPopup } from "@/components/popups/ConfirmPopup";
+import { InfoBadge } from "@/components/InfoBadge";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const router = useRouter();
@@ -136,6 +137,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   return (
     <>
+      {state.completed && <InfoBadge text="Event ist beendet" />}
       <Lock isLocked={isEncrypted} openPopup={() => setPasswordPopupVisible(true)} />
       <div className="flex flex-row gap-3">
         <div>Event Name: </div>
@@ -151,8 +153,8 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           type="button"
           onClick={() => setConfirmCompletePopupVisible(true)}
         >
-          Event beenden
-        </Button>
+              Event beenden
+            </Button>
       )}
       <div className="w-full">
         <div className="grid grid-flow-row auto-rows-min gap-3 justify-items-start overflow-x-scroll md:overflow-x-auto">
