@@ -5,6 +5,7 @@ import { FC, HTMLAttributes, useCallback, useEffect, useMemo } from "react";
 
 export interface LinksProps extends HTMLAttributes<HTMLElement> {
   active: number;
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>;
   setActive: React.Dispatch<React.SetStateAction<number>>;
 }
 
@@ -24,9 +25,9 @@ export const Links: FC<LinksProps> = (props: LinksProps) => {
 
   useEffect(() => {
     links.forEach((link, index) => {
-      if(link.href == pathName) {
-        setLocation(index)
-        return
+      if (link.href == pathName) {
+        setLocation(index);
+        return;
       }
     });
   }, [pathName]);
@@ -50,7 +51,10 @@ export const Links: FC<LinksProps> = (props: LinksProps) => {
             key={`link-${index}`}
             href={e.href}
             className={generateStyle(index)}
-            onClick={() => setLocation(index)}
+            onClick={() => {
+              setLocation(index);
+              props.setVisible(false);
+            }}
           >
             {e.name}
           </Link>
