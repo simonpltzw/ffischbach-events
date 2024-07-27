@@ -1,6 +1,7 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { ChangeEvent, FC, HTMLAttributes, useEffect, useRef, useState } from "react";
 import { Input } from "../Input";
+import { Button } from "../Button";
 
 export interface AddEventManagerPopupProps extends HTMLAttributes<HTMLElement> {
   state: {
@@ -56,9 +57,9 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
           <DialogPanel
             transition
-            className="w-full max-w-md rounded-xl border border-2 dark:border-0 dark:bg-gray-700 bg-gray-400 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
+            className="w-full max-w-md rounded-xl border border-2 dark:border-0 dark:bg-gray-800 bg-gray-400 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
           >
-            <DialogTitle className="text-black dark:text-white text-base font-semibold leading-6">
+            <DialogTitle className="text-base font-semibold leading-6">
               Event Manager hinzufügen
             </DialogTitle>
             <div id="form" className="mt-2 flex flex-col gap-3">
@@ -74,22 +75,18 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
                 return generateErrorMessage(error, index);
               })}
             </div>
-            <div className="flex flex-row py-3  ">
-              <button
-                type="button"
-                className="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold shadow-sm mr-3 sm:w-auto"
-                onClick={onSubmit}
-              >
+            <div className="flex flex-row py-3 gap-3">
+              <Button type="button" className="bg-green-600" onClick={onSubmit}>
                 Bestätigen
-              </button>
-              <button
+              </Button>
+
+              <Button
                 type="button"
-                className="mt-3 w-full rounded-md bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                className="bg-gray-500 dark:bg-gray-900"
                 onClick={() => props.state.setOpen(false)}
-                ref={cancelButtonRef}
               >
                 Abbrechen
-              </button>
+              </Button>
             </div>
           </DialogPanel>
         </div>

@@ -148,13 +148,18 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         <div className="text-base font-semibold">{state?.description}</div>
       </div>
       {!state.completed && !isEncrypted && (
-        <Button
-          className="w-1/5"
-          type="button"
-          onClick={() => setConfirmCompletePopupVisible(true)}
-        >
+        <div className="flex flex-row gap-3 flex-wrap">
+          <div className="w-full md:w-1/3">
+            <Button type="button" onClick={() => setManagerPopupVisible(true)}>
+              Manager hinzufügen
+            </Button>
+          </div>
+          <div className="w-full md:w-1/3">
+            <Button type="button" onClick={() => setConfirmCompletePopupVisible(true)}>
               Event beenden
             </Button>
+          </div>
+        </div>
       )}
       <div className="w-full">
         <div className="grid grid-flow-row auto-rows-min gap-3 justify-items-start overflow-x-scroll md:overflow-x-auto">

@@ -4,6 +4,7 @@ import React, { FC, HTMLAttributes } from "react";
 import SidebarBurger from "../sidebar/burger";
 import { Links } from "../Links";
 import { ThemeToggle } from "../ThemeToggle";
+import { Button } from "@/components/Button";
 
 export interface NavigationProps extends HTMLAttributes<HTMLElement> {
   setVisible(): void;
@@ -27,22 +28,24 @@ const Navigation: FC<NavigationProps> = (props: NavigationProps) => {
             <Links active={0} className="flex space-x-4" setActive={props.setActive} />
           </div>
         </div>
-        <ThemeToggle/>       
+        <ThemeToggle />
         <div>
           {isAuthenticated ? (
-            <button
-              className="relative rounded-md p-1 dark:bg-gray-800 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+            <Button
+              type="button"
+              className="dark:bg-gray-900"
               onClick={() => instance.logoutRedirect(logoutRequest)}
             >
               Sign out
-            </button>
+            </Button>
           ) : (
-            <button
-              className="relative rounded-md p-1 dark:bg-gray-800 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+            <Button
+              type="button"
+              className="dark:bg-gray-900"
               onClick={() => instance.loginRedirect(loginRequest)}
             >
               Sign in
-            </button>
+            </Button>
           )}
         </div>
       </div>

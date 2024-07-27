@@ -9,6 +9,7 @@ import useToken from "@/services/tokenService";
 import { Input } from "@/components/Input";
 import { ToggleButton } from "@/components/ToggleButton";
 import { useToast } from "@/context/toast";
+import { Button } from "@/components/Button";
 
 const Root: FC<any> = () => {
   const { addToast } = useToast();
@@ -42,9 +43,9 @@ const Root: FC<any> = () => {
     <>
       <div className="flex flex-row justify-between gap-3 items-center mb-5">
         <span className="text-xl font-bold">Events</span>
-        <button className="rounded-md bg-blue-600 text-white p-2" onClick={onOpenCreate}>
+        <Button type="button" className="bg-blue-600" onClick={onOpenCreate}>
           Event erstellen
-        </button>
+        </Button>
       </div>
       <div className="flex flex-col gap-3">
         <div className="flex sm:flex-row-reverse flex-col gap-3 sm:items-end items-start mb-5">

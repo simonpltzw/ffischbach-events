@@ -8,7 +8,7 @@ export const Button: FC<ButtonProps> = (props: ButtonProps) => {
   return (
     <button
       type={props.type}
-      className={`rounded-md bg-blue-600 text-white p-2 mb-3 ${props.className}`}
+      className={`rounded-md w-full bg-blue-600 text-white p-3 ${props.className}`}
       onClick={props.onClick}
     >
       {props.children}
