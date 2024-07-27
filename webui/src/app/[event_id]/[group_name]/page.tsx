@@ -116,7 +116,6 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
         />
       </div>
       <select
-        title="1"
         value={groupState.category ?? empty}
         className="shadow border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
               bg-gray-50 text-black dark:text-white dark:bg-gray-900 dark:border-0 h-10
@@ -125,9 +124,9 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
           dispatchGroup({ type: GroupEvent.category, value: e.target.value })
         }
       >
-        <option value="feuerwehr">Feuerwehr Fischbach</option>
-        <option value="verein">Verein</option>
-        <option value="privat">Privat</option>
+        <option value="Feuerwehr">Feuerwehr Fischbach</option>
+        <option value="Verein">Verein</option>
+        <option value="Privat">Privat</option>
       </select>
       <ToggleButton
         title="Genehmigt"
