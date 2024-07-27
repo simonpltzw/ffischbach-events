@@ -149,16 +149,12 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       </div>
       {!state.completed && !isEncrypted && (
         <div className="flex flex-row gap-3 flex-wrap">
-          <div className="w-full md:w-1/3">
-            <Button type="button" onClick={() => setManagerPopupVisible(true)}>
-              Manager hinzufügen
-            </Button>
-          </div>
-          <div className="w-full md:w-1/3">
-            <Button type="button" onClick={() => setConfirmCompletePopupVisible(true)}>
-              Event beenden
-            </Button>
-          </div>
+          <Button className="md:flex-none flex-1" type="button" onClick={() => setManagerPopupVisible(true)}>
+            Manager hinzufügen
+          </Button>
+          <Button className="md:flex-none flex-1" type="button" onClick={() => setConfirmCompletePopupVisible(true)}>
+            Event beenden
+          </Button>
         </div>
       )}
       <div className="w-full">
