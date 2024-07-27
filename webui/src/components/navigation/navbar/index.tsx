@@ -25,7 +25,7 @@ const Navigation: FC<NavigationProps> = (props: NavigationProps) => {
             <div className="w-auto my-auto text-center">FF-Fischbach</div>
           </div>
           <div className="hidden sm:ml-6 sm:block">
-            <Links active={0} className="flex space-x-4" setActive={props.setActive} />
+            <Links setVisible={props.setVisible} active={0} className="flex space-x-4" setActive={props.setActive} />
           </div>
         </div>
         <ThemeToggle />
