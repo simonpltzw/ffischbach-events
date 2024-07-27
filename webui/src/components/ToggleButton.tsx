@@ -11,8 +11,9 @@ export interface ToggleButtonProps extends HTMLAttributes<HTMLElement> {
 export const ToggleButton: FC<ToggleButtonProps> = (props: ToggleButtonProps) => {
   const [value, setValue] = useState<boolean>(props.value);
   const toggler = useRef<HTMLDivElement>(null);
+  const input = useRef<HTMLInputElement>(null);
 
-  const toggle = () => {
+  const toggle = (e: any) => {
     if (!props.disabled) {
       setValue((v) => !v);
     }
@@ -25,7 +26,11 @@ export const ToggleButton: FC<ToggleButtonProps> = (props: ToggleButtonProps) =>
   }, []);
 
   useEffect(() => {
-    toggler.current?.click();
+    const inputValue = input.current?.value == "true" ? true : false;
+
+    if (inputValue != props.value) {
+      toggler.current?.click();
+    }
   }, [props.value]);
 
   return (
@@ -33,19 +38,22 @@ export const ToggleButton: FC<ToggleButtonProps> = (props: ToggleButtonProps) =>
       {props.title && (
         <label
           className={`block text-sm font-bold h-fit mb-2`}
-          //htmlFor="username"
         >
           {props.title}
         </label>
       )}
-      <label className={`items-center ${props.disabled ? 'cursor-default' : 'cursor-pointer'} h-fit w-fit`}>
+      <label
+        className={`items-center ${
+          props.disabled ? "cursor-default" : "cursor-pointer"
+        } h-fit w-fit`}
+      >
         <input
           type="checkbox"
+          ref={input}
           value={value?.toString() ?? "false"}
           className="sr-only peer"
           onChange={(e: ChangeEvent<HTMLInputElement>) => {
-            console.log(e.isTrusted);
-            if (props.onChange && !props.disabled && e.isTrusted) {
+            if (!!props.onChange && !props.disabled && e.isTrusted) {
               props.onChange(e);
             }
           }}
