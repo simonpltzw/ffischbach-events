@@ -3,15 +3,11 @@ import { EventOut } from "@/models/out/EventOut";
 import { createEvent } from "@/services/eventsService";
 import { encryptWithPassword } from "@/services/passwordService";
 import useToken from "@/services/tokenService";
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-  DialogTitle,
-} from "@headlessui/react";
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { AxiosResponse } from "axios";
 import { ChangeEvent, FC, HTMLAttributes, useEffect, useRef, useState } from "react";
 import { Input } from "../Input";
+import { Button } from "../Button";
 
 export interface CreateEventPopupProps extends HTMLAttributes<HTMLElement> {
   state: {
@@ -22,8 +18,6 @@ export interface CreateEventPopupProps extends HTMLAttributes<HTMLElement> {
 }
 
 export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPopupProps) => {
-  const cancelButtonRef = useRef(null);
-
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -79,7 +73,6 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
     <Dialog
       open={props.state.open}
       className="relative z-10 focus:outline-none"
-      initialFocus={cancelButtonRef}
       onClose={props.state.setOpen}
     >
       <DialogBackdrop className="fixed inset-0 bg-gray-400/30 blur-lg" />
@@ -115,21 +108,12 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
             })}
           </div>
           <div className="flex flex-row gap-3 py-3">
-            <button
-              type="button"
-              className="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold shadow-sm mr-3 sm:w-auto"
-              onClick={onSubmit}
-            >
+            <Button type="button" className="bg-green-600" onClick={onSubmit}>
               Bestätigen
-            </button>
-            <button
-              type="button"
-              className="mt-3 w-full rounded-md bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-              onClick={() => props.state.setOpen(false)}
-              ref={cancelButtonRef}
-            >
+            </Button>
+            <Button type="button" className="bg-gray-500 dark:bg-gray-900" onClick={() => props.state.setOpen(false)}>
               Abbrechen
-            </button>
+            </Button>
           </div>
         </DialogPanel>
       </div>
