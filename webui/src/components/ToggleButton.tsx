@@ -54,7 +54,7 @@ export const ToggleButton: FC<ToggleButtonProps> = (props: ToggleButtonProps) =>
         <div
           onClick={toggle}
           ref={toggler}
-          className={`relative bg-gray-200 peer-focus:outline-none peer-focus:ring-0 rounded-full peer dark:bg-gray-900 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[5%] after:start-[5%] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[90%] after:w-[45%] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 
+          className={`relative bg-gray-200 peer-focus:outline-none peer-focus:ring-0 rounded-full peer dark:bg-gray-900 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[5%] after:start-[4%] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[90%] after:w-[46%] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 
            
             ${props.className}`}
         ></div>
