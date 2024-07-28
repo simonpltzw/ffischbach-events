@@ -1,4 +1,10 @@
-import { ChangeEvent, FC, HTMLAttributes, HTMLInputAutoCompleteAttribute, HTMLInputTypeAttribute, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  FC,
+  HTMLAttributes,
+  HTMLInputAutoCompleteAttribute,
+  HTMLInputTypeAttribute,
+} from "react";
 
 export interface InputProps extends HTMLAttributes<HTMLElement>, JSX.IntrinsicAttributes {
   title?: string;
@@ -6,7 +12,7 @@ export interface InputProps extends HTMLAttributes<HTMLElement>, JSX.IntrinsicAt
   type?: HTMLInputTypeAttribute;
   value?: string;
   labelClassName?: string;
-  autoComplete?: HTMLInputAutoCompleteAttribute
+  autoComplete?: HTMLInputAutoCompleteAttribute;
   containerClassName?: string;
 }
 
@@ -20,9 +26,14 @@ export const Input: FC<InputProps> = (props: InputProps) => {
 
   return (
     <div className={`w-full ${props.containerClassName}`}>
-      <label className={`block text-sm font-bold h-fit mb-2 ${props.labelClassName}`} htmlFor="username">
-        {props.title}
-      </label>
+      {props.title && (
+        <label
+          className={`block text-sm font-bold h-fit mb-2 ${props.labelClassName}`}
+          htmlFor="username"
+        >
+          {props.title}
+        </label>
+      )}
       <input
         className={`
         shadow appearance-none border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
