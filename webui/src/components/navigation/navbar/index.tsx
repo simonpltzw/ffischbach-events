@@ -17,7 +17,7 @@ const Navigation: FC<NavigationProps> = (props: NavigationProps) => {
   const isAuthenticated = useIsAuthenticated();
 
   return (
-    <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 dark:text-white text-black">
+    <div className="mx-auto container dark:text-white text-black">
       <div className="relative flex h-16 gap-3 items-center justify-between">
         <SidebarBurger toggle={props.setVisible} />
         <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
