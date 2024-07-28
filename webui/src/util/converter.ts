@@ -20,3 +20,12 @@ export const base64ToArrayBuffer = (base64: string) => {
   }
   return bytes.buffer;
 };
+
+export const getLocalDateTime = (dateStr: string): string => {
+  const date: Date = new Date(dateStr);
+  return `${date.toLocaleDateString([], {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+};

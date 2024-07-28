@@ -17,6 +17,7 @@ import { Button } from "@/components/Button";
 import { ConfirmPopup } from "@/components/popups/ConfirmPopup";
 import { InfoBadge } from "@/components/InfoBadge";
 import { CheckBox } from "@/components/CheckBox";
+import { getLocalDateTime } from "@/util/converter";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const router = useRouter();
@@ -87,15 +88,6 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     } catch (e) {
       throw new Error("Wrong password");
     }
-  };
-
-  const getLocalDateTime = (dateStr: string): string => {
-    const date: Date = new Date(dateStr);
-    return `${date.toLocaleDateString([], {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    })} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
   };
 
   const onAddEventManager = async (email: string) => {

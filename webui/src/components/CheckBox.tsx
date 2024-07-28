@@ -26,7 +26,7 @@ export const CheckBox: FC<CheckBoxProps> = (props: CheckBoxProps) => {
             }
             setValue(e.target.value != "true" ? true : false);
           }}
-          className="relative shadow  cursor-pointer disabled:cursor-default appearance-none w-10 h-10 bg-gray-50 border border-gray-300 rounded 
+          className="relative shadow cursor-pointer disabled:cursor-default appearance-none w-10 h-10 bg-gray-50 border border-gray-300 rounded 
           dark:bg-gray-900 dark:border-0
           disabled:bg-gray-300/50 disabled:dark:bg-gray-500/50
           checked:after:content-['\2713'] checked:after:absolute checked:after:top-1/2 checked:after:left-1/2 checked:after:transform checked:after:-translate-x-1/2 checked:after:-translate-y-1/2 checked:after:text-black checked:after:font-black checked:after:text-4xl 

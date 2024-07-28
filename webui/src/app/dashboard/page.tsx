@@ -10,6 +10,7 @@ import { Input } from "@/components/Input";
 import { useToast } from "@/context/toast";
 import { Button } from "@/components/Button";
 import { CheckBox } from "@/components/CheckBox";
+import { getLocalDateTime } from "@/util/converter";
 
 const Root: FC<any> = () => {
   const { addToast } = useToast();
@@ -73,7 +74,7 @@ const Root: FC<any> = () => {
           <span className="font-semibold">Beschreibung</span>
           <span className="font-semibold">Gesamt anz. Gruppen</span>
           <span className="font-semibold">Gesamt anz. Teilnehmer</span>
-          <span className="font-semibold">Erstellungszeitpunkt</span>
+          <span className="font-semibold">Erstellt</span>
           {eventList
             .filter((event: Event) => {
               return (
@@ -94,7 +95,7 @@ const Root: FC<any> = () => {
                   <span>{event.description}</span>
                   <span>{event.totalGroups}</span>
                   <span>{event.totalParticipants}</span>
-                  <span>{new Date(event.createdAt).toLocaleString()}</span>
+                  <span>{getLocalDateTime(event.createdAt)}</span>
                 </div>
               );
             })}
