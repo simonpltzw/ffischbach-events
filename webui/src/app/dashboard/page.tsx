@@ -7,9 +7,9 @@ import { CreateEventPopup } from "@/components/popups/CreateEventPopup";
 import { Event } from "@/models/in/Event";
 import useToken from "@/services/tokenService";
 import { Input } from "@/components/Input";
-import { ToggleButton } from "@/components/ToggleButton";
 import { useToast } from "@/context/toast";
 import { Button } from "@/components/Button";
+import { CheckBox } from "@/components/CheckBox";
 
 const Root: FC<any> = () => {
   const { addToast } = useToast();
@@ -60,9 +60,8 @@ const Root: FC<any> = () => {
             <label className={`block text-sm font-bold h-fit mb-2`} htmlFor="username">
               Beendet
             </label>
-            <ToggleButton
+            <CheckBox
               value={isFilterComplete}
-              className="h-10 w-20"
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setFilterComplete(e.target.value == "true" ? true : false)
               }

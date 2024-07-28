@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from "@/components/Button";
+import { CheckBox } from "@/components/CheckBox";
 import { Input } from "@/components/Input";
 import { Lock } from "@/components/Lock";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
-import { ToggleButton } from "@/components/ToggleButton";
 import { GroupEvent, useGroupContext } from "@/context/group";
 import { useToast } from "@/context/toast";
 import { Group } from "@/models/in/Group";
@@ -128,9 +128,8 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
         <option value="Verein">Verein</option>
         <option value="Privat">Privat</option>
       </select>
-      <ToggleButton
+      <CheckBox
         title="Genehmigt"
-        className="w-20 h-10"
         value={groupState.approved ?? false}
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
           groupState.approved = e.target.value == "true" ? true : false;
@@ -174,9 +173,8 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
               dispatchGroup({ type: GroupEvent.contact_birthDate, value: e.target.value })
             }
           />
-          <ToggleButton
+          <CheckBox
             title="VIP"
-            className="w-20 h-10"
             value={groupState.contact.vip ?? false}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               groupState.contact.vip = e.target.value == "true" ? true : false;
@@ -192,36 +190,36 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
           <span className="font-semibold">Geburtsdatum</span>
 
           {participants.map((p: Participant, i: number) => {
-          return (
+            return (
               <div key={`participant-${i}`} className="cursor-pointer col-span-full grid grid-cols-subgrid">
-              <Input
-                value={p.FirstName ?? empty}
-                placeholder="***"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                  p.FirstName = e.target.value;
-                  updateParticipants(i, p);
-                }}
-              />
-              <Input
-                value={p.LastName ?? empty}
-                placeholder="***"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                  p.LastName = e.target.value;
-                  updateParticipants(i, p);
-                }}
-              />
-              <Input
-                type="date"
-                value={p.BirthDate ?? ""}
-                placeholder="***"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                  p.BirthDate = e.target.value;
-                  updateParticipants(i, p);
-                }}
-              />
-            </div>
-          );
-        })}
+                <Input
+                  value={p.FirstName ?? empty}
+                  placeholder="***"
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    p.FirstName = e.target.value;
+                    updateParticipants(i, p);
+                  }}
+                />
+                <Input
+                  value={p.LastName ?? empty}
+                  placeholder="***"
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    p.LastName = e.target.value;
+                    updateParticipants(i, p);
+                  }}
+                />
+                <Input
+                  type="date"
+                  value={p.BirthDate ?? ""}
+                  placeholder="***"
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    p.BirthDate = e.target.value;
+                    updateParticipants(i, p);
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
       {!isEncrypted && (
