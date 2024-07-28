@@ -69,7 +69,7 @@ const Root: FC<any> = () => {
             />
           </div>
         </div>
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-flow-row auto-rows-min gap-3 overflow-x-scroll md:overflow-x-auto">
           <span className="font-semibold">Event ID</span>
           <span className="font-semibold">Beschreibung</span>
           <span className="font-semibold">Gesamt anz. Gruppen</span>
@@ -86,7 +86,7 @@ const Root: FC<any> = () => {
               return (
                 <div
                   key={event.id}
-                  className="cursor-pointer col-span-full grid grid-cols-subgrid border dark:border-0 dark:bg-gray-900 rounded content-center px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="cursor-pointer grid grid-cols-subgrid justify-items-start place-items-center col-span-6 px-3 py-2 border dark:border-0 dark:bg-gray-900 rounded"
                   onClick={() => {
                     router.push(`/${event.id}`);
                   }}
