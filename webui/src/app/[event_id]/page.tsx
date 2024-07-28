@@ -1,8 +1,7 @@
 "use client";
 
-import { ChangeEvent, Reducer, useEffect, useReducer, useState } from "react";
+import { Reducer, useEffect, useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ToggleButton } from "@/components/ToggleButton";
 import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
 import { addEventManager, getEventById, setEventCompleted } from "@/services/eventsService";
@@ -17,6 +16,7 @@ import { Lock } from "@/components/Lock";
 import { Button } from "@/components/Button";
 import { ConfirmPopup } from "@/components/popups/ConfirmPopup";
 import { InfoBadge } from "@/components/InfoBadge";
+import { CheckBox } from "@/components/CheckBox";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const router = useRouter();
@@ -105,7 +105,10 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const generateGroupEntry = (group: Group, index: number) => {
     return (
-      <div key={`event-group-${index}`} className="grid grid-cols-subgrid col-span-6 gap-3">
+      <div
+        key={`event-group-${index}`}
+        className="grid grid-cols-subgrid justify-items-start place-items-center col-span-6 gap-3 px-3 py-2 border dark:border-0 dark:bg-gray-900 rounded"
+      >
         <div>{group.name ?? "***"}</div>
         <div>{group.category}</div>
         <div>
@@ -113,18 +116,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           <div>{group.contact.LastName ?? "***"}</div>
         </div>
         <div>
-          <ToggleButton
-            className="h-6 w-12"
-            disabled
-            value={group.approved}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              dispatch({ type: "updateApproved", value: e.target.value, index: index });
-            }}
-          />
+          <CheckBox disabled value />
         </div>
         <div>{getLocalDateTime(group.createdAt)}</div>
         <div
-          className="ml-10 h-fit w-fit rounded-md cursor-pointer"
+          className="h-fit w-fit rounded-md cursor-pointer"
           onClick={() => {
             router.push(`/${state.id}/${state.groups![index].id}`);
           }}
@@ -149,24 +145,32 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       </div>
       {!state.completed && !isEncrypted && (
         <div className="flex flex-row gap-3 flex-wrap">
-          <Button className="md:flex-none flex-1" type="button" onClick={() => setManagerPopupVisible(true)}>
+          <Button
+            className="md:flex-none flex-1"
+            type="button"
+            onClick={() => setManagerPopupVisible(true)}
+          >
             Manager hinzufügen
           </Button>
-          <Button className="md:flex-none flex-1" type="button" onClick={() => setConfirmCompletePopupVisible(true)}>
+          <Button
+            className="md:flex-none flex-1"
+            type="button"
+            onClick={() => setConfirmCompletePopupVisible(true)}
+          >
             Event beenden
           </Button>
         </div>
       )}
       <div className="w-full">
         <div className="grid grid-flow-row auto-rows-min gap-3 justify-items-start overflow-x-scroll md:overflow-x-auto">
-          <div className="font-bold col-span-6">Gruppen</div>
+          <div className="font-extrabold col-span-6 mb-3">Gruppen</div>
           {state.groups!.length > 0 ? (
             <>
-              <div>Name</div>
-              <div>Kategorie</div>
-              <div>Kontakt</div>
-              <div>Genehmigt</div>
-              <div>Erstellt</div>
+              <div className="font-bold">Name</div>
+              <div className="font-bold">Kategorie</div>
+              <div className="font-bold">Kontakt</div>
+              <div className="font-bold">Genehmigt</div>
+              <div className="font-bold">Erstellt</div>
               <div></div>
 
               {state.groups!.map((group: Group, index: number) => generateGroupEntry(group, index))}

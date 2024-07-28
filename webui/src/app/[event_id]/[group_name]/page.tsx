@@ -136,9 +136,10 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
           groupState.approved = e.target.value == "true" ? true : false;
         }}
       />
-      <div className="ml-10 flex flex-col gap-3">
+
+      <div className="flex flex-col gap-3">
         <span className="font-bold">Kontakt</span>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 ml-5">
           <Input
             value={groupState.contact.FirstName ?? empty}
             title="Vorname"
@@ -183,10 +184,16 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
           />
         </div>
       </div>
-      {participants.length > 0 &&
-        participants.map((p: Participant, i: number) => {
+      <span className="font-bold">Teilnehmer</span>
+      {participants.length > 0 && (
+        <div className="grid grid-cols-3 gap-3 ml-5">
+          <span className="font-semibold">Vorname</span>
+          <span className="font-semibold">Nachname</span>
+          <span className="font-semibold">Geburtsdatum</span>
+
+          {participants.map((p: Participant, i: number) => {
           return (
-            <div key={`participant-${i}`} className="flex flex-row gap-3 p-2">
+              <div key={`participant-${i}`} className="cursor-pointer col-span-full grid grid-cols-subgrid">
               <Input
                 value={p.FirstName ?? empty}
                 placeholder="***"
@@ -215,6 +222,8 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
             </div>
           );
         })}
+        </div>
+      )}
       {!isEncrypted && (
         <Button type="button" onClick={onSubmit}>
           Gruppe updaten

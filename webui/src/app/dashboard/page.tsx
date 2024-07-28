@@ -48,7 +48,7 @@ const Root: FC<any> = () => {
         </Button>
       </div>
       <div className="flex flex-col gap-3">
-        <div className="flex sm:flex-row-reverse flex-col gap-3 sm:items-end items-start mb-5">
+        <div className="flex flex-col-reverse flex-col gap-3 items-start mb-10">
           <Input
             containerClassName="w-full"
             value={filter}
@@ -69,7 +69,12 @@ const Root: FC<any> = () => {
             />
           </div>
         </div>
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-5 gap-3">
+          <span className="font-semibold">Event ID</span>
+          <span className="font-semibold">Beschreibung</span>
+          <span className="font-semibold">Gesamt anz. Gruppen</span>
+          <span className="font-semibold">Gesamt anz. Teilnehmer</span>
+          <span className="font-semibold">Erstellungszeitpunkt</span>
           {eventList
             .filter((event: Event) => {
               return (
@@ -81,15 +86,16 @@ const Root: FC<any> = () => {
               return (
                 <div
                   key={event.id}
-                  className="cursor-pointer"
+                  className="cursor-pointer col-span-full grid grid-cols-subgrid border dark:border-0 dark:bg-gray-900 rounded content-center px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                   onClick={() => {
                     router.push(`/${event.id}`);
                   }}
                 >
-                  <div className="flex flex-row gap-6 items-center p-2 dark:bg-gray-900 rounded w-fit border border-2 dark:border-0 hover:bg-gray-100">
-                    <div>{event.id}</div>
-                    <span className="font-light">{event.description}</span>
-                  </div>
+                  <span>{event.id}</span>
+                  <span>{event.description}</span>
+                  <span>{event.totalGroups}</span>
+                  <span>{event.totalParticipants}</span>
+                  <span>{new Date(event.createdAt).toLocaleString()}</span>
                 </div>
               );
             })}
