@@ -13,7 +13,7 @@ namespace FFischbach.Events.API.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [Produces("application/json")]
     [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -25,7 +25,7 @@ namespace FFischbach.Events.API.Controllers
         private IMapper Mapper { get; } = mapper;
         private DatabaseContext DatabaseContext { get; } = databaseContext;
 
-        // GET: api/<EventsController>
+        // GET: <EventsController>
         /// <summary>
         /// Gets all events.
         /// </summary>
@@ -82,11 +82,11 @@ namespace FFischbach.Events.API.Controllers
 
         }
 
-        // GET: api/<EventsController>/5
+        // GET: <EventsController>/5
         /// <summary>
         /// Gets a single event.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">Id of the event</param>
         /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -130,42 +130,39 @@ namespace FFischbach.Events.API.Controllers
                 // Calling user is not an event manager of that group.
                 return Forbid();
             }
-            else
+
+            // Success. Map the response.
+            Models.OutputModels.EventDetailOutputModel returnValue = Mapper.Map<Models.OutputModels.EventDetailOutputModel>(dbEvent);
+
+            // Get the total amounts.
+            int totalParticipants = 0;
+            for (int i = 0; i < returnValue.Groups.Count; i++)
             {
-                // Success. Map the response.
-                Models.OutputModels.EventDetailOutputModel returnValue = Mapper.Map<Models.OutputModels.EventDetailOutputModel>(dbEvent);
+                // Get participant amount of this group.
+                int? groupParticipants = dbEvent.Groups?[i]?.Participants?.Count;
+                if (!groupParticipants.HasValue) groupParticipants = 0;
 
-                // Get the total amounts.
-                int totalParticipants = 0;
-                for (int i = 0; i < returnValue.Groups.Count; i++)
-                {
-                    // Get participant amount of this group.
-                    int? groupParticipants = dbEvent.Groups?[i]?.Participants?.Count;
-                    if (!groupParticipants.HasValue) groupParticipants = 0;
+                // Add to total for event.
+                totalParticipants += (int)groupParticipants;
 
-                    // Add to total for event.
-                    totalParticipants += (int)groupParticipants;
-
-                    returnValue.Groups[i].TotalParticipants = (int)groupParticipants;
-                }
-
-                // Merge with counts.
-                returnValue.TotalGroups = returnValue.Groups.Count;
-                returnValue.TotalParticipants = totalParticipants;
-
-                return Ok(returnValue);
+                returnValue.Groups[i].TotalParticipants = (int)groupParticipants;
             }
+
+            // Merge with counts.
+            returnValue.TotalGroups = returnValue.Groups.Count;
+            returnValue.TotalParticipants = totalParticipants;
+
+            return Ok(returnValue);
         }
 
-        // POST api/<EventsController>
+        // POST <EventsController>
         /// <summary>
         /// Creates an event.
         /// </summary>
-        /// <param name="event"></param>
+        /// <param name="event">The event to be created</param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(Models.OutputModels.EventDetailOutputModel), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Models.OutputModels.EventDetailOutputModel>> Post([FromBody, Required] Models.InputModels.EventCreateModel @event)
         {
             // Validate.
@@ -230,15 +227,16 @@ namespace FFischbach.Events.API.Controllers
             return CreatedAtAction(nameof(Get), new { id = dbEvent.Id }, Mapper.Map<Models.OutputModels.EventDetailOutputModel>(dbEvent));
         }
 
-        // POST api/<EventsController>/5/EventManager
+        // POST <EventsController>/5/EventManager
         /// <summary>
         /// Adds a new manager to an event.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="email"></param>
+        /// <param name="id">Id of the event</param>
+        /// <param name="email">Email of the manager</param>
         /// <remarks>Permit other users to manage the event using their email.</remarks>
         [HttpPost("{id}/EventManager")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> AddEventManager([Required] string? id, [FromQuery, Required, EmailAddress] string? email)
         {
             // Validate.
@@ -312,16 +310,110 @@ namespace FFischbach.Events.API.Controllers
             return NoContent();
         }
 
-        //// PUT api/<EventsController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
+        // POST <EventsController>/5/EventManager
+        /// <summary>
+        /// Completes an event.
+        /// </summary>
+        /// <param name="id">Id of the event</param>
+        [HttpPost("{id}/Complete")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<Models.OutputModels.EventDetailOutputModel>> Complete([Required] string? id)
+        {
+            // Validate.
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-        //// DELETE api/<EventsController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
+            // Get display name.
+            string? displayName = User.GetDisplayName();
+
+            if (string.IsNullOrEmpty(displayName))
+            {
+                Logger.LogError("Could not get display name of user.");
+                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
+            }
+
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+            // Get event from the database.
+            Models.Event? dbEvent = (await DatabaseContext.Events
+                                    .Include(x => x.EventManagers!)
+                                        .ThenInclude(x => x.Manager)
+                                    .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
+#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+
+            // Check db response.
+            if (dbEvent == null)
+            {
+                // Nothing found.
+                return NotFound();
+            }
+            else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                // Calling user is not an event manager of that group.
+                return Forbid();
+            }
+
+            // Update the completed value.
+            dbEvent.Completed = true;
+            DatabaseContext.Events.Update(dbEvent);
+            await DatabaseContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // DELETE <EventsController>/5
+        /// <summary>
+        /// Deletes an event as well as all connected groups and participants.
+        /// </summary>
+        /// <param name="id">Id of the event</param>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete([Required] string? id)
+        {
+            // Validate.
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Get display name.
+            string? displayName = User.GetDisplayName();
+
+            if (string.IsNullOrEmpty(displayName))
+            {
+                Logger.LogError("Could not get display name of user.");
+                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            // Get event from the database.
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+            Models.Event? dbEvent = (await DatabaseContext.Events
+                                    .Include(x => x.EventManagers!)
+                                        .ThenInclude(x => x.Manager)
+                                    .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
+#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+
+            // Check db response.
+            if (dbEvent == null)
+            {
+                // Nothing found.
+                return NotFound();
+            }
+            else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                // Calling user is not an event manager of that group.
+                return Forbid();
+            }
+
+            // Remove the event, resulting in a cascade of all groups and participants as well as event managers.
+            DatabaseContext.Events.Remove(dbEvent);
+            await DatabaseContext.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

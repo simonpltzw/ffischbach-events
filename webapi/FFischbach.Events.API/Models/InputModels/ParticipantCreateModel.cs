@@ -29,6 +29,7 @@ namespace FFischbach.Events.API.Models.InputModels
         /// <summary>
         /// Birth date.
         /// </summary>
+        /// <example>2000-12-31</example>
         [Required]
         public DateOnly? BirthDate { get; set; }
     }

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace FFischbach.Events.API.Services
 {
-    public class ParticipantEncryptionResolver : IValueResolver<ParticipantCreateModel, Participant, byte[]>
+    public class ParticipantEncryptedDataResolver : IValueResolver<ParticipantCreateModel, Participant, byte[]>
     {
         public byte[] Resolve(ParticipantCreateModel source, Participant destination, byte[] destMember, ResolutionContext context)
         {
@@ -15,7 +15,7 @@ namespace FFischbach.Events.API.Services
             string publicKey = context.Items["PublicKey"] as string ?? throw new Exception("Missing public key on participant encryption.");
 
             // Import public key in pem format.
-            RSA rsa = RSA.Create();
+            using RSA rsa = RSA.Create();
             rsa.ImportFromPem(publicKey);
 
             // Parse create model to json.

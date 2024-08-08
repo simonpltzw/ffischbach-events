@@ -49,6 +49,21 @@ namespace FFischbach.Events.API
             #region Swagger
             builder.Services.AddSwaggerGen(c =>
             {
+                c.SupportNonNullableReferenceTypes();
+
+                c.MapType<DateOnly>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+                {
+                    Type = "string",
+                    Format = "date('yyyy-MM-dd')"
+                });
+
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "Event-Management Freiwillige Feuerwehr Fischbach",
+                    Contact = new Microsoft.OpenApi.Models.OpenApiContact { Email = "ffischbach-events.rhyme209@passmail.net" },
+                    Version = "v1"
+                });
+
                 c.AddSecurityDefinition("msid", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
                     Type = Microsoft.OpenApi.Models.SecuritySchemeType.OAuth2,

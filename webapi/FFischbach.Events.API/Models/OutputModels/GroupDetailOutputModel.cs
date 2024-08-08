@@ -1,4 +1,6 @@
-﻿namespace FFischbach.Events.API.Models.OutputModels
+﻿#nullable enable
+
+namespace FFischbach.Events.API.Models.OutputModels
 {
     /// <summary>
     /// Group details output model.
@@ -11,14 +13,19 @@
         public int Id { get; set; }
 
         /// <summary>
-        /// Name.
+        /// Hashed name.
         /// </summary>
-        public required string Name { get; set; }
+        public required string HashedName { get; set; }
+
+        /// <summary>
+        /// Encrypted name.
+        /// </summary>
+        public required byte[] EncryptedName { get; set; }
 
         /// <summary>
         /// Category.
         /// </summary>
-        public string? Category { get; set; }
+        public required string Category { get; set; }
 
         /// <summary>
         /// Approved.
@@ -29,6 +36,11 @@
         /// Amount of participants.
         /// </summary>
         public int TotalParticipants { get; set; }
+
+        /// <summary>
+        /// Event.
+        /// </summary>
+        public required GroupEventOutputModel Event { get; set; }
 
         /// <summary>
         /// Contact participant.

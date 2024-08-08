@@ -11,14 +11,14 @@
         public int Id { get; set; }
 
         /// <summary>
-        /// Name.
+        /// Encrypted name.
         /// </summary>
-        public required string Name { get; set; }
+        public required byte[] EncryptedName { get; set; }
 
         /// <summary>
         /// Category.
         /// </summary>
-        public string? Category { get; set; }
+        public required string Category { get; set; }
 
         /// <summary>
         /// Approved.
