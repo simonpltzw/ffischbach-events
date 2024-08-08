@@ -18,6 +18,8 @@ import { ConfirmPopup } from "@/components/popups/ConfirmPopup";
 import { InfoBadge } from "@/components/InfoBadge";
 import { CheckBox } from "@/components/CheckBox";
 import { getLocalDateTime } from "@/util/converter";
+import { EventSettings } from "@/models/EventSettings";
+import { getEventSettings, setEventSettings } from "@/services/eventPassword";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const router = useRouter();
@@ -43,12 +45,19 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   useEffect(() => {
     getToken().then((token: string) => {
+      const eventSettings: EventSettings | undefined = getEventSettings(token);
+
       if (token) {
         getEventById(token, params.event_id).then((event) => {
           event.groups;
 
           dispatch({ type: "set", value: event });
         });
+
+        if (eventSettings && eventSettings.password && eventSettings.eventId == params.event_id) {
+          setIsEncrypted(false);
+          onDecryptData(eventSettings.password);
+        }
       }
     });
   }, []);
@@ -82,11 +91,18 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         })
       );
 
+      const token = await getToken();
+      console.log(token)
+      const eventSetting: EventSettings | undefined = getEventSettings(token);
+      console.log(eventSetting, eventSetting?.eventId, params.event_id);
+
+      setEventSettings(token, { password, eventId: params.event_id });
+
       dispatch({ type: "decGroups", value: state.groups });
       setIsEncrypted(false);
       addToast({ message: "Entschlüsselt", type: "info" });
     } catch (e) {
-      throw new Error("Wrong password");
+      throw new Error("Falsches Passwort");
     }
   };
 

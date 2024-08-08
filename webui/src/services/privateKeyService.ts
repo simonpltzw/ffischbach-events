@@ -1,5 +1,5 @@
 import { ab2str, base64ToArrayBuffer, str2ab } from "@/util/converter";
-import CryptoJS, { AES } from "crypto-js";
+import { AES } from "crypto-js";
 
 export class PrivateKeyService {
   static decryptData = async (key: CryptoKey, encryptedData: string) => {

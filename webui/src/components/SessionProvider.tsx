@@ -15,8 +15,8 @@ export const SessionProvider: FC<SessionProviderProps> = (props: SessionProvider
       <ToastProvider>
         {/*<Callback />*/}
         <AuthenticatedTemplate>
-          <Navigation />
-          <GroupProvider>{props.children}</GroupProvider>
+            <Navigation />
+            <GroupProvider>{props.children}</GroupProvider>
         </AuthenticatedTemplate>
         <UnauthenticatedTemplate>
           <SignIn />
