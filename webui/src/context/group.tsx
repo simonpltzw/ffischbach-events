@@ -34,7 +34,7 @@ export const GroupProvider = ({ children }: any) => {
 
     switch (action.type) {
       case GroupEvent.new:
-        return action.value;
+        return {...action.value};
       case GroupEvent.name:
         newState.name = action.value;
         break;

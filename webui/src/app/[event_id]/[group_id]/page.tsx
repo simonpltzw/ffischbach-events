@@ -5,6 +5,7 @@ import { CheckBox } from "@/components/CheckBox";
 import { Input } from "@/components/Input";
 import { Lock } from "@/components/Lock";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
+import { useEventSettings } from "@/context/eventSettingsContext";
 import { GroupEvent, useGroupContext } from "@/context/group";
 import { useToast } from "@/context/toast";
 import { Group } from "@/models/in/Group";
@@ -15,23 +16,42 @@ import { PrivateKeyService } from "@/services/privateKeyService";
 import useToken from "@/services/tokenService";
 import { ChangeEvent, useEffect, useState } from "react";
 
-const GroupPage = ({ params }: { params: { group_name: string } }) => {
+const GroupPage = ({ params }: { params: { event_id: string; group_id: string } }) => {
   const [groupState, dispatchGroup] = useGroupContext();
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
+  const [eventSettings, setEventSetting] = useEventSettings();
   const { getToken } = useToken();
   const { addToast } = useToast();
   const empty = "***";
 
   useEffect(() => {
     getToken().then((token: string) => {
-      getGroup(token, params.group_name).then((group: Group) => {
+      getGroup(token, params.group_id).then((group: Group) => {
         dispatchGroup({ type: GroupEvent.new, value: group });
         setParticipants([...group.participants]);
       });
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    //objectId as indicator for initial object
+
+    if (
+      eventSettings &&
+      eventSettings.password &&
+      eventSettings.eventId == params.event_id &&
+      !!!groupState.name &&
+      isEncrypted
+    ) {
+      if (groupState.event) {
+        onDecryptData(eventSettings.password);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groupState]);
 
   const onSubmit = () => {
     //todo
@@ -86,12 +106,31 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
       })
     );
 
-    dispatchGroup({ type: GroupEvent.contact_new, value: adaptedContact });
-    dispatchGroup({ type: GroupEvent.name, value: decryptedName });
-    //dispatchGroup({ type: GroupEvent.participants, value: decryptedParticipant });
+    //dispatchGroup({ type: GroupEvent.contact_new, value: adaptedContact });
+    //dispatchGroup({ type: GroupEvent.name, value: decryptedName });
+    //dispatchGroup({ type: GroupEvent.participants, value: decryptedParticipants });
 
-    setParticipants([...decryptedParticipants]);
+    console.log(groupState);
+
+    const updatedGroup: Group = {
+      ...groupState,
+      name: decryptedName,
+      contact: {
+        ...groupState.contact,
+        ...adaptedContact,
+      },
+      participants: decryptedParticipants,
+    };
+
+    dispatchGroup({
+      type: GroupEvent.new,
+      value: updatedGroup,
+    });
+
     setIsEncrypted(false);
+
+    setEventSetting({ eventId: groupState.event?.id, password });
+    setParticipants([...decryptedParticipants]);
     addToast({ message: "Entschlüsselt", type: "info" });
   };
 
@@ -191,7 +230,10 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
 
           {participants.map((p: Participant, i: number) => {
             return (
-              <div key={`participant-${i}`} className="cursor-pointer col-span-full grid grid-cols-subgrid">
+              <div
+                key={`participant-${i}`}
+                className="cursor-pointer col-span-full grid grid-cols-subgrid"
+              >
                 <Input
                   value={p.FirstName ?? empty}
                   placeholder="***"
