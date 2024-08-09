@@ -106,12 +106,6 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       })
     );
 
-    //dispatchGroup({ type: GroupEvent.contact_new, value: adaptedContact });
-    //dispatchGroup({ type: GroupEvent.name, value: decryptedName });
-    //dispatchGroup({ type: GroupEvent.participants, value: decryptedParticipants });
-
-    console.log(groupState);
-
     const updatedGroup: Group = {
       ...groupState,
       name: decryptedName,
