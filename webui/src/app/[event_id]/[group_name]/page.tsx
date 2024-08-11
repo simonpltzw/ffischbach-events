@@ -116,25 +116,27 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
           }
         />
       </div>
-      <div className="relative">
+      <div>
         <label className="block text-sm font-semibold h-fit mb-2 ">Kategorie</label>
-        <select
-          value={groupState.category ?? empty}
-          className=" appearance-none shadow border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
+        <div className="relative">
+          <select
+            value={groupState.category ?? empty}
+            className=" appearance-none shadow border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
               bg-gray-50 text-black dark:text-white dark:bg-gray-900 dark:border-0 h-10
               dark:border-0 ring-0 block p-2.5 dark:bg-gray-700 dark:bg-gray-900 dark:placeholder-gray-400 dark:text-white dark:focus:ring-0 dark:focus:border-0
 
               "
-          onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-            dispatchGroup({ type: GroupEvent.category, value: e.target.value })
-          }
-        >
-          <option value="Feuerwehr">Feuerwehr Fischbach</option>
-          <option value="Verein">Verein</option>
-          <option value="Privat">Privat</option>
-        </select>
-        <div className="absolute h-full top-0 right-0 flex items-center pointer-events-none mr-4">
-          <ChevronDownIcon height={20} />
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              dispatchGroup({ type: GroupEvent.category, value: e.target.value })
+            }
+          >
+            <option value="Feuerwehr">Feuerwehr Fischbach</option>
+            <option value="Verein">Verein</option>
+            <option value="Privat">Privat</option>
+          </select>
+          <div className="absolute h-full top-0 right-0 flex items-center pointer-events-none mr-4">
+            <ChevronDownIcon height={20} />
+          </div>
         </div>
       </div>
       <CheckBox
