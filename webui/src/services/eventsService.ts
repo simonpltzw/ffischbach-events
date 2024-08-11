@@ -61,4 +61,6 @@ export const addEventManager = async (token: string, eventId: string, email: str
       },
     }
   );
+
+  return response
 };

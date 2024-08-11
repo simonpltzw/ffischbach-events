@@ -1,5 +1,5 @@
 import { EventSettings } from "@/models/EventSettings";
-import { AES } from "crypto-js";
+import CryptoJS, { AES } from "crypto-js";
 
 const name = "eventSetting";
 
