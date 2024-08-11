@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FC, useEffect, useState } from "react";
 import { getEvents } from "@/services/eventsService";
-import { CreateEventPopup } from "@/components/popups/CreateEventPopup";
 import { Event } from "@/models/in/Event";
 import useToken from "@/services/tokenService";
 import { Input } from "@/components/Input";
@@ -11,6 +10,7 @@ import { useToast } from "@/context/toast";
 import { Button } from "@/components/Button";
 import { CheckBox } from "@/components/CheckBox";
 import { getLocalDateTime } from "@/util/converter";
+import { CreateEventPopup } from "@/components/popups/createEventPopup";
 
 const Root: FC<any> = () => {
   const { addToast } = useToast();
@@ -49,7 +49,8 @@ const Root: FC<any> = () => {
         </Button>
       </div>
       <div className="flex flex-col gap-3">
-        <div className="flex flex-col-reverse flex-col gap-3 items-start mb-10">
+        <label className="text-lg font-bold">Filter</label>
+        <div className="flex flex-row-reverse gap-5 items-start mb-10">
           <Input
             containerClassName="w-full"
             value={filter}
@@ -58,7 +59,7 @@ const Root: FC<any> = () => {
             onChange={(e: ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
           />
           <div className="flex flex-col">
-            <label className={`block text-sm font-bold h-fit mb-2`} htmlFor="username">
+            <label className={`block text-sm font-semibold h-fit mb-2`} htmlFor="username">
               Beendet
             </label>
             <CheckBox
