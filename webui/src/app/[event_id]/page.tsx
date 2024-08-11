@@ -21,6 +21,14 @@ import { getLocalDateTime } from "@/util/converter";
 import { useEventSettings } from "@/context/eventSettingsContext";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
+  type StateActionType = "updateApproved" | "set" | "decGroups";
+
+  interface StateAction {
+    type: StateActionType;
+    value: any;
+    index?: number;
+  }
+
   const router = useRouter();
   const { addToast } = useToast();
   const { getToken } = useToken();
@@ -29,19 +37,26 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [managerPopupVisible, setManagerPopupVisible] = useState<boolean>(false);
   const [confirmCompletePopupVisible, setConfirmCompletePopupVisible] = useState<boolean>(false);
   const [eventSettings, setEventSetting] = useEventSettings();
-  const [state, dispatch] = useReducer<Reducer<Event, any>>((state: Event, action: any): any => {
-    if (action.type === "updateApproved") {
-      const groups: Group[] = state.groups!;
-      groups[action.index].approved = action.value;
-    } else if (action.type === "set") {
-      return action.value;
-    } else if (action.type === "decGroups") {
-      state.groups = action.value;
-      return { ...state };
-    }
+  const [state, dispatch] = useReducer<Reducer<Event, any>>(
+    (state: Event, action: StateAction): any => {
+      switch (action.type) {
+        case "updateApproved":
+          if (action.index) {
+            const groups: Group[] = state.groups!;
+            groups[action.index].approved = action.value;
+          }
+          break;
+        case "set":
+          return action.value;
+        case "decGroups":
+          state.groups = action.value;
+          return { ...state };
+      }
 
-    return state;
-  }, new Event("", "", "", 1, 1, false, "", "", "", []));
+      return state;
+    },
+    new Event("", "", "", 1, 1, false, "", "", "", [])
+  );
 
   useEffect(() => {
     getToken().then((token: string) => {
