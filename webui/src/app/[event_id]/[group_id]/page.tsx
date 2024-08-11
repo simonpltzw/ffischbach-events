@@ -29,7 +29,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   useEffect(() => {
     getToken().then((token: string) => {
       getGroup(token, params.group_id).then((group: Group) => {
-        dispatchGroup({ type: GroupEvent.new, value: group });
+        dispatchGroup({ type: 'new', value: group });
         setParticipants([...group.participants]);
       });
     });
@@ -61,7 +61,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       updateGroup(token, groupState);
       addToast({ message: "Gruppe aktualisiert", type: "info" });
 
-      dispatchGroup({ type: GroupEvent.new, value: groupState });
+      dispatchGroup({ type: 'new', value: groupState });
     });
   };
 
@@ -117,7 +117,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
     };
 
     dispatchGroup({
-      type: GroupEvent.new,
+      type: 'new',
       value: updatedGroup,
     });
 
@@ -144,7 +144,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
           title="Name"
           placeholder=""
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            dispatchGroup({ type: GroupEvent.name, value: e.target.value })
+            dispatchGroup({ type: 'name', value: e.target.value })
           }
         />
       </div>
@@ -154,7 +154,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
               bg-gray-50 text-black dark:text-white dark:bg-gray-900 dark:border-0 h-10
               dark:border-0 ring-0 block p-2.5 dark:bg-gray-700 dark:bg-gray-900 dark:placeholder-gray-400 dark:text-white dark:focus:ring-0 dark:focus:border-0"
         onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-          dispatchGroup({ type: GroupEvent.category, value: e.target.value })
+          dispatchGroup({ type: 'category', value: e.target.value })
         }
       >
         <option value="Feuerwehr">Feuerwehr Fischbach</option>
@@ -177,7 +177,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             title="Vorname"
             placeholder=""
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: GroupEvent.contact_firstName, value: e.target.value })
+              dispatchGroup({ type: 'contact_firstName', value: e.target.value })
             }
           />
           <Input
@@ -185,7 +185,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             title="Nachname"
             placeholder=""
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: GroupEvent.contact_lastName, value: e.target.value })
+              dispatchGroup({ type: 'contact_lastName', value: e.target.value })
             }
           />
           <Input
@@ -194,7 +194,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             placeholder=""
             type="email"
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: GroupEvent.contact_email, value: e.target.value })
+              dispatchGroup({ type: 'contact_email', value: e.target.value })
             }
           />
           <Input
@@ -203,7 +203,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             placeholder=""
             type="date"
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: GroupEvent.contact_birthDate, value: e.target.value })
+              dispatchGroup({ type: 'contact_birthDate', value: e.target.value })
             }
           />
           <CheckBox

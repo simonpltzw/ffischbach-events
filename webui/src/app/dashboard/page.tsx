@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FC, useEffect, useState } from "react";
 import { getEvents } from "@/services/eventsService";
-import { CreateEventPopup } from "@/components/popups/CreateEventPopup";
 import { Event } from "@/models/in/Event";
 import useToken from "@/services/tokenService";
 import { Input } from "@/components/Input";
@@ -11,6 +10,7 @@ import { useToast } from "@/context/toast";
 import { Button } from "@/components/Button";
 import { CheckBox } from "@/components/CheckBox";
 import { getLocalDateTime } from "@/util/converter";
+import { CreateEventPopup } from "@/components/popups/createEventPopup";
 
 const Root: FC<any> = () => {
   const { addToast } = useToast();
