@@ -8,6 +8,7 @@ const Root: FC<any> = () => {
 
   useEffect(() => {
     router.replace("/dashboard");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <></>;
