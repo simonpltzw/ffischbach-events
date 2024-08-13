@@ -30,6 +30,7 @@ export const Links: FC<LinksProps> = (props: LinksProps) => {
         return;
       }
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathName]);
 
   const generateStyle = useCallback(
