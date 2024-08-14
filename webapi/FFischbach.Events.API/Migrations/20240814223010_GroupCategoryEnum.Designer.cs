@@ -3,6 +3,7 @@ using System;
 using FFischbach.Events.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FFischbach.Events.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240814223010_GroupCategoryEnum")]
+    partial class GroupCategoryEnum
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +55,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.EventManager", b =>
@@ -79,7 +82,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("EventManagers", (string)null);
+                    b.ToTable("EventManagers");
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Group", b =>
@@ -116,7 +119,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Groups", (string)null);
+                    b.ToTable("Groups");
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Manager", b =>
@@ -137,7 +140,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Managers", (string)null);
+                    b.ToTable("Managers");
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Participant", b =>
@@ -168,7 +171,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("Participants", (string)null);
+                    b.ToTable("Participants");
                 });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.EventManager", b =>
