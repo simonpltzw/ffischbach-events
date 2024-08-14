@@ -64,8 +64,9 @@ const Root: FC<any> = () => {
             </label>
             <CheckBox
               value={isFilterComplete}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setFilterComplete(e.target.value == "true" ? true : false)
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>{
+                setFilterComplete(e.target.checked)
+              }
               }
             />
           </div>

@@ -140,7 +140,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           <div>{group.contact.LastName ?? "***"}</div>
         </div>
         <div>
-          <CheckBox disabled value />
+          <CheckBox disabled value={group.approved} />
         </div>
         <div>{getLocalDateTime(group.createdAt)}</div>
         <div

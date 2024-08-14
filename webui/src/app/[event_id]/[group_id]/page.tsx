@@ -6,7 +6,7 @@ import { Input } from "@/components/Input";
 import { Lock } from "@/components/Lock";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { useEventSettings } from "@/context/eventSettingsContext";
-import { GroupEvent, useGroupContext } from "@/context/group";
+import { useGroupContext } from "@/context/group";
 import { useToast } from "@/context/toast";
 import { Group } from "@/models/in/Group";
 import { Participant } from "@/models/in/Participant";
@@ -14,7 +14,7 @@ import { getGroup, updateGroup } from "@/services/groupsService";
 import { decryptKeyWithPassword } from "@/services/passwordService";
 import { PrivateKeyService } from "@/services/privateKeyService";
 import useToken from "@/services/tokenService";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useLayoutEffect, useState } from "react";
 
 const GroupPage = ({ params }: { params: { event_id: string; group_id: string } }) => {
   const [groupState, dispatchGroup] = useGroupContext();
@@ -26,7 +26,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   const { addToast } = useToast();
   const empty = "***";
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     getToken().then((token: string) => {
       getGroup(token, params.group_id).then((group: Group) => {
         dispatchGroup({ type: 'new', value: group });
@@ -163,9 +163,9 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       </select>
       <CheckBox
         title="Genehmigt"
-        value={groupState.approved ?? false}
+        value={groupState.approved}
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          groupState.approved = e.target.value == "true" ? true : false;
+          dispatchGroup({ type: 'approved', value: e.target.checked})
         }}
       />
 
@@ -210,7 +210,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             title="VIP"
             value={groupState.contact.vip ?? false}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              groupState.contact.vip = e.target.value == "true" ? true : false;
+              dispatchGroup({type: 'contact_vip', value: e.target.checked})
             }}
           />
         </div>
