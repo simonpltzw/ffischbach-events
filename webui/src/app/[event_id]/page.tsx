@@ -1,6 +1,6 @@
 "use client";
 
-import { Reducer, useEffect, useReducer, useState } from "react";
+import { Reducer, useEffect, useLayoutEffect, useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
@@ -58,7 +58,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     new Event("", "", "", 1, 1, false, "", "", "", [])
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     getToken().then((token: string) => {
       if (token) {
         getEventById(token, params.event_id).then((event) => {
