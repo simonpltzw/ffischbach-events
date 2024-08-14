@@ -1,4 +1,8 @@
-﻿namespace FFischbach.Events.API.Models.OutputModels
+﻿using FFischbach.Events.API.Models.Enums;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace FFischbach.Events.API.Models.OutputModels
 {
     /// <summary>
     /// Group output model.
@@ -18,7 +22,7 @@
         /// <summary>
         /// Category.
         /// </summary>
-        public required string Category { get; set; }
+        public required GroupCategory Category { get; set; }
 
         /// <summary>
         /// Approved.

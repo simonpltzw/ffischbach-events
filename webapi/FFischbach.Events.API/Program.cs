@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
+using Newtonsoft.Json.Converters;
 using Serilog;
 using System.Reflection;
 
@@ -41,12 +42,14 @@ namespace FFischbach.Events.API
             #endregion Authentication
 
             #region Routing
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson(options => options.SerializerSettings.Converters.Add(new StringEnumConverter()));
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             #endregion Routing
 
             #region Swagger
+            builder.Services.AddSwaggerGenNewtonsoftSupport();
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SupportNonNullableReferenceTypes();

@@ -1,5 +1,9 @@
 ﻿#nullable enable
 
+using FFischbach.Events.API.Models.Enums;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace FFischbach.Events.API.Models.OutputModels
 {
     /// <summary>
@@ -25,7 +29,7 @@ namespace FFischbach.Events.API.Models.OutputModels
         /// <summary>
         /// Category.
         /// </summary>
-        public required string Category { get; set; }
+        public required GroupCategory Category { get; set; }
 
         /// <summary>
         /// Approved.
