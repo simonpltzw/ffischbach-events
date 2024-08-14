@@ -18,10 +18,17 @@ import { ConfirmPopup } from "@/components/popups/ConfirmPopup";
 import { InfoBadge } from "@/components/InfoBadge";
 import { CheckBox } from "@/components/CheckBox";
 import { getLocalDateTime } from "@/util/converter";
-import { EventSettings } from "@/models/EventSettings";
-import { getEventSettings, setEventSettings } from "@/services/eventPassword";
+import { useEventSettings } from "@/context/eventSettingsContext";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
+  type StateActionType = "updateApproved" | "set" | "decGroups";
+
+  interface StateAction {
+    type: StateActionType;
+    value: any;
+    index?: number;
+  }
+
   const router = useRouter();
   const { addToast } = useToast();
   const { getToken } = useToken();
@@ -29,38 +36,52 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
   const [managerPopupVisible, setManagerPopupVisible] = useState<boolean>(false);
   const [confirmCompletePopupVisible, setConfirmCompletePopupVisible] = useState<boolean>(false);
-  const [state, dispatch] = useReducer<Reducer<Event, any>>((state: Event, action: any): any => {
-    if (action.type === "updateApproved") {
-      const groups: Group[] = state.groups!;
-      groups[action.index].approved = action.value;
-    } else if (action.type === "set") {
-      return action.value;
-    } else if (action.type === "decGroups") {
-      state.groups = action.value;
-      return { ...state };
-    }
+  const [eventSettings, setEventSetting] = useEventSettings();
+  const [state, dispatch] = useReducer<Reducer<Event, any>>(
+    (state: Event, action: StateAction): any => {
+      switch (action.type) {
+        case "updateApproved":
+          if (action.index) {
+            const groups: Group[] = state.groups!;
+            groups[action.index].approved = action.value;
+          }
+          break;
+        case "set":
+          return action.value;
+        case "decGroups":
+          state.groups = action.value;
+          return { ...state };
+      }
 
-    return state;
-  }, new Event("", "", "", 1, 1, false, "", "", "", []));
+      return state;
+    },
+    new Event("", "", "", 1, 1, false, "", "", "", [])
+  );
 
   useEffect(() => {
     getToken().then((token: string) => {
-      const eventSettings: EventSettings | undefined = getEventSettings(token);
-
       if (token) {
         getEventById(token, params.event_id).then((event) => {
-          event.groups;
-
           dispatch({ type: "set", value: event });
         });
-
-        if (eventSettings && eventSettings.password && eventSettings.eventId == params.event_id) {
-          setIsEncrypted(false);
-          onDecryptData(eventSettings.password);
-        }
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    //objectId as indicator for initial object
+    if (
+      eventSettings &&
+      eventSettings.password &&
+      eventSettings.eventId == params.event_id &&
+      state.id.length &&
+      isEncrypted
+    ) {
+      onDecryptData(eventSettings.password);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
 
   const onCompleteEvent = () => {
     getToken().then((token: string) => {
@@ -70,7 +91,6 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   };
 
   const onDecryptData = async (password: string) => {
-    //todo add password
     try {
       const privateKey = decryptKeyWithPassword(state.encryptedPrivateKey, password);
       const key: CryptoKey = await PrivateKeyService.importPrivateKey(privateKey);
@@ -78,6 +98,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       state.groups = await Promise.all(
         state.groups!.map(async (group) => {
           const decryptedGroupName = await PrivateKeyService.decryptData(key, group.encryptedName!);
+
           group.name = decryptedGroupName;
 
           const decryptedContactJson = await PrivateKeyService.decryptData(
@@ -91,11 +112,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         })
       );
 
-      const token = await getToken();
-      const eventSetting: EventSettings | undefined = getEventSettings(token);
-      console.log(eventSetting, eventSetting?.eventId, params.event_id);
-
-      setEventSettings(token, { password, eventId: params.event_id });
+      setEventSetting({ eventId: params.event_id, password });
 
       dispatch({ type: "decGroups", value: state.groups });
       setIsEncrypted(false);

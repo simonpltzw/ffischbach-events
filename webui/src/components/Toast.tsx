@@ -24,6 +24,7 @@ export const ToastComponent: FC<ToastProps> = (props: ToastProps) => {
     setTimeout(() => {
       removeToast(props.index);
     }, 2500);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
