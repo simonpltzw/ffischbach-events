@@ -11,6 +11,7 @@ const SignIn = () => {
     if (instance) {
       instance.loginRedirect(loginRequest)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <></>;
