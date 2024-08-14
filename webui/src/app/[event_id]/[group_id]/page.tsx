@@ -5,6 +5,7 @@ import { CheckBox } from "@/components/CheckBox";
 import { Input } from "@/components/Input";
 import { Lock } from "@/components/Lock";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
+import { useEventSettings } from "@/context/eventSettingsContext";
 import { GroupEvent, useGroupContext } from "@/context/group";
 import { useToast } from "@/context/toast";
 import { Group } from "@/models/in/Group";
@@ -13,26 +14,44 @@ import { getGroup, updateGroup } from "@/services/groupsService";
 import { decryptKeyWithPassword } from "@/services/passwordService";
 import { PrivateKeyService } from "@/services/privateKeyService";
 import useToken from "@/services/tokenService";
-import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { ChangeEvent, useEffect, useState } from "react";
 
-const GroupPage = ({ params }: { params: { group_name: string } }) => {
+const GroupPage = ({ params }: { params: { event_id: string; group_id: string } }) => {
   const [groupState, dispatchGroup] = useGroupContext();
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
+  const [eventSettings, setEventSetting] = useEventSettings();
   const { getToken } = useToken();
   const { addToast } = useToast();
   const empty = "***";
 
   useEffect(() => {
     getToken().then((token: string) => {
-      getGroup(token, params.group_name).then((group: Group) => {
-        dispatchGroup({ type: GroupEvent.new, value: group });
+      getGroup(token, params.group_id).then((group: Group) => {
+        dispatchGroup({ type: 'new', value: group });
         setParticipants([...group.participants]);
       });
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    //objectId as indicator for initial object
+
+    if (
+      eventSettings &&
+      eventSettings.password &&
+      eventSettings.eventId == params.event_id &&
+      !!!groupState.name &&
+      isEncrypted
+    ) {
+      if (groupState.event) {
+        onDecryptData(eventSettings.password);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groupState]);
 
   const onSubmit = () => {
     //todo
@@ -42,7 +61,7 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
       updateGroup(token, groupState);
       addToast({ message: "Gruppe aktualisiert", type: "info" });
 
-      dispatchGroup({ type: GroupEvent.new, value: groupState });
+      dispatchGroup({ type: 'new', value: groupState });
     });
   };
 
@@ -87,12 +106,25 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
       })
     );
 
-    dispatchGroup({ type: GroupEvent.contact_new, value: adaptedContact });
-    dispatchGroup({ type: GroupEvent.name, value: decryptedName });
-    //dispatchGroup({ type: GroupEvent.participants, value: decryptedParticipant });
+    const updatedGroup: Group = {
+      ...groupState,
+      name: decryptedName,
+      contact: {
+        ...groupState.contact,
+        ...adaptedContact,
+      },
+      participants: decryptedParticipants,
+    };
 
-    setParticipants([...decryptedParticipants]);
+    dispatchGroup({
+      type: 'new',
+      value: updatedGroup,
+    });
+
     setIsEncrypted(false);
+
+    setEventSetting({ eventId: groupState.event?.id, password });
+    setParticipants([...decryptedParticipants]);
     addToast({ message: "Entschlüsselt", type: "info" });
   };
 
@@ -112,33 +144,23 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
           title="Name"
           placeholder=""
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            dispatchGroup({ type: GroupEvent.name, value: e.target.value })
+            dispatchGroup({ type: 'name', value: e.target.value })
           }
         />
       </div>
-      <div>
-        <label className="block text-sm font-semibold h-fit mb-2 ">Kategorie</label>
-        <div className="relative">
-          <select
-            value={groupState.category ?? empty}
-            className=" appearance-none shadow border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
+      <select
+        value={groupState.category ?? empty}
+        className="shadow border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
               bg-gray-50 text-black dark:text-white dark:bg-gray-900 dark:border-0 h-10
-              dark:border-0 ring-0 block p-2.5 dark:bg-gray-700 dark:bg-gray-900 dark:placeholder-gray-400 dark:text-white dark:focus:ring-0 dark:focus:border-0
-
-              "
-            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-              dispatchGroup({ type: GroupEvent.category, value: e.target.value })
-            }
-          >
-            <option value="Feuerwehr">Feuerwehr Fischbach</option>
-            <option value="Verein">Verein</option>
-            <option value="Privat">Privat</option>
-          </select>
-          <div className="absolute h-full top-0 right-0 flex items-center pointer-events-none mr-4">
-            <ChevronDownIcon height={20} />
-          </div>
-        </div>
-      </div>
+              dark:border-0 ring-0 block p-2.5 dark:bg-gray-700 dark:bg-gray-900 dark:placeholder-gray-400 dark:text-white dark:focus:ring-0 dark:focus:border-0"
+        onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+          dispatchGroup({ type: 'category', value: e.target.value })
+        }
+      >
+        <option value="Feuerwehr">Feuerwehr Fischbach</option>
+        <option value="Verein">Verein</option>
+        <option value="Privat">Privat</option>
+      </select>
       <CheckBox
         title="Genehmigt"
         value={groupState.approved ?? false}
@@ -155,7 +177,7 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
             title="Vorname"
             placeholder=""
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: GroupEvent.contact_firstName, value: e.target.value })
+              dispatchGroup({ type: 'contact_firstName', value: e.target.value })
             }
           />
           <Input
@@ -163,7 +185,7 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
             title="Nachname"
             placeholder=""
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: GroupEvent.contact_lastName, value: e.target.value })
+              dispatchGroup({ type: 'contact_lastName', value: e.target.value })
             }
           />
           <Input
@@ -172,7 +194,7 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
             placeholder=""
             type="email"
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: GroupEvent.contact_email, value: e.target.value })
+              dispatchGroup({ type: 'contact_email', value: e.target.value })
             }
           />
           <Input
@@ -181,7 +203,7 @@ const GroupPage = ({ params }: { params: { group_name: string } }) => {
             placeholder=""
             type="date"
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: GroupEvent.contact_birthDate, value: e.target.value })
+              dispatchGroup({ type: 'contact_birthDate', value: e.target.value })
             }
           />
           <CheckBox
