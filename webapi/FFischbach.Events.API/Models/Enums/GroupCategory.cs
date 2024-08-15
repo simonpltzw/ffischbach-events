@@ -19,7 +19,7 @@ namespace FFischbach.Events.API.Models.Enums
         [EnumMember(Value = "Kelkheimer Vereine")]
         Kelkheim_Vereine = 400,
         
-        [EnumMember(Value = "Privatgruppem")]
+        [EnumMember(Value = "Privatgruppen")]
         Privatgruppen = 500,
 
         [EnumMember(Value = "Bauhof Stadt Kelkheim")]
