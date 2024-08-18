@@ -205,6 +205,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         </div>
       </div>
       <PasswordPopup
+        title="Events entschlüsseln"
         state={{ open: passwordPopupVisible, setOpen: setPasswordPopupVisible }}
         done={onDecryptData}
       />

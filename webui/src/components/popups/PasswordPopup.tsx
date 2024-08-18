@@ -4,6 +4,7 @@ import { Input } from "../Input";
 import { Button } from "../Button";
 
 export interface PasswordPopupProps extends HTMLAttributes<HTMLElement> {
+  title: string
   state: {
     open: boolean;
     setOpen(b: boolean): void;
@@ -12,10 +13,7 @@ export interface PasswordPopupProps extends HTMLAttributes<HTMLElement> {
 }
 
 export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps) => {
-  const cancelButtonRef = useRef(null);
-
   const [password, setPassword] = useState<string>("");
-
   const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
@@ -58,7 +56,7 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
             transition
             className="w-full max-w-md rounded-xl border border-2 dark:border-0 bg-gray-400 dark:bg-gray-800 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
           >
-            <DialogTitle className="text-base font-semibold leading-6">Event erstellen</DialogTitle>
+            <DialogTitle className="text-base font-semibold leading-6">{props.title}</DialogTitle>
             <form id="form" className="mt-2 flex flex-col gap-3">
               <Input
                 type="password"
