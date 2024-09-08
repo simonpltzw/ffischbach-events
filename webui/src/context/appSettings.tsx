@@ -12,7 +12,6 @@ export const AppSettingsProvider = ({ children }: any) => {
   useEffect(() => {
     setAppSettings((state: AppSettings) => {
       const isDarkMode = localStorage.getItem("theme") == "dark" ? true : false;
-      console.log(isDarkMode);
       return {
         ...state,
         isDarkMode,
