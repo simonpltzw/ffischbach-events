@@ -124,7 +124,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const onAddEventManager = async (email: string) => {
     const token = await getToken();
-    await addEventManager(token, params.event_id, email);
+    
+    const response = await addEventManager(token, params.event_id, email);
+    if(response) {
+      addToast({message: "Manager hinzugefügt", type: 'info'})
+    }
   };
 
   const generateGroupEntry = (group: Group, index: number) => {
