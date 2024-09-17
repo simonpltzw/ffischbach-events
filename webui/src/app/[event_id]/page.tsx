@@ -159,6 +159,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     <>
       {state.completed && <InfoBadge text="Event ist beendet" />}
       <Lock isLocked={isEncrypted} openPopup={() => setPasswordPopupVisible(true)} />
+      <div className="mb-3 font-bold text-xl">Übersicht Gruppe</div>
       <div className="flex flex-row gap-3">
         <div>Event Name: </div>
         <h3 className="text-base font-semibold">{state?.id}</h3>
