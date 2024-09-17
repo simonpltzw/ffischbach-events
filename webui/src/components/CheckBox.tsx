@@ -13,8 +13,8 @@ export const CheckBox: FC<CheckBoxProps> = (props: CheckBoxProps) => {
   const [value, setValue] = useState<boolean>(props.value);
 
   return (
-    <div className="flex flex-col gap-3">
-      {props.title && <label className={`block text-sm font-bold h-fit mb-2`}>{props.title}</label>}
+    <div className="flex flex-col gap-2">
+      {props.title && <label className={`block text-sm font-bold h-fit`}>{props.title}</label>}
       <div className="flex items-center w-10 h-10">
         <input
           disabled={props.disabled}

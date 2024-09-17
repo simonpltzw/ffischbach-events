@@ -28,7 +28,7 @@ export const Input: FC<InputProps> = (props: InputProps) => {
     <div className={`w-full ${props.containerClassName}`}>
       {props.title && (
         <label
-          className={`block text-sm font-bold h-fit mb-2 ${props.labelClassName}`}
+          className={`block text-sm font-semibold h-fit mb-2 ${props.labelClassName}`}
           htmlFor="username"
         >
           {props.title}
