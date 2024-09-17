@@ -50,7 +50,8 @@ const Root: FC<any> = () => {
         </Button>
       </div>
       <div className="flex flex-col gap-3">
-        <div className="flex flex-col-reverse flex-col gap-3 items-start mb-10">
+        <label className="text-lg font-bold">Filter</label>
+        <div className="flex flex-row-reverse gap-5 items-start mb-10">
           <Input
             containerClassName="w-full"
             value={filter}
@@ -59,7 +60,7 @@ const Root: FC<any> = () => {
             onChange={(e: ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
           />
           <div className="flex flex-col">
-            <label className={`block text-sm font-bold h-fit mb-2`} htmlFor="username">
+            <label className={`block text-sm font-semibold h-fit mb-2`} htmlFor="username">
               Beendet
             </label>
             <CheckBox
