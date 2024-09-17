@@ -41,8 +41,6 @@ const Root: FC<any> = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => console.log(eventList))
-
   return (
     <>
       <div className="flex flex-row justify-between gap-3 items-center mb-5">
@@ -68,7 +66,7 @@ const Root: FC<any> = () => {
             <CheckBox
               value={isFilterComplete}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setFilterComplete(e.target.value == "true" ? true : false)
+                setFilterComplete(e.target.checked)
               }
             />
           </div>

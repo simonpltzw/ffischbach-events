@@ -226,12 +226,12 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             />
             <div className="flex flex-col">
               <label className={`block text-sm font-semibold h-fit mb-2`} htmlFor="username">
-                Beendet
+                Genehmigt
               </label>
               <CheckBox
                 value={filterApproved}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setFilterApproved(e.target.value == "true" ? true : false)
+                  setFilterApproved(e.target.checked)
                 }
               />
             </div>

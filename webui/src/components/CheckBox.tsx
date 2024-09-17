@@ -12,19 +12,21 @@ export interface CheckBoxProps extends HTMLAttributes<HTMLElement> {
 export const CheckBox: FC<CheckBoxProps> = (props: CheckBoxProps) => {
   const [value, setValue] = useState<boolean>(props.value);
 
+  useEffect(() => setValue(props.value), [props.value]);
+
   return (
-    <div className="flex flex-col gap-2">
-      {props.title && <label className={`block text-sm font-bold h-fit`}>{props.title}</label>}
+    <div className="flex flex-col gap-3">
+      {props.title && <label className={`block text-sm font-bold h-fit mb-2`}>{props.title}</label>}
       <div className="flex items-center w-10 h-10">
         <input
           disabled={props.disabled}
           type="checkbox"
-          value={value.toString() ?? "false"}
+          checked={value}
           onChange={(e: ChangeEvent<HTMLInputElement>) => {
             if (!!props.onChange) {
               props.onChange(e);
             }
-            setValue(e.target.value != "true" ? true : false);
+            setValue(e.target.checked);
           }}
           className="relative shadow cursor-pointer disabled:cursor-default appearance-none w-10 h-10 bg-gray-50 border border-gray-300 rounded 
           dark:bg-gray-900 dark:border-0
@@ -37,5 +39,3 @@ export const CheckBox: FC<CheckBoxProps> = (props: CheckBoxProps) => {
     </div>
   );
 };
-
-//

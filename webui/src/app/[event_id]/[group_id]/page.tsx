@@ -165,7 +165,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
         title="Genehmigt"
         value={groupState.approved ?? false}
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          groupState.approved = e.target.value == "true" ? true : false;
+          groupState.approved = e.target.checked;
         }}
       />
 
@@ -210,7 +210,8 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             title="VIP"
             value={groupState.contact.vip ?? false}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              groupState.contact.vip = e.target.value == "true" ? true : false;
+              dispatchGroup({ type: "contact_birthDate", value: e.target.value })
+              groupState.contact.vip = e.target.checked;
             }}
           />
         </div>
