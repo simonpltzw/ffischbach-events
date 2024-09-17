@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
 import { addEventManager, getEventById, setEventCompleted } from "@/services/eventsService";
-import { decryptKeyWithPassword } from "@/services/passwordService";
-import { PrivateKeyService } from "@/services/privateKeyService";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { AddEventManagerPopup } from "@/components/popups/AddEventManager";
 import useToken from "@/services/tokenService";
@@ -19,6 +17,8 @@ import { InfoBadge } from "@/components/InfoBadge";
 import { CheckBox } from "@/components/CheckBox";
 import { getLocalDateTime } from "@/util/converter";
 import { useEventSettings } from "@/context/eventSettingsContext";
+import { decryptEvent } from "@/services/decryptService";
+import { useJsonToCsv } from "@/services/dataPreparationService";
 import { Input } from "@/components/Input";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
@@ -38,6 +38,8 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [managerPopupVisible, setManagerPopupVisible] = useState<boolean>(false);
   const [confirmCompletePopupVisible, setConfirmCompletePopupVisible] = useState<boolean>(false);
   const [eventSettings, setEventSetting] = useEventSettings();
+  const {parse} = useJsonToCsv()
+
   const [filter, setFilter] = useState<string>("");
   const [filterApproved, setFilterApproved] = useState<boolean>(false);
 
@@ -96,26 +98,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const onDecryptData = async (password: string) => {
     try {
-      const privateKey = decryptKeyWithPassword(state.encryptedPrivateKey, password);
-      const key: CryptoKey = await PrivateKeyService.importPrivateKey(privateKey);
-
-      state.groups = await Promise.all(
-        state.groups!.map(async (group) => {
-          const decryptedGroupName = await PrivateKeyService.decryptData(key, group.encryptedName!);
-
-          group.name = decryptedGroupName;
-
-          const decryptedContactJson = await PrivateKeyService.decryptData(
-            key,
-            group.contact.encryptedData!
-          );
-          const decryptedContact = JSON.parse(decryptedContactJson);
-          group.contact = decryptedContact;
-
-          return group;
-        })
-      );
-
+      state.groups = await decryptEvent(state, password)
       setEventSetting({ eventId: params.event_id, password });
 
       dispatch({ type: "decGroups", value: state.groups });
@@ -211,6 +194,26 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           >
             Event beenden
           </Button>
+          <Button
+            className="md:flex-none flex-1"
+            type="button"
+            onClick={async () => {
+              const data = await parse(state)
+              const file = new File([data], 'd.csv')
+              const url = URL.createObjectURL(file)
+
+              const a = document.createElement("a")
+              a.href = url
+              a.download = file.name
+
+              document.body.appendChild(a)
+              a.click()
+
+              document.body.removeChild(a)
+            }}
+          >
+            Event exportieren
+          </Button>
         </div>
       )}
       <div className="w-full">
@@ -255,7 +258,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         </div>
       </div>
       <PasswordPopup
-        title="Events entschlüsseln"
+        title="Event entschlüsseln"
         state={{ open: passwordPopupVisible, setOpen: setPasswordPopupVisible }}
         done={onDecryptData}
       />

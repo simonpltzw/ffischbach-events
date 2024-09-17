@@ -5,7 +5,7 @@ import { GroupOut } from "@/models/out/GroupOut";
 import { ParticipantOut } from "@/models/out/ParticipantOut";
 import { Participant } from "@/models/in/Participant";
 
-export const getGroup = async (token: string, groupId: string) => {
+export const getGroup = async (token: string, groupId: number) => {
   const response = await axios.get<Group>(`${process.env.NEXT_PUBLIC_WEB_API}/Groups/${groupId}`, {
     headers: {
       Authorization: "Bearer " + token,

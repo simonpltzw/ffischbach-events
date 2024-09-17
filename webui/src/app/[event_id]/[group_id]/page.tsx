@@ -6,13 +6,12 @@ import { Input } from "@/components/Input";
 import { Lock } from "@/components/Lock";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { useEventSettings } from "@/context/eventSettingsContext";
-import { GroupEvent, useGroupContext } from "@/context/group";
+import { useGroupContext } from "@/context/group";
 import { useToast } from "@/context/toast";
 import { Group } from "@/models/in/Group";
 import { Participant } from "@/models/in/Participant";
+import { decryptGroup } from "@/services/decryptService";
 import { getGroup, updateGroup } from "@/services/groupsService";
-import { decryptKeyWithPassword } from "@/services/passwordService";
-import { PrivateKeyService } from "@/services/privateKeyService";
 import useToken from "@/services/tokenService";
 import { ChangeEvent, useEffect, useState } from "react";
 
@@ -28,8 +27,8 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
 
   useEffect(() => {
     getToken().then((token: string) => {
-      getGroup(token, params.group_id).then((group: Group) => {
-        dispatchGroup({ type: "new", value: group });
+      getGroup(token, parseInt(params.group_id)).then((group: Group) => {
+        dispatchGroup({ type: 'new', value: group });
         setParticipants([...group.participants]);
       });
     });
@@ -61,70 +60,22 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       updateGroup(token, groupState);
       addToast({ message: "Gruppe aktualisiert", type: "info" });
 
-      dispatchGroup({ type: "new", value: groupState });
+      dispatchGroup({ type: 'new', value: groupState });
     });
   };
 
   const onDecryptData = async (password: string) => {
-    const privateKey = decryptKeyWithPassword(groupState.event!.encryptedPrivateKey, password);
-    const key: CryptoKey = await PrivateKeyService.importPrivateKey(privateKey);
-
-    const decryptedName = await PrivateKeyService.decryptData(key, groupState.encryptedName!);
-
-    const contact = groupState.contact;
-    const decryptedContact = JSON.parse(
-      await PrivateKeyService.decryptData(key, groupState.contact.encryptedData!)
-    ) as Participant;
-
-    const adaptedContact: Participant = new Participant(
-      contact.id,
-      decryptedContact.Email,
-      decryptedContact.FirstName,
-      decryptedContact.LastName,
-      decryptedContact.BirthDate,
-      contact.vip,
-      contact.createdAt
-    );
-
-    const decryptedParticipants = await Promise.all(
-      groupState.participants.map(async (participant: Participant) => {
-        const decryptedParticipant: Participant = JSON.parse(
-          await PrivateKeyService.decryptData(key, participant.encryptedData!)
-        );
-
-        const adaptedContact: Participant = new Participant(
-          participant.id,
-          decryptedParticipant.Email,
-          decryptedParticipant.FirstName,
-          decryptedParticipant.LastName,
-          decryptedParticipant.BirthDate,
-          participant.vip,
-          participant.createdAt
-        );
-
-        return adaptedContact;
-      })
-    );
-
-    const updatedGroup: Group = {
-      ...groupState,
-      name: decryptedName,
-      contact: {
-        ...groupState.contact,
-        ...adaptedContact,
-      },
-      participants: decryptedParticipants,
-    };
+    const updatedGroup: Group = await decryptGroup(groupState, {password})
 
     dispatchGroup({
-      type: "new",
+      type: 'new',
       value: updatedGroup,
     });
 
     setIsEncrypted(false);
 
     setEventSetting({ eventId: groupState.event?.id, password });
-    setParticipants([...decryptedParticipants]);
+    setParticipants([...updatedGroup.participants]);
     addToast({ message: "Entschlüsselt", type: "info" });
   };
 
@@ -144,7 +95,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
           title="Name"
           placeholder=""
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            dispatchGroup({ type: "name", value: e.target.value })
+            dispatchGroup({ type: 'name', value: e.target.value })
           }
         />
       </div>
@@ -154,7 +105,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
               bg-gray-50 text-black dark:text-white dark:bg-gray-900 dark:border-0 h-10
               dark:border-0 ring-0 block p-2.5 dark:bg-gray-700 dark:bg-gray-900 dark:placeholder-gray-400 dark:text-white dark:focus:ring-0 dark:focus:border-0"
         onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-          dispatchGroup({ type: "category", value: e.target.value })
+          dispatchGroup({ type: 'category', value: e.target.value })
         }
       >
         <option value="Feuerwehr">Feuerwehr Fischbach</option>
@@ -177,7 +128,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             title="Vorname"
             placeholder=""
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: "contact_firstName", value: e.target.value })
+              dispatchGroup({ type: 'contact_firstName', value: e.target.value })
             }
           />
           <Input
@@ -185,7 +136,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             title="Nachname"
             placeholder=""
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: "contact_lastName", value: e.target.value })
+              dispatchGroup({ type: 'contact_lastName', value: e.target.value })
             }
           />
           <Input
@@ -194,7 +145,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             placeholder=""
             type="email"
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: "contact_email", value: e.target.value })
+              dispatchGroup({ type: 'contact_email', value: e.target.value })
             }
           />
           <Input
@@ -203,7 +154,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             placeholder=""
             type="date"
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: "contact_birthDate", value: e.target.value })
+              dispatchGroup({ type: 'contact_birthDate', value: e.target.value })
             }
           />
           <CheckBox
@@ -266,7 +217,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       )}
 
       <PasswordPopup
-        title="Event entschlüsseln"
+        title="Gruppe entschlüsseln"
         state={{ open: passwordPopupVisible, setOpen: setPasswordPopupVisible }}
         done={onDecryptData}
       />
