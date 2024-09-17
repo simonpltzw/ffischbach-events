@@ -53,8 +53,10 @@
     }
 
     input[type="text"],
+    input[type="date"],
+    input[type="email"],
     select {
-      height: 2em;
+      height: 3em;
       display: inline-block;
       border: 1px solid #ccc;
       border-radius: 3px;
@@ -88,9 +90,9 @@
         <h3>Ansprechpartner</h3>
         <!--Categories of users-->
         <select id="category" title="category">
-          <option value="0">FF-Fischbach (15.12.)</option>
-          <option value="1">Vereine (21.12.)</option>
-          <option value="2">Privat (15.1.)</option>
+          <option value="Feuerwehr">FF-Fischbach (15.12.)</option>
+          <option value="Verein">Vereine (21.12.)</option>
+          <option value="Privat">Privat (15.1.)</option>
         </select>
 
         <!--error message-->
@@ -99,18 +101,14 @@
         </div>
 
         <!--Input section-->
-        <input id="contactFirst" type="text" title="contactFirst" placeholder="Vorname" />
-        <input id="contactLast" type="text" title="contactLast" placeholder="Nachname" />
+        <input id="groupName" type="text" placeholder="Gruppenname" />
+        <input id="contactFirst" type="text" placeholder="Vorname" />
+        <input id="contactLast" type="text" placeholder="Nachname" />
 
-        <input
-          id="contact_BirthDate"
-          type="date"
-          title="contact_BirthDate"
-          placeholder="Geburtstag"
-        />
-        <input id="contactEmail" type="email" title="contactEmail" placeholder="E-Mail" />
+        <input id="contact_BirthDate" type="date" placeholder="Geburtstag" />
+        <input id="contactEmail" type="email" placeholder="E-Mail" />
 
-        <input id="group" type="text" title="group" placeholder="Gruppenname" />
+        <input id="group" type="text" placeholder="Gruppenname" />
         <!--Additional participants-->
         <h3>Weitere Teilnehmer</h3>
         <div class="flex flex-col">
@@ -138,7 +136,7 @@
         <button
           id="submit"
           class="align-self-start"
-          type="button"
+          type="submit"
           title="submit"
           onclick="submit()"
           disabled
@@ -160,6 +158,7 @@
     ];
 
     /*input elements*/
+    const groupName = document.getElementById("groupName");
     const contactFirst = document.getElementById("contactFirst");
     const contactLast = document.getElementById("contactLast");
     const contact_BirthDate = document.getElementById("contact_BirthDate");
@@ -168,30 +167,44 @@
     const addBtn = document.getElementById("add");
     const submitBtn = document.getElementById("submit");
     const agbCheck = document.getElementById("agbCheck");
-
+    const agbText = document.getElementById("agb");
+    const category = document.getElementById("category");
     const category_error = document.getElementById("category_error");
 
     /*api model*/
     let form = {
-      contactFirst: undefined,
-      contactLast: undefined,
-      contact_BirthDate: undefined,
-      contactEmail: undefined,
+      name: undefined,
+      eventId: "12024",
+      contact: {
+        email: undefined,
+        firstName: undefined,
+        lastName: undefined,
+        birthDate: undefined,
+      },
       category: undefined,
-      groupName: undefined,
-      participantList: [],
+      name: undefined,
+      participants: [],
     };
 
     const submit = () => {
-      /*fetch('', {
-            method: 'POST',
-            body: JSON.stringify(form)
-          })*/
+      fetch("https://events-api.codepal.online/Groups", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      }).then((event) => {
+        if (event.ok) alert("Great Success");
+        else alert("Som ting wong");
+      });
+    };
 
-      console.log(form);
+    const getDateFormat = (string) => {
+      return new Date(string).toISOString().split("T")[0];
     };
 
     const setInputsDisables = (isDisabled) => {
+      groupName.disabled = isDisabled;
       contactFirst.disabled = isDisabled;
       contactLast.disabled = isDisabled;
       contact_BirthDate.disabled = isDisabled;
@@ -203,16 +216,32 @@
       }
     };
 
+    const isAGBOverflown = () => {
+      return agbText.scrollHeight > agbText.clientHeight;
+    };
+
+    const setAGBCheckEnabled = () => {
+      if (!isAGBOverflown()) {
+        agbCheck.disabled = false;
+      }
+    };
+
     /*form input listener*/
     const addListeners = () => {
-      contactFirst.addEventListener("change", (evt) => (form.contactFirst = evt.target.value));
-      contactLast.addEventListener("change", (evt) => (form.contactLast = evt.target.value));
-      contact_BirthDate.addEventListener("change", (evt) => (form.birthDate = evt.target.value));
-      contactEmail.addEventListener("change", (evt) => (form.contactEmail = evt.target.value));
-      group.addEventListener("change", (evt) => (form.contactEmail = evt.target.value));
+      groupName.addEventListener("change", (evt) => (form.name = evt.target.value));
+      contactFirst.addEventListener("change", (evt) => (form.contact.firstName = evt.target.value));
+      contactLast.addEventListener("change", (evt) => (form.contact.lastName = evt.target.value));
+      contact_BirthDate.addEventListener(
+        "change",
+        (evt) => (form.contact.birthDate = getDateFormat(evt.target.value))
+      );
+      contactEmail.addEventListener("change", (evt) => (form.contact.email = evt.target.value));
+
+      //todo: duplicate
+      group.addEventListener("change", (evt) => (form.name = evt.target.value));
 
       /*Category*/
-      document.getElementById("category").addEventListener("change", (evt) => {
+      category.addEventListener("change", (evt) => {
         const selection = dates[evt.target.value];
 
         form.category = selection;
@@ -226,8 +255,15 @@
       });
 
       /*AGB check*/
-      document.getElementById("agb").addEventListener("scrollend", (evt) => {
-        const submitBtn = document.getElementById("submit");
+      agbCheck.addEventListener("change", (evt) => {
+        if (agbCheck.checked) {
+          submitBtn.disabled = false;
+        } else {
+          submitBtn.disabled = true;
+        }
+      });
+
+      agbText.addEventListener("scrollend", (evt) => {
         if (!stayDisabled) {
           submitBtn.disabled = false;
           agbCheck.checked = true;
@@ -277,12 +313,15 @@
       /*set further participant properties*/
       firstName.addEventListener("change", (evt) => (obj.firstName = evt.target.value));
       lastName.addEventListener("change", (evt) => (obj.lastName = evt.target.value));
-      birthDate.addEventListener("change", (evt) => (obj.birthDate = evt.target.value));
+      birthDate.addEventListener(
+        "change",
+        (evt) => (obj.birthDate = getDateFormat(evt.target.value))
+      );
 
       /*remove participant from list*/
       deleteBtn.addEventListener("click", (evt) => {
         list.removeChild(container);
-        form.participantList = form.participantList.filter((e) => e !== obj);
+        form.participants = form.participants.filter((e) => e !== obj);
       });
 
       for (let e of inputs) {
@@ -290,11 +329,12 @@
         container.appendChild(e);
       }
 
-      form.participantList.push(obj);
+      form.participants.push(obj);
       list.appendChild(container);
     };
 
     /*initial function calls*/
     addListeners();
+    setAGBCheckEnabled();
   </script>
 </html>
