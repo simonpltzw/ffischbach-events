@@ -41,6 +41,8 @@ const Root: FC<any> = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => console.log(eventList))
+
   return (
     <>
       <div className="flex flex-row justify-between gap-3 items-center mb-5">
@@ -78,7 +80,7 @@ const Root: FC<any> = () => {
           <span className="font-semibold">Gesamt anz. Teilnehmer</span>
           <span className="font-semibold">Erstellt</span>
 
-          {eventList.length ? (
+          {!eventList.length ? (
             <span className="font-bold col-span-5">Leer</span>
           ) : (
             eventList
