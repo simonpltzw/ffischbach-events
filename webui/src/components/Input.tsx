@@ -12,6 +12,7 @@ export interface InputProps extends HTMLAttributes<HTMLElement>, JSX.IntrinsicAt
   type?: HTMLInputTypeAttribute;
   value?: string;
   labelClassName?: string;
+  disabled?: boolean;
   autoComplete?: HTMLInputAutoCompleteAttribute;
   containerClassName?: string;
 }
@@ -22,6 +23,14 @@ export const Input: FC<InputProps> = (props: InputProps) => {
     labelClassName: "",
     containerClassName: "",
     ...props,
+  };
+
+  const bgStyle = () => {
+    if (props.disabled) {
+      return "bg-gray-300 dark:bg-gray-700/70";
+    } else {
+      return "bg-gray-50 dark:bg-gray-900 ";
+    }
   };
 
   return (
@@ -37,10 +46,11 @@ export const Input: FC<InputProps> = (props: InputProps) => {
       <input
         className={`
         shadow appearance-none border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
-        bg-gray-50 text-black dark:text-white dark:bg-gray-900 dark:border-0 h-10
+        text-black dark:text-white dark:border-0 h-10 ${bgStyle()}
         ${props.className}`}
         type={props.type}
         autoComplete=""
+        disabled={props.disabled}
         placeholder={props.placeholder}
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
           if (props.onChange) {
