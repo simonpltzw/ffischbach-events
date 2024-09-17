@@ -38,7 +38,7 @@ const Root: FC<any> = () => {
     generateEventsList().then((ids) => {
       setEventList(ids);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -77,30 +77,37 @@ const Root: FC<any> = () => {
           <span className="font-semibold">Gesamt anz. Gruppen</span>
           <span className="font-semibold">Gesamt anz. Teilnehmer</span>
           <span className="font-semibold">Erstellt</span>
-          {eventList
-            .filter((event: Event) => {
-              return (
-                (event.id.includes(filter) || event.description.includes(filter) || filter == "") &&
-                isFilterComplete == event.completed
-              );
-            })
-            .map((event: Event) => {
-              return (
-                <div
-                  key={event.id}
-                  className="cursor-pointer grid grid-cols-subgrid justify-items-start place-items-center col-span-6 px-3 py-2 border dark:border-0 dark:bg-gray-900 rounded"
-                  onClick={() => {
-                    router.push(`/${event.id}`);
-                  }}
-                >
-                  <span>{event.id}</span>
-                  <span>{event.description}</span>
-                  <span>{event.totalGroups}</span>
-                  <span>{event.totalParticipants}</span>
-                  <span>{getLocalDateTime(event.createdAt)}</span>
-                </div>
-              );
-            })}
+
+          {eventList.length ? (
+            <span className="font-bold col-span-5">Leer</span>
+          ) : (
+            eventList
+              .filter((event: Event) => {
+                return (
+                  (event.id.includes(filter) ||
+                    event.description.includes(filter) ||
+                    filter == "") &&
+                  isFilterComplete == event.completed
+                );
+              })
+              .map((event: Event) => {
+                return (
+                  <div
+                    key={event.id}
+                    className="cursor-pointer grid grid-cols-subgrid justify-items-start place-items-center col-span-6 px-3 py-2 border dark:border-0 dark:bg-gray-900 rounded"
+                    onClick={() => {
+                      router.push(`/${event.id}`);
+                    }}
+                  >
+                    <span>{event.id}</span>
+                    <span>{event.description}</span>
+                    <span>{event.totalGroups}</span>
+                    <span>{event.totalParticipants}</span>
+                    <span>{getLocalDateTime(event.createdAt)}</span>
+                  </div>
+                );
+              })
+          )}
         </div>
       </div>
 

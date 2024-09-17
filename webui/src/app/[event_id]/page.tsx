@@ -1,6 +1,6 @@
 "use client";
 
-import { Reducer, useEffect, useReducer, useState } from "react";
+import { ChangeEvent, Reducer, useEffect, useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
@@ -19,6 +19,7 @@ import { InfoBadge } from "@/components/InfoBadge";
 import { CheckBox } from "@/components/CheckBox";
 import { getLocalDateTime } from "@/util/converter";
 import { useEventSettings } from "@/context/eventSettingsContext";
+import { Input } from "@/components/Input";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   type StateActionType = "updateApproved" | "set" | "decGroups";
@@ -37,6 +38,9 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [managerPopupVisible, setManagerPopupVisible] = useState<boolean>(false);
   const [confirmCompletePopupVisible, setConfirmCompletePopupVisible] = useState<boolean>(false);
   const [eventSettings, setEventSetting] = useEventSettings();
+  const [filter, setFilter] = useState<string>("");
+  const [filterApproved, setFilterApproved] = useState<boolean>(false);
+
   const [state, dispatch] = useReducer<Reducer<Event, any>>(
     (state: Event, action: StateAction): any => {
       switch (action.type) {
@@ -124,7 +128,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const onAddEventManager = async (email: string) => {
     const token = await getToken();
-    await addEventManager(token, params.event_id, email);
+    
+    const response = await addEventManager(token, params.event_id, email);
+    if(response) {
+      addToast({message: "Manager hinzugefügt", type: 'info'})
+    }
   };
 
   const generateGroupEntry = (group: Group, index: number) => {
@@ -155,10 +163,30 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     );
   };
 
+  const generateFilteredList = () => {
+    const filteredList = state.groups
+      ?.filter((group: Group) => {
+        return (
+          (group.name?.includes(filter) ||
+            group.category.includes(filter) ||
+            group.createdAt.includes(filter) ||
+            filter == "") &&
+          filterApproved == group.approved
+        );
+      })
+      .map((group: Group, index: number) => generateGroupEntry(group, index));
+
+    if (filteredList?.length) {
+      return filteredList;
+    }
+    return <span className="font-bold col-span-5">Leer</span>;
+  };
+
   return (
     <>
       {state.completed && <InfoBadge text="Event ist beendet" />}
       <Lock isLocked={isEncrypted} openPopup={() => setPasswordPopupVisible(true)} />
+      <div className="mb-3 font-bold text-xl">Übersicht Gruppe</div>
       <div className="flex flex-row gap-3">
         <div>Event Name: </div>
         <h3 className="text-base font-semibold">{state?.id}</h3>
@@ -186,9 +214,33 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         </div>
       )}
       <div className="w-full">
+        <div className="flex flex-col gap-3">
+          <label className="text-lg font-semibold">Filter</label>
+          <div className="flex flex-row-reverse gap-5 items-start mb-10">
+            <Input
+              containerClassName="w-full"
+              value={filter}
+              title="Suche"
+              placeholder=""
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
+            />
+            <div className="flex flex-col">
+              <label className={`block text-sm font-semibold h-fit mb-2`} htmlFor="username">
+                Beendet
+              </label>
+              <CheckBox
+                value={filterApproved}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setFilterApproved(e.target.value == "true" ? true : false)
+                }
+              />
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-flow-row auto-rows-min gap-3 justify-items-start overflow-x-scroll md:overflow-x-auto">
           <div className="font-extrabold col-span-6 mb-3">Gruppen</div>
-          {state.groups!.length > 0 ? (
+          {
             <>
               <div className="font-bold">Name</div>
               <div className="font-bold">Kategorie</div>
@@ -197,11 +249,9 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
               <div className="font-bold">Erstellt</div>
               <div></div>
 
-              {state.groups!.map((group: Group, index: number) => generateGroupEntry(group, index))}
+              {generateFilteredList()}
             </>
-          ) : (
-            <span>Leer</span>
-          )}
+          }
         </div>
       </div>
       <PasswordPopup

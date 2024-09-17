@@ -28,11 +28,12 @@ export const ToastProvider = ({ children }: any) => {
   return (
     <Context.Provider value={{ state: [toastList, setToastList], addToast, removeToast }}>
       <div className="relative w-full h-screen overscroll-none">
-        <>
+        <div className="absolute left-4 bottom-4 z-10 flex flex-col gap-3">
           {toastList.map((toast: Toast, index: number) => {
             return <ToastComponent key={`toast-${index}`} index={index} toast={toast} />;
           })}
-        </>
+        </div>
+
         {children}
       </div>
     </Context.Provider>
