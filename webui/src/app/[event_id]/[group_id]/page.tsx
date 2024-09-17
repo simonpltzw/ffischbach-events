@@ -13,7 +13,8 @@ import { Participant } from "@/models/in/Participant";
 import { decryptGroup } from "@/services/decryptService";
 import { getGroup, updateGroup } from "@/services/groupsService";
 import useToken from "@/services/tokenService";
-import { ChangeEvent, useEffect, useState } from "react";
+import { MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { ChangeEvent, Fragment, useEffect, useState } from "react";
 
 const GroupPage = ({ params }: { params: { event_id: string; group_id: string } }) => {
   const [groupState, dispatchGroup] = useGroupContext();
@@ -21,6 +22,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
   const [eventSettings, setEventSetting] = useEventSettings();
+  const [participantFilter, setParticipantFilter] = useState<string>("");
   const { getToken } = useToken();
   const { addToast } = useToast();
   const empty = "***";
@@ -28,7 +30,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   useEffect(() => {
     getToken().then((token: string) => {
       getGroup(token, parseInt(params.group_id)).then((group: Group) => {
-        dispatchGroup({ type: 'new', value: group });
+        dispatchGroup({ type: "new", value: group });
         setParticipants([...group.participants]);
       });
     });
@@ -60,15 +62,15 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       updateGroup(token, groupState);
       addToast({ message: "Gruppe aktualisiert", type: "info" });
 
-      dispatchGroup({ type: 'new', value: groupState });
+      dispatchGroup({ type: "new", value: groupState });
     });
   };
 
   const onDecryptData = async (password: string) => {
-    const updatedGroup: Group = await decryptGroup(groupState, {password})
+    const updatedGroup: Group = await decryptGroup(groupState, { password });
 
     dispatchGroup({
-      type: 'new',
+      type: "new",
       value: updatedGroup,
     });
 
@@ -85,6 +87,10 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
     setParticipants(updated);
   };
 
+  const deleteParticipant = (id: number) => {
+    setParticipants(participants.filter((p: Participant) => p.id != id));
+  };
+
   return (
     <>
       <Lock isLocked={isEncrypted} openPopup={() => setPasswordPopupVisible(true)} />
@@ -92,20 +98,24 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       <div className="mt-10">
         <Input
           value={groupState.name ?? empty}
+          disabled={isEncrypted}
           title="Name"
           placeholder=""
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            dispatchGroup({ type: 'name', value: e.target.value })
+            dispatchGroup({ type: "name", value: e.target.value })
           }
         />
       </div>
       <select
         value={groupState.category ?? empty}
-        className="shadow border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
-              bg-gray-50 text-black dark:text-white dark:bg-gray-900 dark:border-0 h-10
-              dark:border-0 ring-0 block p-2.5 dark:bg-gray-700 dark:bg-gray-900 dark:placeholder-gray-400 dark:text-white dark:focus:ring-0 dark:focus:border-0"
+        disabled={isEncrypted}
+        className={`shadow border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
+               text-black dark:text-white dark:border-0 h-10
+              dark:border-0 ring-0 block p-2.5 dark:placeholder-gray-400 dark:text-white dark:focus:ring-0 dark:focus:border-0 ${
+                isEncrypted ? "bg-gray-300 dark:bg-gray-700/70" : "bg-gray-50 dark:bg-gray-900"
+              }`}
         onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-          dispatchGroup({ type: 'category', value: e.target.value })
+          dispatchGroup({ type: "category", value: e.target.value })
         }
       >
         <option value="Feuerwehr">Feuerwehr Fischbach</option>
@@ -114,9 +124,10 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       </select>
       <CheckBox
         title="Genehmigt"
+        disabled={isEncrypted}
         value={groupState.approved ?? false}
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          groupState.approved = e.target.checked;
+          groupState.approved = e.target.value == "true" ? true : false;
         }}
       />
 
@@ -125,90 +136,134 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
         <div className="grid grid-cols-2 gap-3 ml-5">
           <Input
             value={groupState.contact.FirstName ?? empty}
+            disabled={isEncrypted}
             title="Vorname"
             placeholder=""
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: 'contact_firstName', value: e.target.value })
+              dispatchGroup({ type: "contact_firstName", value: e.target.value })
             }
           />
           <Input
             value={groupState.contact.LastName ?? empty}
+            disabled={isEncrypted}
             title="Nachname"
             placeholder=""
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: 'contact_lastName', value: e.target.value })
+              dispatchGroup({ type: "contact_lastName", value: e.target.value })
             }
           />
           <Input
             value={groupState.contact.Email ?? empty}
+            disabled={isEncrypted}
             title="Email"
             placeholder=""
             type="email"
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: 'contact_email', value: e.target.value })
+              dispatchGroup({ type: "contact_email", value: e.target.value })
             }
           />
           <Input
             value={groupState.contact.BirthDate ?? ""}
+            disabled={isEncrypted}
             title="Geburtsdatum"
             placeholder=""
             type="date"
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              dispatchGroup({ type: 'contact_birthDate', value: e.target.value })
+              dispatchGroup({ type: "contact_birthDate", value: e.target.value })
             }
           />
           <CheckBox
             title="VIP"
+            disabled={isEncrypted}
             value={groupState.contact.vip ?? false}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              dispatchGroup({ type: "contact_birthDate", value: e.target.value })
-              groupState.contact.vip = e.target.checked;
+              groupState.contact.vip = e.target.value == "true" ? true : false;
             }}
           />
         </div>
       </div>
-      <span className="font-bold">Teilnehmer</span>
-      {participants.length > 0 && (
-        <div className="grid grid-cols-3 gap-3 ml-5">
+      <div className="flex flex-col gap-4 items-start">
+        <span className="font-bold">Teilnehmer</span>
+        {participants.length > 0 && (
+          <div>
+            <Input
+              className="w-44"
+              type="search"
+              placeholder="Suche"
+              disabled={isEncrypted}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setParticipantFilter(e.target.value)}
+            />
+          </div>
+        )}
+      </div>
+      {participants.length > 0 ? (
+        <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-3 items-start ml-5">
           <span className="font-semibold">Vorname</span>
           <span className="font-semibold">Nachname</span>
           <span className="font-semibold">Geburtsdatum</span>
+          <span></span>
 
-          {participants.map((p: Participant, i: number) => {
-            return (
-              <div
-                key={`participant-${i}`}
-                className="cursor-pointer col-span-full grid grid-cols-subgrid"
-              >
-                <Input
-                  value={p.FirstName ?? empty}
-                  placeholder="***"
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                    p.FirstName = e.target.value;
-                    updateParticipants(i, p);
-                  }}
-                />
-                <Input
-                  value={p.LastName ?? empty}
-                  placeholder="***"
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                    p.LastName = e.target.value;
-                    updateParticipants(i, p);
-                  }}
-                />
-                <Input
-                  type="date"
-                  value={p.BirthDate ?? ""}
-                  placeholder="***"
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                    p.BirthDate = e.target.value;
-                    updateParticipants(i, p);
-                  }}
-                />
-              </div>
-            );
-          })}
+          {participants
+            .filter((p: Participant) => {
+              if (!isEncrypted) {
+                return (
+                  p.FirstName.includes(participantFilter) ||
+                  p.LastName.includes(participantFilter) ||
+                  participantFilter == ""
+                );
+              }
+              return true;
+            })
+            .map((p: Participant, i: number) => {
+              return (
+                <Fragment key={`participant-${i}`}>
+                  <Input
+                    className="col-span-1"
+                    value={p.FirstName ?? empty}
+                    disabled={isEncrypted}
+                    placeholder="***"
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                      p.FirstName = e.target.value;
+                      updateParticipants(i, p);
+                    }}
+                  />
+                  <Input
+                    className="col-span-1"
+                    disabled={isEncrypted}
+                    value={p.LastName ?? empty}
+                    placeholder="***"
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                      p.LastName = e.target.value;
+                      updateParticipants(i, p);
+                    }}
+                  />
+                  <Input
+                    className="col-span-1"
+                    type="date"
+                    disabled={isEncrypted}
+                    value={p.BirthDate ?? ""}
+                    placeholder="***"
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                      p.BirthDate = e.target.value;
+                      updateParticipants(i, p);
+                    }}
+                  />
+                  <div className="col-auto col-span-1 h-full">
+                    <Button
+                      type="button"
+                      disabled={isEncrypted}
+                      className="bg-red-500"
+                      onClick={() => deleteParticipant(p.id)}
+                    >
+                      <TrashIcon height={16} />
+                    </Button>
+                  </div>
+                </Fragment>
+              );
+            })}
         </div>
+      ) : (
+        <span>Leer</span>
       )}
       {!isEncrypted && (
         <Button type="button" onClick={onSubmit}>
