@@ -38,6 +38,7 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
       await props.done(password);
       props.state.setOpen(false);
     } catch (e) {
+      //info: german error is existing...
       setErrors(["Wrong password"]);
     }
   };

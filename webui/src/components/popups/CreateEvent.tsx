@@ -59,12 +59,9 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
             props.done(r.data);
             props.state.setOpen(false);
           })
-          .catch((error: any) => {
-            const errors: any = error.response?.data.errors;
-            for (let key in errors) {
-              for (let error of errors[key]) {
-                setErrors((errors: string[]) => [...errors, error]);
-              }
+          .catch((e: any) => {
+            if (e.response?.data) {
+              setErrors([e.response.data.detail]);
             }
             //setError()
           });

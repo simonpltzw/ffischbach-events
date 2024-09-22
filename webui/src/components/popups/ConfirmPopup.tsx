@@ -21,8 +21,14 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) =>
   }, [props.state.open]);
 
   const onSubmit = async () => {
-    await props.done();
-    props.state.setOpen(false);
+    try {
+      await props.done();
+      props.state.setOpen(false);
+    } catch (e: any) {
+      if (e.response?.data) {
+        setErrors([e.response.data.detail]);
+      }
+    }
   };
 
   const generateErrorMessage = (error: string, index: number) => {

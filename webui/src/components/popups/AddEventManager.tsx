@@ -12,6 +12,7 @@ import {
 import { Input } from "../Input";
 import { Button } from "../Button";
 import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup } from "../Popup";
+import { AxiosError, AxiosResponse } from "axios";
 
 export interface AddEventManagerPopupProps extends HTMLAttributes<HTMLElement> {
   state: {
@@ -24,8 +25,6 @@ export interface AddEventManagerPopupProps extends HTMLAttributes<HTMLElement> {
 export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
   props: AddEventManagerPopupProps
 ) => {
-  const cancelButtonRef = useRef(null);
-
   const [email, setEmail] = useState<string>("");
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -40,8 +39,10 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
     try {
       await props.done(email);
       props.state.setOpen(false);
-    } catch (e) {
-      setErrors(["Invalid email"]);
+    } catch (e: any) {
+      if (e.response?.data) {
+        setErrors([e.response.data.detail]);
+      }
     }
   };
 
