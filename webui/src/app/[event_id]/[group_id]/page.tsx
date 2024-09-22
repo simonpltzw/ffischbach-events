@@ -95,33 +95,37 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
     <>
       <Lock isLocked={isEncrypted} openPopup={() => setPasswordPopupVisible(true)} />
 
-      <div className="mt-10">
-        <Input
-          value={groupState.name ?? empty}
-          disabled={isEncrypted}
-          title="Name"
-          placeholder=""
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            dispatchGroup({ type: "name", value: e.target.value })
-          }
-        />
-      </div>
-      <select
-        value={groupState.category ?? empty}
+      <div className="mb-3 font-bold text-xl">Gruppe bearbeiten</div>
+      <Input
+        value={groupState.name ?? empty}
         disabled={isEncrypted}
-        className={`shadow border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
-               text-black dark:text-white dark:border-0 h-10
-              dark:border-0 ring-0 block p-2.5 dark:placeholder-gray-400 dark:text-white dark:focus:ring-0 dark:focus:border-0 ${
-                isEncrypted ? "bg-gray-300 dark:bg-gray-700/70" : "bg-gray-50 dark:bg-gray-900"
-              }`}
-        onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-          dispatchGroup({ type: "category", value: e.target.value })
+        title="Name"
+        placeholder=""
+        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+          dispatchGroup({ type: "name", value: e.target.value })
         }
-      >
-        <option value="Feuerwehr">Feuerwehr Fischbach</option>
-        <option value="Verein">Verein</option>
-        <option value="Privat">Privat</option>
-      </select>
+      />
+      <div>
+        <div className="block text-sm font-semibold h-fit mb-2">Kategorie</div>
+        <select
+          value={groupState.category ?? empty}
+          disabled={isEncrypted}
+          className={`shadow-md border rounded w-full py-2 px-3 dark:text-white leading-tight outline-none 
+               focus:border-2 focus:border-blue-500 dark:focus:border-2 dark:focus:border-blue-500
+               text-black dark:text-white dark:border-0 h-10
+               block p-2.5 dark:placeholder-gray-400 dark:text-white ${
+                 isEncrypted ? "bg-gray-200 dark:bg-gray-700/70" : "bg-white dark:bg-gray-900"
+               }`}
+          onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+            dispatchGroup({ type: "category", value: e.target.value })
+          }
+        >
+          <option value="Feuerwehr">Feuerwehr Fischbach</option>
+          <option value="Verein">Verein</option>
+          <option value="Privat">Privat</option>
+        </select>
+      </div>
+
       <CheckBox
         title="Genehmigt"
         disabled={isEncrypted}
@@ -182,95 +186,100 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
           />
         </div>
       </div>
-      <div className="flex flex-col gap-4 items-start">
-        <span className="font-bold">Teilnehmer</span>
-        {participants.length > 0 && (
-          <div>
-            <Input
-              className="w-44"
-              type="search"
-              placeholder="Suche"
-              disabled={isEncrypted}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setParticipantFilter(e.target.value)}
-            />
+      <div className="flex flex-col gap-4 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-lg">
+        <div className="flex flex-col gap-4 items-start">
+          <label className="text-lg font-semibold">Filter</label>
+          <span className="font-bold">Teilnehmer</span>
+          {participants.length > 0 && (
+            <div>
+              <Input
+                className="w-44"
+                type="search"
+                placeholder="Suche"
+                disabled={isEncrypted}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setParticipantFilter(e.target.value)
+                }
+              />
+            </div>
+          )}
+        </div>
+        {participants.length > 0 ? (
+          <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-3 items-start">
+            <span className="font-semibold">Vorname</span>
+            <span className="font-semibold">Nachname</span>
+            <span className="font-semibold">Geburtsdatum</span>
+            <span></span>
+
+            {participants
+              .filter((p: Participant) => {
+                if (!isEncrypted && p.FirstName) {
+                  return (
+                    p.FirstName.includes(participantFilter) ||
+                    p.LastName.includes(participantFilter) ||
+                    participantFilter == ""
+                  );
+                }
+                return true;
+              })
+              .map((p: Participant, i: number) => {
+                return (
+                  <Fragment key={`participant-${i}`}>
+                    <Input
+                      className="col-span-1"
+                      value={p.FirstName ?? empty}
+                      disabled={isEncrypted}
+                      placeholder="***"
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        p.FirstName = e.target.value;
+                        updateParticipants(i, p);
+                      }}
+                    />
+                    <Input
+                      className="col-span-1"
+                      disabled={isEncrypted}
+                      value={p.LastName ?? empty}
+                      placeholder="***"
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        p.LastName = e.target.value;
+                        updateParticipants(i, p);
+                      }}
+                    />
+                    <Input
+                      className="col-span-1"
+                      type="date"
+                      disabled={isEncrypted}
+                      value={p.BirthDate ?? ""}
+                      placeholder="***"
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        p.BirthDate = e.target.value;
+                        updateParticipants(i, p);
+                      }}
+                    />
+                    <div className="col-auto col-span-1 h-full">
+                      <Button
+                        type="button"
+                        disabled={isEncrypted}
+                        colorstyle="bg-red-600 hover:bg-red-700 hover:dark:bg-red-400"
+                        onClick={() => deleteParticipant(p.id)}
+                      >
+                        <TrashIcon height={16} />
+                      </Button>
+                    </div>
+                  </Fragment>
+                );
+              })}
           </div>
+        ) : (
+          <span>Leer</span>
         )}
       </div>
-      {participants.length > 0 ? (
-        <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-3 items-start ml-5">
-          <span className="font-semibold">Vorname</span>
-          <span className="font-semibold">Nachname</span>
-          <span className="font-semibold">Geburtsdatum</span>
-          <span></span>
 
-          {participants
-            .filter((p: Participant) => {
-              if (!isEncrypted) {
-                return (
-                  p.FirstName.includes(participantFilter) ||
-                  p.LastName.includes(participantFilter) ||
-                  participantFilter == ""
-                );
-              }
-              return true;
-            })
-            .map((p: Participant, i: number) => {
-              return (
-                <Fragment key={`participant-${i}`}>
-                  <Input
-                    className="col-span-1"
-                    value={p.FirstName ?? empty}
-                    disabled={isEncrypted}
-                    placeholder="***"
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      p.FirstName = e.target.value;
-                      updateParticipants(i, p);
-                    }}
-                  />
-                  <Input
-                    className="col-span-1"
-                    disabled={isEncrypted}
-                    value={p.LastName ?? empty}
-                    placeholder="***"
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      p.LastName = e.target.value;
-                      updateParticipants(i, p);
-                    }}
-                  />
-                  <Input
-                    className="col-span-1"
-                    type="date"
-                    disabled={isEncrypted}
-                    value={p.BirthDate ?? ""}
-                    placeholder="***"
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      p.BirthDate = e.target.value;
-                      updateParticipants(i, p);
-                    }}
-                  />
-                  <div className="col-auto col-span-1 h-full">
-                    <Button
-                      type="button"
-                      disabled={isEncrypted}
-                      className="bg-red-500"
-                      onClick={() => deleteParticipant(p.id)}
-                    >
-                      <TrashIcon height={16} />
-                    </Button>
-                  </div>
-                </Fragment>
-              );
-            })}
-        </div>
-      ) : (
-        <span>Leer</span>
-      )}
       {!isEncrypted && (
         <Button type="button" onClick={onSubmit}>
           Gruppe updaten
         </Button>
       )}
-
       <PasswordPopup
         title="Gruppe entschlüsseln"
         state={{ open: passwordPopupVisible, setOpen: setPasswordPopupVisible }}

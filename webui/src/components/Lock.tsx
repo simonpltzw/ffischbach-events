@@ -14,8 +14,8 @@ export const Lock: FC<LockProps> = (props: LockProps) => {
       //-bottom-16 right-0
     >
       <div
-        className={`rounded-md w-fit h-fit bg-blue-600 -m-0 ${
-          props.isLocked ? "cursor-pointer" : ""
+        className={`rounded-md w-fit h-fit bg-blue-600 -m-0 shadow-md ${
+          props.isLocked ? "cursor-pointer hover:bg-blue-500" : ""
         }`}
         onClick={() => {
           if (props.isLocked) {

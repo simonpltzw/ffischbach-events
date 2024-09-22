@@ -10,7 +10,7 @@ import { useToast } from "@/context/toast";
 import { Button } from "@/components/Button";
 import { CheckBox } from "@/components/CheckBox";
 import { getLocalDateTime } from "@/util/converter";
-import { CreateEventPopup } from "@/components/popups/createEventPopup";
+import { CreateEventPopup } from "@/components/popups/CreateEvent";
 
 const Root: FC<any> = () => {
   const { addToast } = useToast();
@@ -50,25 +50,25 @@ const Root: FC<any> = () => {
         </Button>
       </div>
       <div className="flex flex-col gap-3">
-        <label className="text-lg font-bold">Filter</label>
-        <div className="flex flex-row-reverse gap-5 items-start mb-10">
-          <Input
-            containerClassName="w-full"
-            value={filter}
-            title="Suche"
-            placeholder=""
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
-          />
-          <div className="flex flex-col">
-            <label className={`block text-sm font-semibold h-fit mb-2`} htmlFor="username">
-              Beendet
-            </label>
-            <CheckBox
-              value={isFilterComplete}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setFilterComplete(e.target.checked)
-              }
+        <div className="flex flex-col gap-3 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-lg">
+          <label className="text-lg font-bold">Filter</label>
+          <div className="flex flex-row-reverse gap-5 items-start mb-10">
+            <Input
+              containerClassName="w-full"
+              value={filter}
+              title="Suche"
+              placeholder=""
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
             />
+            <div className="flex flex-col">
+              <label className={`block text-sm font-semibold h-fit mb-2`} htmlFor="username">
+                Beendet
+              </label>
+              <CheckBox
+                value={isFilterComplete}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setFilterComplete(e.target.checked)}
+              />
+            </div>
           </div>
         </div>
         <div className="grid grid-flow-row auto-rows-min gap-3 overflow-x-scroll md:overflow-x-auto">
@@ -94,7 +94,7 @@ const Root: FC<any> = () => {
                 return (
                   <div
                     key={event.id}
-                    className="cursor-pointer grid grid-cols-subgrid justify-items-start place-items-center col-span-6 px-3 py-2 border dark:border-0 dark:bg-gray-900 rounded"
+                    className="cursor-pointer grid grid-cols-subgrid justify-items-start place-items-center col-span-6 px-3 py-2 border dark:border-0 dark:bg-gray-900 rounded hover:bg-gray-200 hover:dark:bg-gray-700 shadow"
                     onClick={() => {
                       router.push(`/${event.id}`);
                     }}

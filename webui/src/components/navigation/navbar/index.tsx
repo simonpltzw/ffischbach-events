@@ -25,7 +25,12 @@ const Navigation: FC<NavigationProps> = (props: NavigationProps) => {
             <div className="w-auto my-auto text-center">FF-Fischbach</div>
           </div>
           <div className="hidden sm:ml-6 sm:block">
-            <Links setVisible={props.setVisible} active={0} className="flex space-x-4" setActive={props.setActive} />
+            <Links
+              setVisible={props.setVisible}
+              active={0}
+              className="flex space-x-4"
+              setActive={props.setActive}
+            />
           </div>
         </div>
         <ThemeToggle />
@@ -33,7 +38,7 @@ const Navigation: FC<NavigationProps> = (props: NavigationProps) => {
           {isAuthenticated ? (
             <Button
               type="button"
-              className="dark:bg-gray-900"
+              className="dark:bg-gray-900 dark:hover:bg-gray-700"
               onClick={() => instance.logoutRedirect(logoutRequest)}
             >
               Sign out
@@ -42,7 +47,9 @@ const Navigation: FC<NavigationProps> = (props: NavigationProps) => {
             <Button
               type="button"
               className="dark:bg-gray-900"
-              onClick={() => instance.loginRedirect(loginRequest)}
+              onClick={() =>
+                instance.loginRedirect(loginRequest)
+              }
             >
               Sign in
             </Button>

@@ -9,9 +9,9 @@ const SignIn = () => {
 
   useEffect(() => {
     if (instance) {
-      instance.loginRedirect(loginRequest)
+     instance.loginRedirect(loginRequest)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <></>;

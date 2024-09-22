@@ -16,7 +16,7 @@ export const ThemeToggle: FC<any> = () => {
   };
 
   return (
-    <div>
+    <div className="cursor-pointer">
       {appSettings.isDarkMode ? (
         <SunIcon height={20} onClick={() => toggle(false)} />
       ) : (

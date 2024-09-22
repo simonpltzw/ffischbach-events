@@ -27,9 +27,9 @@ export const Input: FC<InputProps> = (props: InputProps) => {
 
   const bgStyle = () => {
     if (props.disabled) {
-      return "bg-gray-300 dark:bg-gray-700/70";
+      return "disabled:bg-gray-300/50 disabled:dark:bg-gray-500/50";
     } else {
-      return "bg-gray-50 dark:bg-gray-900 ";
+      return "bg-white dark:bg-gray-900 focus:border-2 focus:border-blue-500 dark:focus:border-2 dark:focus:border-blue-500";
     }
   };
 
@@ -45,7 +45,7 @@ export const Input: FC<InputProps> = (props: InputProps) => {
       )}
       <input
         className={`
-        shadow appearance-none border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none focus:shadow-outline 
+        shadow-md appearance-none border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none
         text-black dark:text-white dark:border-0 h-10 ${bgStyle()}
         ${props.className}`}
         type={props.type}

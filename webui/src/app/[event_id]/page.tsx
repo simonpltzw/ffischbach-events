@@ -122,7 +122,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     return (
       <div
         key={`event-group-${index}`}
-        className="grid grid-cols-subgrid justify-items-start place-items-center col-span-6 gap-3 px-3 py-2 border dark:border-0 dark:bg-gray-900 rounded"
+        className="grid grid-cols-subgrid justify-items-start place-items-center col-span-6 gap-3 px-3 py-2 border dark:border-0 dark:bg-gray-900 rounded hover:bg-gray-200 hover:dark:bg-gray-700"
       >
         <div>{group.name ?? "***"}</div>
         <div>{group.category}</div>
@@ -217,9 +217,9 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         </div>
       )}
       <div className="w-full">
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 border dark:border-0 dark:bg-gray-900/40 shadow  p-3 rounded-lg mb-3">
           <label className="text-lg font-semibold">Filter</label>
-          <div className="flex flex-row-reverse gap-5 items-start mb-10">
+          <div className="flex flex-row-reverse gap-5 items-start">
             <Input
               containerClassName="w-full"
               value={filter}
@@ -267,6 +267,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         done={onAddEventManager}
       />
       <ConfirmPopup
+        title="Event beenden"
         state={{ open: confirmCompletePopupVisible, setOpen: setConfirmCompletePopupVisible }}
         done={onCompleteEvent}
       />
