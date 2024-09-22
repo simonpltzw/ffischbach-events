@@ -91,6 +91,81 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
     setParticipants(participants.filter((p: Participant) => p.id != id));
   };
 
+  const generateParticipantList = () => {
+    const filteredParticipants = participants
+      .filter((p: Participant) => {
+        if (!isEncrypted && p.FirstName) {
+          return (
+            p.FirstName.includes(participantFilter) ||
+            p.LastName.includes(participantFilter) ||
+            participantFilter == ""
+          );
+        }
+        return true;
+      })
+      .map((p: Participant, i: number) => {
+        return (
+          <Fragment key={`participant-${i}`}>
+            <Input
+              className="col-span-1"
+              value={p.FirstName ?? empty}
+              disabled={isEncrypted}
+              placeholder="***"
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                p.FirstName = e.target.value;
+                updateParticipants(i, p);
+              }}
+            />
+            <Input
+              className="col-span-1"
+              disabled={isEncrypted}
+              value={p.LastName ?? empty}
+              placeholder="***"
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                p.LastName = e.target.value;
+                updateParticipants(i, p);
+              }}
+            />
+            <Input
+              className="col-span-1"
+              type="date"
+              disabled={isEncrypted}
+              value={p.BirthDate ?? ""}
+              placeholder="***"
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                p.BirthDate = e.target.value;
+                updateParticipants(i, p);
+              }}
+            />
+            <div className="col-auto col-span-1 h-full">
+              <Button
+                type="button"
+                disabled={isEncrypted}
+                colorstyle="bg-red-600 hover:bg-red-700 hover:dark:bg-red-400"
+                onClick={() => deleteParticipant(p.id)}
+              >
+                <TrashIcon height={16} />
+              </Button>
+            </div>
+          </Fragment>
+        );
+      });
+
+    if (filteredParticipants.length > 0) {
+      return (
+        <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-3 items-start">
+          <span className="font-semibold">Vorname</span>
+          <span className="font-semibold">Nachname</span>
+          <span className="font-semibold">Geburtsdatum</span>
+          <span></span>
+          {filteredParticipants}
+        </div>
+      );
+    } else {
+      return <span>Leer</span>;
+    }
+  };
+
   return (
     <>
       <Lock isLocked={isEncrypted} openPopup={() => setPasswordPopupVisible(true)} />
@@ -190,89 +265,17 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
         <div className="flex flex-col gap-4 items-start">
           <label className="text-lg font-semibold">Filter</label>
           <span className="font-bold">Teilnehmer</span>
-          {participants.length > 0 && (
-            <div>
-              <Input
-                className="w-44"
-                type="search"
-                placeholder="Suche"
-                disabled={isEncrypted}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setParticipantFilter(e.target.value)
-                }
-              />
-            </div>
-          )}
-        </div>
-        {participants.length > 0 ? (
-          <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-3 items-start">
-            <span className="font-semibold">Vorname</span>
-            <span className="font-semibold">Nachname</span>
-            <span className="font-semibold">Geburtsdatum</span>
-            <span></span>
-
-            {participants
-              .filter((p: Participant) => {
-                if (!isEncrypted && p.FirstName) {
-                  return (
-                    p.FirstName.includes(participantFilter) ||
-                    p.LastName.includes(participantFilter) ||
-                    participantFilter == ""
-                  );
-                }
-                return true;
-              })
-              .map((p: Participant, i: number) => {
-                return (
-                  <Fragment key={`participant-${i}`}>
-                    <Input
-                      className="col-span-1"
-                      value={p.FirstName ?? empty}
-                      disabled={isEncrypted}
-                      placeholder="***"
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        p.FirstName = e.target.value;
-                        updateParticipants(i, p);
-                      }}
-                    />
-                    <Input
-                      className="col-span-1"
-                      disabled={isEncrypted}
-                      value={p.LastName ?? empty}
-                      placeholder="***"
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        p.LastName = e.target.value;
-                        updateParticipants(i, p);
-                      }}
-                    />
-                    <Input
-                      className="col-span-1"
-                      type="date"
-                      disabled={isEncrypted}
-                      value={p.BirthDate ?? ""}
-                      placeholder="***"
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        p.BirthDate = e.target.value;
-                        updateParticipants(i, p);
-                      }}
-                    />
-                    <div className="col-auto col-span-1 h-full">
-                      <Button
-                        type="button"
-                        disabled={isEncrypted}
-                        colorstyle="bg-red-600 hover:bg-red-700 hover:dark:bg-red-400"
-                        onClick={() => deleteParticipant(p.id)}
-                      >
-                        <TrashIcon height={16} />
-                      </Button>
-                    </div>
-                  </Fragment>
-                );
-              })}
+          <div>
+            <Input
+              className="w-44"
+              type="search"
+              title="Teilnehmersuche"
+              disabled={isEncrypted}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setParticipantFilter(e.target.value)}
+            />
           </div>
-        ) : (
-          <span>Leer</span>
-        )}
+        </div>
+        {generateParticipantList()}
       </div>
 
       {!isEncrypted && (

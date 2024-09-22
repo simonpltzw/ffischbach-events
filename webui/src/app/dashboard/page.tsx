@@ -50,9 +50,9 @@ const Root: FC<any> = () => {
         </Button>
       </div>
       <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-3 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-lg">
+        <div className="flex flex-col gap-3 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-lg mb-5">
           <label className="text-lg font-bold">Filter</label>
-          <div className="flex flex-row-reverse gap-5 items-start mb-10">
+          <div className="flex flex-row-reverse gap-5 items-start">
             <Input
               containerClassName="w-full"
               value={filter}
