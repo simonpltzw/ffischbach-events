@@ -2,7 +2,7 @@
 
 import { ChangeEvent, FC, HTMLAttributes, useEffect, useRef, useState } from "react";
 
-export interface CheckBoxProps extends HTMLAttributes<HTMLElement> {
+export interface CheckBoxProps extends React.HTMLAttributes<HTMLInputElement> {
   value: boolean;
   title?: string;
   size?: number;

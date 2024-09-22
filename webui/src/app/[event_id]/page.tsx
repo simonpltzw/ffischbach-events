@@ -38,7 +38,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [managerPopupVisible, setManagerPopupVisible] = useState<boolean>(false);
   const [confirmCompletePopupVisible, setConfirmCompletePopupVisible] = useState<boolean>(false);
   const [eventSettings, setEventSetting] = useEventSettings();
-  const {parse} = useJsonToCsv()
+  const { parse } = useJsonToCsv();
 
   const [filter, setFilter] = useState<string>("");
   const [filterApproved, setFilterApproved] = useState<boolean>(false);
@@ -98,7 +98,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const onDecryptData = async (password: string) => {
     try {
-      state.groups = await decryptEvent(state, password)
+      state.groups = await decryptEvent(state, password);
       setEventSetting({ eventId: params.event_id, password });
 
       dispatch({ type: "decGroups", value: state.groups });
@@ -111,10 +111,10 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const onAddEventManager = async (email: string) => {
     const token = await getToken();
-    
+
     const response = await addEventManager(token, params.event_id, email);
-    if(response) {
-      addToast({message: "Manager hinzugefügt", type: 'info'})
+    if (response) {
+      addToast({ message: "Manager hinzugefügt", type: "info" });
     }
   };
 
@@ -131,7 +131,10 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           <div>{group.contact.LastName ?? "***"}</div>
         </div>
         <div>
-          <CheckBox disabled value />
+          <CheckBox
+            disabled
+            value={group.approved}
+          />
         </div>
         <div>{getLocalDateTime(group.createdAt)}</div>
         <div
@@ -149,6 +152,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const generateFilteredList = () => {
     const filteredList = state.groups
       ?.filter((group: Group) => {
+        console.log(filterApproved, group.approved);
         return (
           (group.name?.includes(filter) ||
             group.category.includes(filter) ||
@@ -198,18 +202,18 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             className="md:flex-none flex-1"
             type="button"
             onClick={async () => {
-              const data = await parse(state)
-              const file = new File([data], 'd.csv')
-              const url = URL.createObjectURL(file)
+              const data = await parse(state);
+              const file = new File([data], "d.csv");
+              const url = URL.createObjectURL(file);
 
-              const a = document.createElement("a")
-              a.href = url
-              a.download = file.name
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = file.name;
 
-              document.body.appendChild(a)
-              a.click()
+              document.body.appendChild(a);
+              a.click();
 
-              document.body.removeChild(a)
+              document.body.removeChild(a);
             }}
           >
             Event exportieren
@@ -233,9 +237,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
               </label>
               <CheckBox
                 value={filterApproved}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setFilterApproved(e.target.checked)
-                }
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setFilterApproved(e.target.checked)}
               />
             </div>
           </div>
