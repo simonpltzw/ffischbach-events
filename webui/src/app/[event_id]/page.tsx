@@ -220,10 +220,10 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           </Button>
         </div>
       )}
-      <div className="w-full">
+     <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-3 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-lg mb-5">
-          <label className="text-lg font-semibold">Filter</label>
-          <div className="flex flex-row-reverse gap-5 items-start">
+          <label className="text-lg font-bold">Filter</label>
+          <div className="flex flex-row-reverse gap-5 items-end">
             <Input
               containerClassName="w-full"
               value={filter}
