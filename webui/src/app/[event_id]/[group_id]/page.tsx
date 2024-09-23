@@ -55,7 +55,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupState]);
 
-  const onSubmit = () => {
+  const onSubmit: any = () => {
     //todo
     groupState.participants = participants;
 
@@ -277,7 +277,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
         </div>
       </div>
       <div className="flex flex-col gap-4 shadow p-3 rounded-lg">
-        <div className="flex flex-col gap-4 items-start border dark:border-0 dark:bg-gray-900/30">
+        <div className="flex flex-col gap-4 items-start border dark:border-0 p-3 dark:bg-gray-900/30">
           <label className="text-lg font-semibold">Filter</label>
           <span className="font-bold">Teilnehmer</span>
           <div>
