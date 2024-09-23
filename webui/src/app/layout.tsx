@@ -12,7 +12,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <EventSettingsProvider>
           <LayoutContent>
             <div className="relative flex flex-row justify-center md:px-0 px-3">
-              <div className="mx-5 mt-5 border border-2 dark:border-0 bg-white dark:bg-gray-800 h-fit w-full container rounded-xl">
+              <div className="mx-5 mt-5 border border-2 dark:border-0 bg-white dark:bg-gray-800 container rounded-xl">
                 <div className="relative flex flex-col gap-5 p-4 rounded-md">{children}</div>
               </div>
             </div>

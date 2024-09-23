@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, Reducer, useEffect, useReducer, useState } from "react";
+import { ChangeEvent, Fragment, Reducer, useEffect, useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
@@ -20,6 +20,7 @@ import { useEventSettings } from "@/context/eventSettingsContext";
 import { decryptEvent } from "@/services/decryptService";
 import { useJsonToCsv } from "@/services/dataPreparationService";
 import { Input } from "@/components/Input";
+import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   type StateActionType = "updateApproved" | "set" | "decGroups";
@@ -120,32 +121,26 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const generateGroupEntry = (group: Group, index: number) => {
     return (
-      <div
-        key={`event-group-${index}`}
-        className="grid grid-cols-subgrid justify-items-start place-items-center col-span-6 gap-3 px-3 py-2 border dark:border-0 dark:bg-gray-900 rounded hover:bg-gray-200 hover:dark:bg-gray-700"
-      >
-        <div>{group.name ?? "***"}</div>
-        <div>{group.category}</div>
-        <div>
+      <TR _key={`event-group-${index}`}>
+        <TD>{group.name ?? "***"}</TD>
+        <TD>{group.category}</TD>
+        <TD>
           <div className="mr-3">{group.contact.FirstName ?? "***"}</div>
           <div>{group.contact.LastName ?? "***"}</div>
-        </div>
-        <div>
-          <CheckBox
-            disabled
-            value={group.approved}
-          />
-        </div>
-        <div>{getLocalDateTime(group.createdAt)}</div>
-        <div
+        </TD>
+        <TD>
+          <CheckBox disabled value={group.approved} />
+        </TD>
+        <TD>{getLocalDateTime(group.createdAt)}</TD>
+        <TD
           className="h-fit w-fit rounded-md cursor-pointer"
-          onClick={() => {
+          click={() => {
             router.push(`/${state.id}/${state.groups![index].id}`);
           }}
         >
           {!isEncrypted && <PencilIcon height={20} />}
-        </div>
-      </div>
+        </TD>
+      </TR>
     );
   };
 
@@ -166,7 +161,16 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     if (filteredList?.length) {
       return filteredList;
     }
-    return <span className="font-bold col-span-5">Leer</span>;
+    return (
+      <TR>
+        <TD>Leer</TD>
+        <TD></TD>
+        <TD></TD>
+        <TD></TD>
+        <TD></TD>
+        <TD></TD>
+      </TR>
+    );
   };
 
   return (
@@ -220,7 +224,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           </Button>
         </div>
       )}
-     <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-3 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-lg mb-5">
           <label className="text-lg font-bold">Filter</label>
           <div className="flex flex-row-reverse gap-5 items-end">
@@ -242,21 +246,21 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           </div>
         </div>
 
-        <div className="grid grid-flow-row auto-rows-min gap-3 justify-items-start overflow-x-scroll md:overflow-x-auto">
-          <div className="font-extrabold col-span-6 mb-3">Gruppen</div>
-          {
-            <>
-              <div className="font-bold">Name</div>
-              <div className="font-bold">Kategorie</div>
-              <div className="font-bold">Kontakt</div>
-              <div className="font-bold">Genehmigt</div>
-              <div className="font-bold">Erstellt</div>
-              <div></div>
-
-              {generateFilteredList()}
-            </>
-          }
-        </div>
+        <Table>
+          <THead>
+            <tr>
+              <TH>Name</TH>
+              <TH>Kategorie</TH>
+              <TH>Kontakt</TH>
+              <TH>Genehmigt</TH>
+              <TH>Erstellt</TH>
+              <TH></TH>
+            </tr>
+          </THead>
+          <TBody>
+            <>{generateFilteredList()}</>
+          </TBody>
+        </Table>
       </div>
       <PasswordPopup
         title="Event entschlüsseln"

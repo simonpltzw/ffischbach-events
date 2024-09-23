@@ -5,6 +5,7 @@ import { CheckBox } from "@/components/CheckBox";
 import { Input } from "@/components/Input";
 import { Lock } from "@/components/Lock";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
+import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
 import { useEventSettings } from "@/context/eventSettingsContext";
 import { useGroupContext } from "@/context/group";
 import { useToast } from "@/context/toast";
@@ -105,61 +106,75 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       })
       .map((p: Participant, i: number) => {
         return (
-          <Fragment key={`participant-${i}`}>
-            <Input
-              className="col-span-1"
-              value={p.FirstName ?? empty}
-              disabled={isEncrypted}
-              placeholder="***"
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                p.FirstName = e.target.value;
-                updateParticipants(i, p);
-              }}
-            />
-            <Input
-              className="col-span-1"
-              disabled={isEncrypted}
-              value={p.LastName ?? empty}
-              placeholder="***"
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                p.LastName = e.target.value;
-                updateParticipants(i, p);
-              }}
-            />
-            <Input
-              className="col-span-1"
-              type="date"
-              disabled={isEncrypted}
-              value={p.BirthDate ?? ""}
-              placeholder="***"
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                p.BirthDate = e.target.value;
-                updateParticipants(i, p);
-              }}
-            />
-            <div className="col-auto col-span-1 h-full">
-              <Button
-                type="button"
+          <TR disabled _key={`participant-${i}`}>
+            <TD>
+              <Input
+                value={p.FirstName ?? empty}
+                className="ml-0"
                 disabled={isEncrypted}
-                colorstyle="bg-red-600 hover:bg-red-700 hover:dark:bg-red-400"
-                onClick={() => deleteParticipant(p.id)}
-              >
-                <TrashIcon height={16} />
-              </Button>
-            </div>
-          </Fragment>
+                placeholder="***"
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  p.FirstName = e.target.value;
+                  updateParticipants(i, p);
+                }}
+              />
+            </TD>
+            <TD>
+              <Input
+                disabled={isEncrypted}
+                className="ml-0"
+                value={p.LastName ?? empty}
+                placeholder="***"
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  p.LastName = e.target.value;
+                  updateParticipants(i, p);
+                }}
+              />
+            </TD>
+            <TD>
+              <Input
+                type="date"
+                disabled={isEncrypted}
+                className="ml-0"
+                value={p.BirthDate ?? ""}
+                placeholder="***"
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  p.BirthDate = e.target.value;
+                  updateParticipants(i, p);
+                }}
+              />
+            </TD>
+            <TD>
+              <div className="col-auto col-span-1 h-full">
+                <Button
+                  type="button"
+                  disabled={isEncrypted}
+                  colorstyle="bg-red-600 hover:bg-red-700 hover:dark:bg-red-400"
+                  onClick={() => deleteParticipant(p.id)}
+                >
+                  <TrashIcon height={16} />
+                </Button>
+              </div>
+            </TD>
+          </TR>
         );
       });
 
     if (filteredParticipants.length > 0) {
       return (
-        <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-3 items-start">
-          <span className="font-semibold">Vorname</span>
-          <span className="font-semibold">Nachname</span>
-          <span className="font-semibold">Geburtsdatum</span>
-          <span></span>
-          {filteredParticipants}
-        </div>
+        <Table>
+          <THead>
+            <tr>
+              <TH>Vorname</TH>
+              <TH>Nachname</TH>
+              <TH>Geburtsdatum</TH>
+              <TH></TH>
+            </tr>
+          </THead>
+          <TBody>
+            <>{filteredParticipants}</>
+          </TBody>
+        </Table>
       );
     } else {
       return <span>Leer</span>;
@@ -261,8 +276,8 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
           />
         </div>
       </div>
-      <div className="flex flex-col gap-4 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-lg">
-        <div className="flex flex-col gap-4 items-start">
+      <div className="flex flex-col gap-4 shadow p-3 rounded-lg">
+        <div className="flex flex-col gap-4 items-start border dark:border-0 dark:bg-gray-900/30">
           <label className="text-lg font-semibold">Filter</label>
           <span className="font-bold">Teilnehmer</span>
           <div>
