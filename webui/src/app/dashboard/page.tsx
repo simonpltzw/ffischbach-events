@@ -12,6 +12,7 @@ import { CheckBox } from "@/components/CheckBox";
 import { getLocalDateTime } from "@/util/converter";
 import { CreateEventPopup } from "@/components/popups/CreateEvent";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
+import React from "react";
 
 const Root: FC<any> = () => {
   const { addToast } = useToast();

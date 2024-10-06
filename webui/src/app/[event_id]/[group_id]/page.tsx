@@ -15,6 +15,7 @@ import { decryptGroup } from "@/services/decryptService";
 import { getGroup, updateGroup } from "@/services/groupsService";
 import useToken from "@/services/tokenService";
 import { MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/solid";
+import React from "react";
 import { ChangeEvent, Fragment, useEffect, useState } from "react";
 
 const GroupPage = ({ params }: { params: { event_id: string; group_id: string } }) => {
@@ -226,7 +227,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       <CheckBox
         title="Genehmigt"
         disabled={isEncrypted}
-        value={groupState.approved ?? false}
+        value={!!groupState.approved}
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
           groupState.approved = e.target.checked;
         }}
@@ -276,7 +277,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
           <CheckBox
             title="VIP"
             disabled={isEncrypted}
-            value={groupState.contact.vip ?? false}
+            value={!!groupState.contact.vip}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               groupState.contact.vip = e.target.checked;
             }}

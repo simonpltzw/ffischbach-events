@@ -126,11 +126,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         <TD>{group.name ?? "***"}</TD>
         <TD>{group.category}</TD>
         <TD>
-          <div className="mr-3">{group.contact.FirstName ?? "***"}</div>
-          <div>{group.contact.LastName ?? "***"}</div>
+          <span className="mr-3">{group.contact.FirstName ?? "***"}</span>
+          <span>{group.contact.LastName ?? "***"}</span>
         </TD>
         <TD>
-          <CheckBox disabled value={group.approved} />
+          <CheckBox disabled value={!!group.approved} />
         </TD>
         <TD>{getLocalDateTime(group.createdAt)}</TD>
         <TD
