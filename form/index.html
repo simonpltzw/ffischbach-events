@@ -98,9 +98,8 @@
   </style>
 
   <body>
-    <div id="container">
+    <form action="" id="container" onsubmit="submitForm(event)">
       <div class="flex flex-col">
-        <h3>Ansprechpartner</h3>
         <!--Categories of users-->
         <select id="category" title="category">
           <option value="600">Bauhof Stadt Kelkheim</option>
@@ -121,13 +120,13 @@
 
         <!--Input section-->
         <div class="title">
-        <p for="groupName">Gruppenname</p>
+          <p for="groupName">Gruppenname</p>
           <p class="required">*</p>
         </div>
         <input required id="groupName" type="text" placeholder="Gruppenname" />
 
         <div class="title">
-        <p for="contactFirst">Vorname</p>
+          <p for="contactFirst">Vorname</p>
           <p class="required">*</p>
         </div>
         <input required id="contactFirst" type="text" placeholder="Vorname" />
@@ -168,36 +167,29 @@
           diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd
           gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
         </div>
-        <div class="flex fit">
+        <div class="flex">
           <input id="agbCheck" type="checkbox" title="agb" disabled />
           <label>AGB</label>
           <label class="required">*</label>
         </div>
 
         <!--Submit Button-->
-        <button
-          id="submit"
-          class="align-self-start"
-          type="submit"
-          title="submit"
-          onclick="submit()"
-          disabled
-        >
-          Absenden
-        </button>
+        <button id="submitBtm" class="align-self-start" type="submit" disabled>Absenden</button>
       </div>
-    </div>
+    </form>
   </body>
 
   <script>
+    //Event ID (changes permitted by staff ^^)
+    const EVENT_ID = 32024;
     let hasError = false;
     let stayDisabled = false;
     const currentYear = new Date().getFullYear();
-    const dates = {
+    /*const dates = {
       Feuerwehr: new Date(currentYear, 15, 11),
       Verein: new Date(currentYear, 21, 11),
       Privat: new Date(currentYear, 15, 0),
-    };
+    };*/
 
     /*input elements*/
     const groupName = document.getElementById("groupName");
@@ -205,18 +197,18 @@
     const contactLast = document.getElementById("contactLast");
     const contact_BirthDate = document.getElementById("contact_BirthDate");
     const contactEmail = document.getElementById("contactEmail");
-    const group = document.getElementById("group");
     const addBtn = document.getElementById("add");
-    const submitBtn = document.getElementById("submit");
+    const submitBtn = document.getElementById("submitBtm");
     const agbCheck = document.getElementById("agbCheck");
     const agbText = document.getElementById("agb");
     const category = document.getElementById("category");
     const category_error = document.getElementById("category_error");
+    const container = document.createElement("div");
 
     /*api model*/
     let form = {
       Name: undefined,
-      EventId: "32024",
+      EventId: EVENT_ID,
       Contact: {
         Email: undefined,
         FirstName: undefined,
@@ -227,9 +219,8 @@
       Participants: [],
     };
 
-    const submit = () => {
-      console.log(form)
-
+    const submitForm = (event) => {
+      event.preventDefault();
       fetch("https://ffischbach-events-api.palzone.de/Groups", {
         method: "POST",
         headers: {
@@ -237,8 +228,11 @@
         },
         body: JSON.stringify(form),
       }).then((event) => {
-        if (event.ok) alert("Great Success");
-        else alert("Som ting wong");
+        if (event.ok) {
+          alert("Erfolgreich angemeldet");
+        } else {
+          alert("Som ting wong");
+        }
       });
     };
 
@@ -252,7 +246,6 @@
       contactLast.disabled = isDisabled;
       contact_BirthDate.disabled = isDisabled;
       contactEmail.disabled = isDisabled;
-      group.disabled = isDisabled;
 
       if (stayDisabled) {
         submitBtn.disabled = true;
@@ -280,19 +273,16 @@
       );
       contactEmail.addEventListener("change", (evt) => (form.Contact.Email = evt.target.value));
 
-      //todo: duplicate
-      group.addEventListener("change", (evt) => (form.Name = evt.target.value));
-
       /*Category*/
       category.addEventListener("change", (evt) => {
         const selection = evt.target.value;
 
         form.Category = selection;
 
-        const isDisabled = false //dates[selection] > new Date();
+        const isDisabled = false; //dates[selection] > new Date();
         stayDisabled = isDisabled;
 
-        category_error.visible = !isDisabled;
+        //category_error.visible = !isDisabled;
 
         setInputsDisables(isDisabled);
       });
@@ -317,8 +307,6 @@
     /*Adds participants to list*/
     const addParticipant = () => {
       const list = document.getElementById("list");
-
-      const container = document.createElement("div");
       container.className = "flex";
 
       const firstName = document.createElement("input");
