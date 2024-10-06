@@ -173,17 +173,16 @@
 
     /*api model*/
     let form = {
-      name: undefined,
-      eventId: "12024",
-      contact: {
-        email: undefined,
-        firstName: undefined,
-        lastName: undefined,
-        birthDate: undefined,
+      Name: undefined,
+      EventId: "32024",
+      Contact: {
+        Email: undefined,
+        FirstName: undefined,
+        LastName: undefined,
+        BirthDate: undefined,
       },
-      category: undefined,
-      name: undefined,
-      participants: [],
+      Category: undefined,
+      Participants: [],
     };
 
     const submit = () => {
@@ -228,23 +227,23 @@
 
     /*form input listener*/
     const addListeners = () => {
-      groupName.addEventListener("change", (evt) => (form.name = evt.target.value));
-      contactFirst.addEventListener("change", (evt) => (form.contact.firstName = evt.target.value));
-      contactLast.addEventListener("change", (evt) => (form.contact.lastName = evt.target.value));
+      groupName.addEventListener("change", (evt) => (form.Name = evt.target.value));
+      contactFirst.addEventListener("change", (evt) => (form.Contact.FirstName = evt.target.value));
+      contactLast.addEventListener("change", (evt) => (form.Contact.LastName = evt.target.value));
       contact_BirthDate.addEventListener(
         "change",
-        (evt) => (form.contact.birthDate = getDateFormat(evt.target.value))
+        (evt) => (form.Contact.BirthDate = getDateFormat(evt.target.value))
       );
-      contactEmail.addEventListener("change", (evt) => (form.contact.email = evt.target.value));
+      contactEmail.addEventListener("change", (evt) => (form.Contact.Email = evt.target.value));
 
       //todo: duplicate
-      group.addEventListener("change", (evt) => (form.name = evt.target.value));
+      group.addEventListener("change", (evt) => (form.Name = evt.target.value));
 
       /*Category*/
       category.addEventListener("change", (evt) => {
         const selection = dates[evt.target.value];
 
-        form.category = selection;
+        form.Category = selection;
 
         const isDisabled = selection > new Date();
         stayDisabled = isDisabled;
@@ -321,7 +320,7 @@
       /*remove participant from list*/
       deleteBtn.addEventListener("click", (evt) => {
         list.removeChild(container);
-        form.participants = form.participants.filter((e) => e !== obj);
+        form.Participants = form.Participants.filter((e) => e !== obj);
       });
 
       for (let e of inputs) {
@@ -329,7 +328,7 @@
         container.appendChild(e);
       }
 
-      form.participants.push(obj);
+      form.Participants.push(obj);
       list.appendChild(container);
     };
 
