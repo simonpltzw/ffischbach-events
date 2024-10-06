@@ -5,6 +5,8 @@ import SidebarBurger from "../sidebar/burger";
 import { Links } from "../Links";
 import { ThemeToggle } from "../ThemeToggle";
 import { Button } from "@/components/Button";
+import { ChevronLeftIcon } from "@heroicons/react/24/solid";
+import { useRouter, usePathname } from "next/navigation";
 
 export interface NavigationProps extends HTMLAttributes<HTMLElement> {
   setVisible(): void;
@@ -15,13 +17,24 @@ export interface NavigationProps extends HTMLAttributes<HTMLElement> {
 const Navigation: FC<NavigationProps> = (props: NavigationProps) => {
   const { instance } = useMsal();
   const isAuthenticated = useIsAuthenticated();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const backVisible = () => {
+    return pathname != "/dashboard";
+  };
 
   return (
     <div className="mx-auto container dark:text-white text-black">
       <div className="relative flex h-16 gap-3 items-center justify-between">
         <SidebarBurger toggle={props.setVisible} />
         <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-          <div className="flex flex-shrink-0 items-center">
+          <div className="flex flex-row gap-3 flex-shrink-0 items-center">
+            {backVisible() && (
+              <div>
+                <ChevronLeftIcon className="cursor-pointer" height={30} onClick={() => router.back()} />
+              </div>
+            )}
             <div className="w-auto my-auto text-center">FF-Fischbach</div>
           </div>
           <div className="hidden sm:ml-6 sm:block">
@@ -47,9 +60,7 @@ const Navigation: FC<NavigationProps> = (props: NavigationProps) => {
             <Button
               type="button"
               className="dark:bg-gray-900"
-              onClick={() =>
-                instance.loginRedirect(loginRequest)
-              }
+              onClick={() => instance.loginRedirect(loginRequest)}
             >
               Sign in
             </Button>
