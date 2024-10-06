@@ -21,6 +21,7 @@ import { decryptEvent } from "@/services/decryptService";
 import { useJsonToCsv } from "@/services/dataPreparationService";
 import { Input } from "@/components/Input";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
+import React from "react";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   type StateActionType = "updateApproved" | "set" | "decGroups";
@@ -147,13 +148,12 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const generateFilteredList = () => {
     const filteredList = state.groups
       ?.filter((group: Group) => {
-        console.log(filterApproved, group.approved);
         return (
           (group.name?.includes(filter) ||
             group.category.includes(filter) ||
             group.createdAt.includes(filter) ||
             filter == "") &&
-          filterApproved == group.approved
+          filterApproved == !!group.approved
         );
       })
       .map((group: Group, index: number) => generateGroupEntry(group, index));
