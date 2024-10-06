@@ -31,6 +31,48 @@ const Root: FC<any> = () => {
     });
   };
 
+  const generateList = () => {
+    const list = eventList
+      .filter((event: Event) => {
+        return (
+          (event.id.includes(filter) || event.description.includes(filter) || filter == "") &&
+          isFilterComplete == event.completed
+        );
+      })
+      .map((event: Event) => {
+        return (
+          <TR
+            key={event.id}
+            onClick={() => {
+              router.push(`/${event.id}`);
+            }}
+
+            //className="cursor-pointer justify-items-start place-items-center p-3 border dark:border-0 dark:bg-gray-900 hover:bg-gray-200 hover:dark:bg-gray-700"
+          >
+            <TD>{event.id}</TD>
+            <TD>{event.description}</TD>
+            <TD>{event.totalGroups}</TD>
+            <TD>{event.totalParticipants}</TD>
+            <TD>{getLocalDateTime(event.createdAt)}</TD>
+          </TR>
+        );
+      });
+
+    if (list.length > 0) {
+      return list;
+    } else {
+      return (
+        <TR disabled>
+          <TD>Leer</TD>
+          <TD></TD>
+          <TD></TD>
+          <TD></TD>
+          <TD></TD>
+        </TR>
+      );
+    }
+  };
+
   const onOpenCreate = () => {
     setCreatePopupOpen(true);
   };
@@ -84,35 +126,7 @@ const Root: FC<any> = () => {
             </tr>
           </THead>
           <TBody>
-            <>
-              {eventList
-                .filter((event: Event) => {
-                  return (
-                    (event.id.includes(filter) ||
-                      event.description.includes(filter) ||
-                      filter == "") &&
-                    isFilterComplete == event.completed
-                  );
-                })
-                .map((event: Event) => {
-                  return (
-                    <TR
-                      _key={event.id}
-                      onClick={() => {
-                        router.push(`/${event.id}`);
-                      }}
-                      
-                      //className="cursor-pointer justify-items-start place-items-center p-3 border dark:border-0 dark:bg-gray-900 hover:bg-gray-200 hover:dark:bg-gray-700"
-                    >
-                      <TD>{event.id}</TD>
-                      <TD>{event.description}</TD>
-                      <TD>{event.totalGroups}</TD>
-                      <TD>{event.totalParticipants}</TD>
-                      <TD>{getLocalDateTime(event.createdAt)}</TD>
-                    </TR>
-                  );
-                })}
-            </>
+            <>{generateList()}</>
           </TBody>
         </Table>
       </div>

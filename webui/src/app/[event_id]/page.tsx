@@ -121,7 +121,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const generateGroupEntry = (group: Group, index: number) => {
     return (
-      <TR _key={`event-group-${index}`}>
+      <TR key={`event-group-${index}`} disabled={isEncrypted}>
         <TD>{group.name ?? "***"}</TD>
         <TD>{group.category}</TD>
         <TD>

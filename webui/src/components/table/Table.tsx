@@ -2,17 +2,14 @@ import React from "react";
 import { FC, HTMLAttributes } from "react";
 
 export interface GeneralProps extends React.HTMLAttributes<any> {
-  _key?: string;
 }
 
 export interface TRProps extends React.HTMLAttributes<HTMLTableRowElement> {
-  _key?: string;
   click?: any;
   disabled?: boolean;
 }
 
 export interface TDProps extends React.HTMLAttributes<HTMLTableCellElement> {
-  _key?: string;
   click?: any;
 }
 
@@ -41,7 +38,6 @@ export const TBody: FC<GeneralProps> = (props: GeneralProps) => {
 export const TR: FC<TRProps> = (props: TRProps) => {
   return (
     <tr
-      key={props._key}
       onClick={(e) => {
         e.stopPropagation();
         console.log(props);

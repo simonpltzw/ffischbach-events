@@ -106,7 +106,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       })
       .map((p: Participant, i: number) => {
         return (
-          <TR disabled _key={`participant-${i}`}>
+          <TR disabled key={`participant-${i}`}>
             <TD>
               <Input
                 value={p.FirstName ?? empty}
@@ -177,7 +177,14 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
         </Table>
       );
     } else {
-      return <span>Leer</span>;
+      return (
+        <TR disabled>
+          <TD>Leer</TD>
+          <TD></TD>
+          <TD></TD>
+          <TD></TD>
+        </TR>
+      );
     }
   };
 
