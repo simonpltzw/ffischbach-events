@@ -90,9 +90,13 @@
         <h3>Ansprechpartner</h3>
         <!--Categories of users-->
         <select id="category" title="category">
-          <option value="Feuerwehr">FF-Fischbach (15.12.)</option>
-          <option value="Verein">Vereine (21.12.)</option>
-          <option value="Privat">Privat (15.1.)</option>
+          <option value="600">Bauhof Stadt Kelkheim</option>
+          <option value="500">Privatgruppen</option>
+          <option value="400">Kelkheimer Vereine</option>
+          <option value="300">Fischbacher Vereine</option>
+          <option value="200">Mitglieder Feuerwehren Stadt Kelkheim</option>
+          <option value="100">Freunde, Familie, Arbeitskollegen FF Fischbach</option>
+          <option value="0">Sonstiges</option>
         </select>
 
         <!--error message-->
@@ -151,11 +155,11 @@
     let hasError = false;
     let stayDisabled = false;
     const currentYear = new Date().getFullYear();
-    const dates = [
-      new Date(currentYear, 15, 11),
-      new Date(currentYear, 21, 11),
-      new Date(currentYear, 15, 0),
-    ];
+    const dates = {
+      Feuerwehr: new Date(currentYear, 15, 11),
+      Verein: new Date(currentYear, 21, 11),
+      Privat: new Date(currentYear, 15, 0),
+    };
 
     /*input elements*/
     const groupName = document.getElementById("groupName");
@@ -186,6 +190,8 @@
     };
 
     const submit = () => {
+      console.log(form)
+
       fetch("https://ffischbach-events-api.palzone.de/Groups", {
         method: "POST",
         headers: {
@@ -241,11 +247,11 @@
 
       /*Category*/
       category.addEventListener("change", (evt) => {
-        const selection = dates[evt.target.value];
+        const selection = evt.target.value;
 
         form.Category = selection;
 
-        const isDisabled = selection > new Date();
+        const isDisabled = false //dates[selection] > new Date();
         stayDisabled = isDisabled;
 
         category_error.visible = !isDisabled;
