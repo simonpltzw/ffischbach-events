@@ -13,7 +13,7 @@ export const LayoutContent: FC<LayoutContentProps> = (props: LayoutContentProps)
 
   return (
     <body className={`${appSettings.isDarkMode ? "dark" : ""}`}>
-      <div className="bg-white dark:bg-gray-700 text-black dark:text-white h-full w-screen pb-10">
+      <div className="bg-white text-black dark:text-white dark:bg-gray-700 pb-10">
         <MsalProvider instance={msalInstance}>
           <SessionProvider>{props.children}</SessionProvider>
         </MsalProvider>
