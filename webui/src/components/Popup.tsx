@@ -5,6 +5,7 @@ export interface PopupPanelProps extends HTMLAttributes<HTMLDivElement> {}
 
 export interface PopupTitleProps extends HTMLAttributes<HTMLDivElement> {}
 
+export interface PopupOpenerProps extends HTMLAttributes<HTMLDivElement> {}
 export interface PopupProps extends HTMLAttributes<HTMLDivElement> {
   onClose?(): void;
   state: {
@@ -29,11 +30,16 @@ export const PopupDialogPanel: FC<PopupPanelProps> = (props: PopupPanelProps) =>
 };
 
 export const PopupTitle: FC<PopupTitleProps> = (props: PopupTitleProps) => {
-  return <DialogTitle className="text-base font-semibold leading-6">{props.children}</DialogTitle>;
+  return <DialogTitle className="text-base text-black dark:text-white  font-semibold leading-6">{props.children}</DialogTitle>;
 };
+
+export const PopupOpener: FC<PopupOpenerProps> = (props: PopupOpenerProps) => {
+  return <div onClick={props.onClick}>{props.children}</div>
+}
 
 export const Popup: FC<PopupProps> = (props: PopupProps) => {
   return (
+    <>
     <Dialog
       open={props.state.open}
       onClose={() => {
@@ -48,5 +54,6 @@ export const Popup: FC<PopupProps> = (props: PopupProps) => {
         {props.children}
       </div>
     </Dialog>
+    </>
   );
 };

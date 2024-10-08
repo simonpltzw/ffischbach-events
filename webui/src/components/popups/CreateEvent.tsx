@@ -17,32 +17,28 @@ import {
 } from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
-import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup } from "../Popup";
+import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
 
 export interface CreateEventPopupProps extends HTMLAttributes<HTMLElement> {
-  state: {
-    open: boolean;
-    setOpen: Dispatch<SetStateAction<boolean>>;
-  };
   done(event: Event): void;
 }
-
 
 export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPopupProps) => {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [visible, setVisible] = useState<boolean>(false);
 
   const [errors, setErrors] = useState<string[]>([]);
   const { getToken } = useToken();
 
   useEffect(() => {
-    if (!props.state.open) {
+    if (!visible) {
       setName("");
       setDescription("");
       setErrors([]);
     }
-  }, [props.state.open]);
+  }, [visible]);
 
   const onSubmit = async () => {
     getToken().then((token: string) => {
@@ -57,7 +53,7 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
         createEvent(token, newEvent)
           .then((r: AxiosResponse) => {
             props.done(r.data);
-            props.state.setOpen(false);
+            setVisible(false);
           })
           .catch((e: any) => {
             if (e.response?.data) {
@@ -78,52 +74,56 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
   };
 
   return (
-    <Popup state={{ ...props.state }}>
-      <PopupBackdrop />
-      <PopupDialogPanel>
-        <PopupTitle>Event erstellen</PopupTitle>
-        <div id="form" className="mt-2 flex flex-col gap-3 w-80">
-          <Input
-            type="text"
-            placeholder="Name"
-            value={name}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-          />
-          <Input
-            type="text"
-            placeholder="Beschreibung"
-            value={description}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="Passwort"
-            value={password}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          {errors.map((error: string, index: number) => {
-            return generateErrorMessage(error, index);
-          })}
-        </div>
-        <div className="flex flex-row gap-3 py-3">
-          <Button
-            type="button"
-            colorstyle="bg-green-600 hover:bg-green-700 hover:dark:bg-green-400"
-            onClick={onSubmit}
-          >
-            Bestätigen
-          </Button>
-          <Button
-            type="button"
-            colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
-            onClick={() => props.state.setOpen(false)}
-          >
-            Abbrechen
-          </Button>
-        </div>
-      </PopupDialogPanel>
-    </Popup>
+    <>
+      <Popup state={{open: visible, setOpen: setVisible }}>
+        <PopupBackdrop />
+        <PopupDialogPanel>
+          <PopupTitle>Event erstellen</PopupTitle>
+          <div id="form" className="mt-2 flex flex-col gap-3 w-80">
+            <Input
+              autoFocus={true}
+              type="text"
+              placeholder="Name"
+              value={name}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+            />
+            <Input
+              type="text"
+              placeholder="Beschreibung"
+              value={description}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)}
+            />
+            <Input
+              type="password"
+              placeholder="Passwort"
+              value={password}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            {errors.map((error: string, index: number) => {
+              return generateErrorMessage(error, index);
+            })}
+          </div>
+          <div className="flex flex-row gap-3 py-3">
+            <Button
+              type="button"
+              colorstyle="bg-green-600 hover:bg-green-700 hover:dark:bg-green-400"
+              onClick={onSubmit}
+            >
+              Bestätigen
+            </Button>
+            <Button
+              type="button"
+              colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
+              onClick={() => setVisible(false)}
+            >
+              Abbrechen
+            </Button>
+          </div>
+        </PopupDialogPanel>
+      </Popup>
+      <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>
+    </>
   );
 };

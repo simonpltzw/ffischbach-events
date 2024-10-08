@@ -1,29 +1,26 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { Dispatch, FC, HTMLAttributes, SetStateAction, useEffect, useState } from "react";
 import { Button } from "../Button";
-import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup } from "../Popup";
+import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
 
 export interface ConfirmPopupProps extends HTMLAttributes<HTMLElement> {
-  state: {
-    open: boolean;
-    setOpen: Dispatch<SetStateAction<boolean>>;
-  };
   done(): void;
 }
 
 export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) => {
   const [errors, setErrors] = useState<string[]>([]);
+  const [visible, setVisible] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!props.state.open) {
+    if (!visible) {
       setErrors([]);
     }
-  }, [props.state.open]);
+  }, [visible]);
 
   const onSubmit = async () => {
     try {
       await props.done();
-      props.state.setOpen(false);
+      setVisible(false);
     } catch (e: any) {
       if (e.response?.data) {
         setErrors([e.response.data.detail]);
@@ -41,7 +38,7 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) =>
 
   return (
     <div>
-      <Popup state={{ ...props.state }}>
+      <Popup state={{ open: visible, setOpen: setVisible }}>
         <PopupBackdrop />
         <PopupDialogPanel>
           <PopupTitle>{props.title}</PopupTitle>
@@ -60,8 +57,9 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) =>
               Bestätigen
             </Button>
             <Button
+              autoFocus={true}
               type="button"
-              onClick={() => props.state.setOpen(false)}
+              onClick={() => setVisible(false)}
               colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
             >
               Abbrechen
@@ -69,6 +67,7 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) =>
           </div>
         </PopupDialogPanel>
       </Popup>
+      <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>
     </div>
   );
 };

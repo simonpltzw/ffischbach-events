@@ -11,14 +11,10 @@ import {
 } from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
-import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup } from "../Popup";
+import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
 import { AxiosError, AxiosResponse } from "axios";
 
 export interface AddEventManagerPopupProps extends HTMLAttributes<HTMLElement> {
-  state: {
-    open: boolean;
-    setOpen: Dispatch<SetStateAction<boolean>>;
-  };
   done(email: string): void;
 }
 
@@ -27,18 +23,19 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
 ) => {
   const [email, setEmail] = useState<string>("");
   const [errors, setErrors] = useState<string[]>([]);
+  const [visible, setVisible] = useState<boolean>(false)
 
   useEffect(() => {
-    if (!props.state.open) {
+    if (!visible) {
       setEmail("");
       setErrors([]);
     }
-  }, [props.state.open]);
+  }, [visible]);
 
   const onSubmit = async () => {
     try {
       await props.done(email);
-      props.state.setOpen(false);
+      setVisible(false);
     } catch (e: any) {
       if (e.response?.data) {
         setErrors([e.response.data.detail]);
@@ -57,7 +54,7 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
   return (
     <>
       <Popup
-        state={{ ...props.state }}
+        state={{ open: visible, setOpen: setVisible }}
         onClose={() => {
           setEmail("");
         }}
@@ -67,6 +64,7 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
           <PopupTitle>Event Manager hinzufügen</PopupTitle>
           <div id="form" className="mt-2 flex flex-col gap-3 w-80">
             <Input
+              autoFocus={true}
               type="text"
               placeholder="Email"
               value={email}
@@ -90,13 +88,14 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
             <Button
               type="button"
               colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
-              onClick={() => props.state.setOpen(false)}
+              onClick={() => setVisible(false)}
             >
               Abbrechen
             </Button>
           </div>
         </PopupDialogPanel>
       </Popup>
+      <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>
     </>
   );
 };

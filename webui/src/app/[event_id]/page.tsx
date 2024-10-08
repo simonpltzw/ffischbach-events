@@ -36,9 +36,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const { addToast } = useToast();
   const { getToken } = useToken();
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
-  const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
   const [managerPopupVisible, setManagerPopupVisible] = useState<boolean>(false);
-  const [confirmCompletePopupVisible, setConfirmCompletePopupVisible] = useState<boolean>(false);
   const [eventSettings, setEventSetting] = useEventSettings();
   const { parse } = useJsonToCsv();
 
@@ -176,7 +174,10 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   return (
     <>
       {state.completed && <InfoBadge text="Event ist beendet" />}
-      <Lock isLocked={isEncrypted} openPopup={() => setPasswordPopupVisible(true)} />
+      <PasswordPopup title="Event entschlüsseln" done={onDecryptData}>
+        <Lock isLocked={isEncrypted} />
+      </PasswordPopup>
+
       <div className="mb-3 font-bold text-xl">Übersicht Gruppe</div>
       <div className="flex flex-row gap-3">
         <div>Event Name: </div>
@@ -188,20 +189,22 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       </div>
       {!state.completed && !isEncrypted && (
         <div className="flex flex-row gap-3 flex-wrap">
-          <Button
-            className="md:flex-none flex-1"
-            type="button"
-            onClick={() => setManagerPopupVisible(true)}
-          >
-            Manager hinzufügen
-          </Button>
-          <Button
-            className="md:flex-none flex-1"
-            type="button"
-            onClick={() => setConfirmCompletePopupVisible(true)}
-          >
-            Event beenden
-          </Button>
+          <AddEventManagerPopup
+            done={onAddEventManager}>
+            <Button
+              className="md:flex-none flex-1"
+              type="button"
+            >
+              Manager hinzufügen
+            </Button>
+          </AddEventManagerPopup>
+
+          <ConfirmPopup title="Event beenden" done={onCompleteEvent}>
+            <Button className="md:flex-none flex-1" type="button">
+              Event beenden
+            </Button>
+          </ConfirmPopup>
+
           <Button
             className="md:flex-none flex-1"
             type="button"
@@ -262,20 +265,6 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           </TBody>
         </Table>
       </div>
-      <PasswordPopup
-        title="Event entschlüsseln"
-        state={{ open: passwordPopupVisible, setOpen: setPasswordPopupVisible }}
-        done={onDecryptData}
-      />
-      <AddEventManagerPopup
-        state={{ open: managerPopupVisible, setOpen: setManagerPopupVisible }}
-        done={onAddEventManager}
-      />
-      <ConfirmPopup
-        title="Event beenden"
-        state={{ open: confirmCompletePopupVisible, setOpen: setConfirmCompletePopupVisible }}
-        done={onCompleteEvent}
-      />
     </>
   );
 };

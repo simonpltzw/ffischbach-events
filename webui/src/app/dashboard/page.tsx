@@ -20,8 +20,6 @@ const Root: FC<any> = () => {
   const [filter, setFilter] = useState<string>("");
   const [isFilterComplete, setFilterComplete] = useState<boolean>(false);
 
-  const [createPopupOpen, setCreatePopupOpen] = useState<boolean>(false);
-
   const router = useRouter();
   const { getToken } = useToken();
 
@@ -74,10 +72,6 @@ const Root: FC<any> = () => {
     }
   };
 
-  const onOpenCreate = () => {
-    setCreatePopupOpen(true);
-  };
-
   useEffect(() => {
     generateEventsList().then((ids) => {
       setEventList(ids);
@@ -89,9 +83,16 @@ const Root: FC<any> = () => {
     <>
       <div className="flex flex-row justify-between gap-3 items-center mb-5">
         <span className="text-xl font-bold">Events</span>
-        <Button type="button" className="bg-blue-600" onClick={onOpenCreate}>
-          Event erstellen
-        </Button>
+        <CreateEventPopup
+          done={(newEvent: Event) => {
+            setEventList([...eventList, newEvent]);
+            addToast({ message: "Event erstellt", type: "info" });
+          }}
+        >
+          <Button type="button" className="bg-blue-600">
+            Event erstellen
+          </Button>
+        </CreateEventPopup>
       </div>
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-3 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-lg mb-5">
@@ -131,13 +132,6 @@ const Root: FC<any> = () => {
           </TBody>
         </Table>
       </div>
-      <CreateEventPopup
-        state={{ open: createPopupOpen, setOpen: setCreatePopupOpen }}
-        done={(newEvent: Event) => {
-          setEventList([...eventList, newEvent]);
-          addToast({ message: "Event erstellt", type: "info" });
-        }}
-      />
     </>
   );
 };

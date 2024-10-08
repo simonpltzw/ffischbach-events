@@ -11,32 +11,30 @@ import {
 } from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
-import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup } from "../Popup";
+import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
 
 export interface PasswordPopupProps extends HTMLAttributes<HTMLElement> {
   title: string;
-  state: {
-    open: boolean;
-    setOpen: Dispatch<SetStateAction<boolean>>;
-  };
+
   done(password: string): Promise<void>;
 }
 
 export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps) => {
+  const [visible, setVisible] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!props.state.open) {
+    if (!visible) {
       setPassword("");
       setErrors([]);
     }
-  }, [props.state.open]);
+  }, [visible]);
 
   const onSubmit = async () => {
     try {
       await props.done(password);
-      props.state.setOpen(false);
+      setVisible(false);
     } catch (e) {
       //info: german error is existing...
       setErrors(["Wrong password"]);
@@ -54,7 +52,7 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
   return (
     <>
       <Popup
-        state={{ ...props.state }}
+        state={{ open: visible, setOpen: setVisible }}
         onClose={() => {
           setPassword("");
         }}
@@ -87,13 +85,14 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
             <Button
               type="button"
               colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
-              onClick={() => props.state.setOpen(false)}
+              onClick={() => setVisible(false)}
             >
               Abbrechen
             </Button>
           </div>
         </PopupDialogPanel>
       </Popup>
+      <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>
     </>
   );
 };

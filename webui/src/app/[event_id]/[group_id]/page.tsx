@@ -21,7 +21,6 @@ import { ChangeEvent, Fragment, useEffect, useState } from "react";
 const GroupPage = ({ params }: { params: { event_id: string; group_id: string } }) => {
   const [groupState, dispatchGroup] = useGroupContext();
   const [participants, setParticipants] = useState<Participant[]>([]);
-  const [passwordPopupVisible, setPasswordPopupVisible] = useState<boolean>(false);
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
   const [eventSettings, setEventSetting] = useEventSettings();
   const [participantFilter, setParticipantFilter] = useState<string>("");
@@ -191,7 +190,9 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
 
   return (
     <>
-      <Lock isLocked={isEncrypted} openPopup={() => setPasswordPopupVisible(true)} />
+      <PasswordPopup title="Gruppe entschlüsseln" done={onDecryptData}>
+        <Lock isLocked={isEncrypted} />
+      </PasswordPopup>
 
       <div className="mb-3 font-bold text-xl">Gruppe bearbeiten</div>
       <Input
@@ -218,9 +219,13 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             dispatchGroup({ type: "category", value: e.target.value })
           }
         >
-          <option value="Feuerwehr">Feuerwehr Fischbach</option>
-          <option value="Verein">Verein</option>
-          <option value="Privat">Privat</option>
+          <option value="600">Bauhof Stadt Kelkheim</option>
+          <option value="500">Privatgruppen</option>
+          <option value="400">Kelkheimer Vereine</option>
+          <option value="300">Fischbacher Vereine</option>
+          <option value="200">Mitglieder Feuerwehren Stadt Kelkheim</option>
+          <option value="100">Freunde, Familie, Arbeitskollegen FF Fischbach</option>
+          <option value="0">Sonstiges</option>
         </select>
       </div>
 
@@ -284,7 +289,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
           />
         </div>
       </div>
-      <div className="flex flex-col gap-4 shadow p-3 rounded-lg">
+      <div className="flex flex-col gap-4 shadow pl-3 rounded-lg">
         <div className="flex flex-col gap-4 items-start border dark:border-0 p-3 dark:bg-gray-900/30">
           <label className="text-lg font-semibold">Filter</label>
           <span className="font-bold">Teilnehmer</span>
@@ -302,15 +307,12 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       </div>
 
       {!isEncrypted && (
-        <Button type="button" onClick={onSubmit}>
-          Gruppe updaten
-        </Button>
+        <div className="flex flex-row justify-end">
+          <Button type="button" onClick={onSubmit}>
+            Gruppe updaten
+          </Button>
+        </div>
       )}
-      <PasswordPopup
-        title="Gruppe entschlüsseln"
-        state={{ open: passwordPopupVisible, setOpen: setPasswordPopupVisible }}
-        done={onDecryptData}
-      />
     </>
   );
 };

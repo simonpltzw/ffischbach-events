@@ -3,13 +3,12 @@ import { Dispatch, FC, HTMLAttributes, SetStateAction } from "react";
 
 export interface LockProps extends HTMLAttributes<HTMLElement> {
   isLocked: boolean;
-  openPopup: Function;
 }
 
 export const Lock: FC<LockProps> = (props: LockProps) => {
   return (
     <div
-      className="absolute top-0 right-0 m-2"
+      className="absolute top-0 right-0 m-3"
       //md:top-0 md:-left-16 md:bottom-full md:right-full
       //-bottom-16 right-0
     >
@@ -17,11 +16,6 @@ export const Lock: FC<LockProps> = (props: LockProps) => {
         className={`rounded-md w-fit h-fit bg-blue-600 -m-0 shadow-md ${
           props.isLocked ? "cursor-pointer hover:bg-blue-500" : ""
         }`}
-        onClick={() => {
-          if (props.isLocked) {
-            props.openPopup();
-          }
-        }}
       >
         {props.isLocked ? (
           <LockClosedIcon className="fill-white p-3 h-14" />
