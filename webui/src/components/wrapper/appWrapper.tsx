@@ -1,8 +1,8 @@
 'use client'
 
 import { FC, HTMLAttributes } from "react";
-import { MsalWrapper } from "../msalWrapper";
 import { AppProvider } from "./appProvider";
+import { MsalWrapper } from "./msalWrapper";
 
 export interface AppWrapperProps extends HTMLAttributes<HTMLElement> {}
 

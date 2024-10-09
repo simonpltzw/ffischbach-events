@@ -1,5 +1,5 @@
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/24/solid";
-import { Dispatch, FC, HTMLAttributes, SetStateAction } from "react";
+import { FC, HTMLAttributes } from "react";
 
 export interface LockProps extends HTMLAttributes<HTMLElement> {
   isLocked: boolean;

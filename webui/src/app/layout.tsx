@@ -1,7 +1,5 @@
 import "./globals.css";
-import { AppProvider } from "@/components/wrapper/appProvider";
 import { AppWrapper } from "@/components/wrapper/appWrapper";
-import { MsalWrapper } from "@/components/wrapper/msalWrapper";
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
