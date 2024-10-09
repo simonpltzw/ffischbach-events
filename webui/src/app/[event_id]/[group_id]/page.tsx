@@ -49,7 +49,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       isEncrypted
     ) {
       if (groupState.event) {
-        onDecryptData(eventSettings.password);
+        onDecryptEventData(eventSettings.password);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -67,7 +67,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
     });
   };
 
-  const onDecryptData = async (password: string) => {
+  const onDecryptEventData = async (password: string) => {
     const updatedGroup: Group = await decryptGroup(groupState, { password });
 
     dispatchGroup({
@@ -79,7 +79,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
 
     setEventSetting({ eventId: groupState.event?.id, password });
     setParticipants([...updatedGroup.participants]);
-    addToast({ message: "Entschlüsselt", type: "info" });
+    //addToast({ message: "Entschlüsselt", type: "info" });
   };
 
   const updateParticipants = (index: number, participant: Participant) => {
@@ -190,7 +190,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
 
   return (
     <>
-      <PasswordPopup title="Gruppe entschlüsseln" done={onDecryptData}>
+      <PasswordPopup title="Gruppe entschlüsseln" done={onDecryptEventData}>
         <Lock isLocked={isEncrypted} />
       </PasswordPopup>
 

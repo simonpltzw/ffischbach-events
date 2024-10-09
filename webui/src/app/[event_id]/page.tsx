@@ -84,7 +84,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       state.id.length &&
       isEncrypted
     ) {
-      onDecryptData(eventSettings.password);
+      onDecryptEvent(eventSettings.password);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
@@ -96,7 +96,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     });
   };
 
-  const onDecryptData = async (password: string) => {
+  const onDecryptEvent = async (password: string) => {
     try {
       state.groups = await decryptEvent(state, password);
       setEventSetting({ eventId: params.event_id, password });
@@ -174,7 +174,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   return (
     <>
       {state.completed && <InfoBadge text="Event ist beendet" />}
-      <PasswordPopup title="Event entschlüsseln" done={onDecryptData}>
+      <PasswordPopup title="Event entschlüsseln" done={onDecryptEvent}>
         <Lock isLocked={isEncrypted} />
       </PasswordPopup>
 
