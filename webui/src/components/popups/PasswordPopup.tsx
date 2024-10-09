@@ -15,8 +15,8 @@ import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from 
 
 export interface PasswordPopupProps extends HTMLAttributes<HTMLElement> {
   title: string;
-
-  done(password: string): Promise<void>;
+  disabled?: boolean;
+  done(password: string, isManual?: boolean): Promise<void>;
 }
 
 export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps) => {
@@ -33,7 +33,7 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
 
   const onSubmit = async () => {
     try {
-      await props.done(password);
+      await props.done(password, true);
       setVisible(false);
     } catch (e) {
       //info: german error is existing...
@@ -92,7 +92,15 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
           </div>
         </PopupDialogPanel>
       </Popup>
-      <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>
+      <PopupOpener
+        onClick={() => {
+          if (!props.disabled) {
+            setVisible(true);
+          }
+        }}
+      >
+        {props.children}
+      </PopupOpener>
     </>
   );
 };

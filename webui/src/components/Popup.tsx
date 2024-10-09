@@ -30,7 +30,7 @@ export const PopupDialogPanel: FC<PopupPanelProps> = (props: PopupPanelProps) =>
 };
 
 export const PopupTitle: FC<PopupTitleProps> = (props: PopupTitleProps) => {
-  return <DialogTitle className="text-base text-black dark:text-white  font-semibold leading-6">{props.children}</DialogTitle>;
+  return <DialogTitle className="text-base text-white  font-semibold leading-6">{props.children}</DialogTitle>;
 };
 
 export const PopupOpener: FC<PopupOpenerProps> = (props: PopupOpenerProps) => {

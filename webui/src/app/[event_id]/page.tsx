@@ -96,14 +96,16 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     });
   };
 
-  const onDecryptEvent = async (password: string) => {
+  const onDecryptEvent = async (password: string, isManual?: boolean) => {
     try {
       state.groups = await decryptEvent(state, password);
       setEventSetting({ eventId: params.event_id, password });
 
       dispatch({ type: "decGroups", value: state.groups });
       setIsEncrypted(false);
-      addToast({ message: "Entschlüsselt", type: "info" });
+      if (isManual) {
+        addToast({ message: "Entschlüsselt", type: "info" });
+      }
     } catch (e) {
       throw new Error("Falsches Passwort");
     }
@@ -174,7 +176,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   return (
     <>
       {state.completed && <InfoBadge text="Event ist beendet" />}
-      <PasswordPopup title="Event entschlüsseln" done={onDecryptEvent}>
+      <PasswordPopup title="Event entschlüsseln" disabled={!isEncrypted} done={onDecryptEvent}>
         <Lock isLocked={isEncrypted} />
       </PasswordPopup>
 
@@ -189,12 +191,8 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       </div>
       {!state.completed && !isEncrypted && (
         <div className="flex flex-row gap-3 flex-wrap">
-          <AddEventManagerPopup
-            done={onAddEventManager}>
-            <Button
-              className="md:flex-none flex-1"
-              type="button"
-            >
+          <AddEventManagerPopup done={onAddEventManager}>
+            <Button className="md:flex-none flex-1" type="button">
               Manager hinzufügen
             </Button>
           </AddEventManagerPopup>

@@ -67,7 +67,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
     });
   };
 
-  const onDecryptEventData = async (password: string) => {
+  const onDecryptEventData = async (password: string, isManual?: boolean) => {
     const updatedGroup: Group = await decryptGroup(groupState, { password });
 
     dispatchGroup({
@@ -79,7 +79,9 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
 
     setEventSetting({ eventId: groupState.event?.id, password });
     setParticipants([...updatedGroup.participants]);
-    //addToast({ message: "Entschlüsselt", type: "info" });
+    if (isManual) {
+      addToast({ message: "Entschlüsselt", type: "info" });
+    }
   };
 
   const updateParticipants = (index: number, participant: Participant) => {
@@ -190,7 +192,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
 
   return (
     <>
-      <PasswordPopup title="Gruppe entschlüsseln" done={onDecryptEventData}>
+      <PasswordPopup title="Gruppe entschlüsseln" disabled={!isEncrypted} done={onDecryptEventData}>
         <Lock isLocked={isEncrypted} />
       </PasswordPopup>
 
