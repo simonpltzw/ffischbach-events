@@ -2,14 +2,14 @@
 
 import { loginRequest } from "@/config/authConfig";
 import { useMsal } from "@azure/msal-react";
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 
 const SignIn = () => {
   const { instance } = useMsal();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (instance) {
-     instance.loginRedirect(loginRequest)
+      instance.initialize().then(() => instance.loginRedirect(loginRequest));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
