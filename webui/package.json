@@ -6,6 +6,7 @@
     "dev": "next dev",
     "prebuild": "next telemetry disable",
     "build": "next build",
+    "build:docker": "docker build -t ffischbacheventsui .",
     "start": "next start",
     "lint": "next lint"
   },
