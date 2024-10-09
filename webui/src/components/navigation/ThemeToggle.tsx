@@ -5,8 +5,24 @@ import { FC } from "react";
 export const ThemeToggle: FC<any> = () => {
   const [appSettings, setAppSettings] = useAppSettings();
 
+  const getTheme = (v: boolean) => {
+    return v ? "dark" : "light";
+  };
+
+
   const toggle = (value: boolean) => {
-    localStorage.setItem("theme", value ? "dark" : "light");
+    const currentTheme = localStorage.getItem("theme") == "dark" ? "dark" : "light";
+    const theme = getTheme(!value)
+
+    const root = window.document.documentElement;
+
+    root.classList.remove(currentTheme);
+    root.classList.add(theme);
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("theme", currentTheme);
+    }
+
     setAppSettings((state) => {
       return {
         ...state,
