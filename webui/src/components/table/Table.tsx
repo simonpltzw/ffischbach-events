@@ -40,7 +40,6 @@ export const TR: FC<TRProps> = (props: TRProps) => {
     <tr
       onClick={(e) => {
         e.stopPropagation();
-        console.log(props);
         if (!!props.onClick) {
           props.onClick(e);
         }
