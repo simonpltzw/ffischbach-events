@@ -28,6 +28,8 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
     if (!visible) {
       setPassword("");
       setErrors([]);
+    } else {
+
     }
   }, [visible]);
 
@@ -66,6 +68,7 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
               placeholder="Passwort"
               autoComplete="current-password"
               value={password}
+              isFocus={visible}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
             />
           </form>

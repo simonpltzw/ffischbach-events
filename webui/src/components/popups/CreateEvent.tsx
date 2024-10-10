@@ -81,7 +81,7 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
           <PopupTitle>Event erstellen</PopupTitle>
           <div id="form" className="mt-2 flex flex-col gap-3 w-80">
             <Input
-              autoFocus={true}
+              isFocus={visible}
               type="text"
               placeholder="Name"
               value={name}

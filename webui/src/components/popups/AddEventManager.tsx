@@ -64,7 +64,7 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
           <PopupTitle>Event Manager hinzufügen</PopupTitle>
           <div id="form" className="mt-2 flex flex-col gap-3 w-80">
             <Input
-              autoFocus={true}
+              isFocus={visible}
               type="text"
               placeholder="Email"
               value={email}

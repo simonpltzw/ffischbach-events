@@ -4,6 +4,8 @@ import {
   HTMLAttributes,
   HTMLInputAutoCompleteAttribute,
   HTMLInputTypeAttribute,
+  useEffect,
+  useRef,
 } from "react";
 
 export interface InputProps extends HTMLAttributes<HTMLElement>, JSX.IntrinsicAttributes {
@@ -12,12 +14,21 @@ export interface InputProps extends HTMLAttributes<HTMLElement>, JSX.IntrinsicAt
   type?: HTMLInputTypeAttribute;
   value?: string;
   labelClassName?: string;
+  isFocus?: boolean;
   disabled?: boolean;
   autoComplete?: HTMLInputAutoCompleteAttribute;
   containerClassName?: string;
 }
 
 export const Input: FC<InputProps> = (props: InputProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (props.isFocus) {
+      inputRef.current?.focus();
+    }
+  }, [props.isFocus]);
+
   props = {
     type: "text",
     labelClassName: "",
@@ -44,12 +55,14 @@ export const Input: FC<InputProps> = (props: InputProps) => {
         </label>
       )}
       <input
+        ref={inputRef}
         className={`
         shadow-md appearance-none border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none
         text-black dark:text-white dark:border-0 h-10 ${bgStyle()}
-        ${props.className}`}
+        ${props.className ?? ""}`}
         type={props.type}
-        autoComplete=""
+        autoFocus={props.autoFocus}
+        autoComplete={props.autoComplete}
         disabled={props.disabled}
         placeholder={props.placeholder}
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
