@@ -21,7 +21,7 @@ const Navigation: FC<NavigationProps> = (props: NavigationProps) => {
   const pathname = usePathname();
 
   const backVisible = () => {
-    return pathname != "/dashboard";
+    return pathname != "/";
   };
 
   return (
