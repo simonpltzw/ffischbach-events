@@ -22,6 +22,7 @@ import { useJsonToCsv } from "@/services/dataPreparationService";
 import { Input } from "@/components/Input";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
 import React from "react";
+import { useFilterSettings } from "@/context/filterSettings";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   type StateActionType = "updateApproved" | "set" | "decGroups";
@@ -35,13 +36,13 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const router = useRouter();
   const { addToast } = useToast();
   const { getToken } = useToken();
+
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
-  const [managerPopupVisible, setManagerPopupVisible] = useState<boolean>(false);
   const [eventSettings, setEventSetting] = useEventSettings();
   const { parse } = useJsonToCsv();
 
-  const [filter, setFilter] = useState<string>("");
-  const [filterApproved, setFilterApproved] = useState<boolean>(false);
+  const [filter, dispatchFilter] = useFilterSettings();
+  const [groupFilter, setGroupFilter] = useState<string>("");
 
   const [state, dispatch] = useReducer<Reducer<Event, any>>(
     (state: Event, action: StateAction): any => {
@@ -148,12 +149,14 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const generateFilteredList = () => {
     const filteredList = state.groups
       ?.filter((group: Group) => {
+        const f = groupFilter ?? "";
+
         return (
-          (group.name?.includes(filter) ||
-            group.category.includes(filter) ||
-            group.createdAt.includes(filter) ||
-            filter == "") &&
-          filterApproved == !!group.approved
+          (group.name?.includes(f) ||
+            group.category.includes(f) ||
+            group.createdAt.includes(f) ||
+            f == "") &&
+          filter.eventDetail?.approved == !!group.approved
         );
       })
       .map((group: Group, index: number) => generateGroupEntry(group, index));
@@ -231,17 +234,24 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           <div className="flex flex-row-reverse gap-5 items-end">
             <Input
               containerClassName="w-full"
-              value={filter}
+              value={groupFilter ?? ""}
               placeholder=""
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setGroupFilter(e.target.value)}
             />
             <div className="flex flex-col">
               <label className={`block text-sm font-semibold h-fit mb-2`} htmlFor="username">
                 Genehmigt
               </label>
               <CheckBox
-                value={filterApproved}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setFilterApproved(e.target.checked)}
+                value={!!filter.eventDetail?.approved}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  dispatchFilter({
+                    eventDetail: {
+                      approved: e.target.checked,
+                      groupFilter: filter.eventDetail?.groupFilter ?? "",
+                    },
+                  })
+                }
               />
             </div>
           </div>

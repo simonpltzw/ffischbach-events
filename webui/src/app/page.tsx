@@ -13,12 +13,13 @@ import { getLocalDateTime } from "@/util/converter";
 import { CreateEventPopup } from "@/components/popups/CreateEvent";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
 import React from "react";
+import { useFilterSettings } from "@/context/filterSettings";
 
 const Root: FC<any> = () => {
   const { addToast } = useToast();
   const [eventList, setEventList] = useState<Event[]>([]);
-  const [filter, setFilter] = useState<string>("");
-  const [isFilterComplete, setFilterComplete] = useState<boolean>(false);
+
+  const [filter, dispatchFilter] = useFilterSettings();
 
   const router = useRouter();
   const { getToken } = useToken();
@@ -33,9 +34,11 @@ const Root: FC<any> = () => {
   const generateList = () => {
     const list = eventList
       .filter((event: Event) => {
+        const f = filter.eventList?.eventFilter ?? "";
+
         return (
-          (event.id.includes(filter) || event.description.includes(filter) || filter == "") &&
-          isFilterComplete == event.completed
+          (event.id.includes(f) || event.description.includes(f) || f == "") &&
+          !!filter.eventList?.finished == event.completed
         );
       })
       .map((event: Event) => {
@@ -100,18 +103,32 @@ const Root: FC<any> = () => {
           <div className="flex flex-row-reverse gap-5 items-start">
             <Input
               containerClassName="w-full"
-              value={filter}
+              value={filter.eventList?.eventFilter ?? ""}
               title="Suche"
               placeholder=""
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                dispatchFilter({
+                  eventList: {
+                    finished: !!filter.eventList?.finished,
+                    eventFilter: e.target.value,
+                  },
+                })
+              }
             />
             <div className="flex flex-col">
               <label className={`block text-sm font-semibold h-fit mb-2`} htmlFor="username">
                 Beendet
               </label>
               <CheckBox
-                value={isFilterComplete}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setFilterComplete(e.target.checked)}
+                value={!!filter.eventList?.finished}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  dispatchFilter({
+                    eventList: {
+                      finished: e.target.checked,
+                      eventFilter: filter.eventList?.eventFilter ?? "",
+                    },
+                  })
+                }
               />
             </div>
           </div>
