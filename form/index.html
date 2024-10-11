@@ -203,7 +203,6 @@
     const agbText = document.getElementById("agb");
     const category = document.getElementById("category");
     const category_error = document.getElementById("category_error");
-    const container = document.createElement("div");
 
     /*api model*/
     let form = {
@@ -307,6 +306,7 @@
     /*Adds participants to list*/
     const addParticipant = () => {
       const list = document.getElementById("list");
+      const container = document.createElement("div");
       container.className = "flex";
 
       const firstName = document.createElement("input");
