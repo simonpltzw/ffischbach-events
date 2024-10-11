@@ -7,6 +7,10 @@
   </head>
 
   <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
     #container {
       width: 80vw;
       margin: auto;
@@ -52,6 +56,10 @@
       width: 2.4em;
     }
 
+    input {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
     input[type="text"],
     input[type="date"],
     input[type="email"],
@@ -89,11 +97,15 @@
 
     .required {
       color: red;
-      margin-left: 0.2em;
+      margin-left: 0.1em;
     }
 
     .title {
       display: flex;
+    }
+
+    .rounded {
+      border-radius: 5px;
     }
   </style>
 
@@ -151,23 +163,14 @@
 
         <!--Additional participants-->
         <h3>Weitere Teilnehmer</h3>
-        <div class="flex flex-col">
+        <div class="flex flex-col" style="margin-bottom: 20px;">
           <div id="list" class="flex flex-col"></div>
           <button id="add" class="align-self-start" type="button" onclick="addParticipant()">
             +
           </button>
         </div>
         <!--AGB section-->
-        <div id="agb" class="agb">
-          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
-          invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et
-          accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata
-          sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing
-          elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed
-          diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd
-          gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-        </div>
-        <div class="flex">
+        <div class="flex" style="gap: 0.2em">
           <input id="agbCheck" type="checkbox" title="agb" disabled />
           <label>AGB</label>
           <label class="required">*</label>
@@ -382,7 +385,7 @@
       });
 
       for (let e of inputs) {
-        e.classList.add("flex-1");
+        e.classList.add("flex-1", "rounded");
         container.appendChild(e);
       }
 
