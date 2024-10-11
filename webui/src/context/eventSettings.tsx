@@ -1,5 +1,3 @@
-//tod
-
 import { EventSettings } from "@/models/EventSettings";
 import { createContext, Dispatch, SetStateAction, useContext, useState } from "react";
 
@@ -17,7 +15,7 @@ export const EventSettingsProvider = ({ children }: any) => {
 export const useEventSettings = (): [EventSettings, Dispatch<SetStateAction<EventSettings>>] => {
   const ctx = useContext(Context);
   if (!ctx) {
-    throw new Error("usePassword must be used within a PasswordProvider");
+    throw new Error("useEventSettings must be used within a PasswordProvider");
   }
   return useContext(Context);
 };

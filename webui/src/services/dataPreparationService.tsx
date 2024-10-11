@@ -1,4 +1,4 @@
-import { useEventSettings } from "@/context/eventSettingsContext";
+import { useEventSettings } from "@/context/eventSettings";
 import { ExportEntry } from "@/models/ExportEntry";
 import { Event } from "@/models/in/Event";
 import { decryptGroup } from "./decryptService";

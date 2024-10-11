@@ -16,7 +16,7 @@ import { ConfirmPopup } from "@/components/popups/ConfirmPopup";
 import { InfoBadge } from "@/components/InfoBadge";
 import { CheckBox } from "@/components/CheckBox";
 import { getLocalDateTime } from "@/util/converter";
-import { useEventSettings } from "@/context/eventSettingsContext";
+import { useEventSettings } from "@/context/eventSettings";
 import { decryptEvent } from "@/services/decryptService";
 import { useJsonToCsv } from "@/services/dataPreparationService";
 import { Input } from "@/components/Input";

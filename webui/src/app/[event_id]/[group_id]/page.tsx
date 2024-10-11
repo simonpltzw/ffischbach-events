@@ -6,7 +6,7 @@ import { Input } from "@/components/Input";
 import { Lock } from "@/components/Lock";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
-import { useEventSettings } from "@/context/eventSettingsContext";
+import { useEventSettings } from "@/context/eventSettings";
 import { useGroupContext } from "@/context/group";
 import { useToast } from "@/context/toast";
 import { Group } from "@/models/in/Group";
