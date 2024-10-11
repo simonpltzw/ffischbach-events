@@ -20,7 +20,7 @@ export const ThemeToggle: FC<any> = () => {
     root.classList.add(theme);
 
     if (typeof window !== "undefined") {
-      localStorage.setItem("theme", currentTheme);
+      localStorage.setItem("theme", theme);
     }
 
     setAppSettings((state) => {
