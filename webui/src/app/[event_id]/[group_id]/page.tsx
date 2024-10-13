@@ -5,6 +5,7 @@ import { CheckBox } from "@/components/CheckBox";
 import { Input } from "@/components/Input";
 import { Lock } from "@/components/Lock";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
+import { Spinner } from "@/components/Spinner";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
 import { useEventSettings } from "@/context/eventSettings";
 import { useGroupContext } from "@/context/group";
@@ -15,7 +16,7 @@ import { decryptGroup } from "@/services/decryptService";
 import { getGroup, updateGroup } from "@/services/groupsService";
 import useToken from "@/services/tokenService";
 import { MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/solid";
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { ChangeEvent, Fragment, useEffect, useState } from "react";
 
 const GroupPage = ({ params }: { params: { event_id: string; group_id: string } }) => {
@@ -24,15 +25,18 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
   const [eventSettings, setEventSetting] = useEventSettings();
   const [participantFilter, setParticipantFilter] = useState<string>("");
+  const [isPending, setIsPending] = useState<boolean>();
   const { getToken } = useToken();
   const { addToast } = useToast();
   const empty = "***";
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    setIsPending(true);
     getToken().then((token: string) => {
       getGroup(token, parseInt(params.group_id)).then((group: Group) => {
         dispatchGroup({ type: "new", value: group });
         setParticipants([...group.participants]);
+        setIsPending(false);
       });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -163,28 +167,15 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       });
 
     if (filteredParticipants.length > 0) {
-      return (
-        <Table>
-          <THead>
-            <tr>
-              <TH>Vorname</TH>
-              <TH>Nachname</TH>
-              <TH>Geburtsdatum</TH>
-              <TH></TH>
-            </tr>
-          </THead>
-          <TBody>
-            <>{filteredParticipants}</>
-          </TBody>
-        </Table>
-      );
+      return filteredParticipants
     } else {
       return (
         <TR disabled>
-          <TD>Leer</TD>
-          <TD></TD>
-          <TD></TD>
-          <TD></TD>
+          <TD colspan={4}>
+            <div className="flex justify-center">
+              {isPending ? <Spinner /> : "Keine Einträge gefunden"}
+            </div>
+          </TD>
         </TR>
       );
     }
@@ -305,7 +296,18 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             />
           </div>
         </div>
-        {generateParticipantList()}
+
+        <Table>
+          <THead>
+            <tr>
+              <TH>Vorname</TH>
+              <TH>Nachname</TH>
+              <TH>Geburtsdatum</TH>
+              <TH></TH>
+            </tr>
+          </THead>
+          <TBody>{generateParticipantList()}</TBody>
+        </Table>
       </div>
 
       {!isEncrypted && (

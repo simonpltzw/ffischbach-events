@@ -10,6 +10,7 @@ export interface TRProps extends React.HTMLAttributes<HTMLTableRowElement> {
 }
 
 export interface TDProps extends React.HTMLAttributes<HTMLTableCellElement> {
+  colspan?: number;
   click?: any;
 }
 
@@ -63,8 +64,9 @@ export const TD: FC<TDProps> = (props: TDProps) => {
   return (
     <td
       onClick={props.click}
+      colSpan={props.colspan}
       scope="row"
-      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white cursor-pointer justify-items-start"
+      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white justify-items-start"
     >
       {props.children}
     </td>

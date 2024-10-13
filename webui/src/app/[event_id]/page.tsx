@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, Fragment, Reducer, useEffect, useReducer, useState } from "react";
+import { ChangeEvent, Fragment, Reducer, useEffect, useLayoutEffect, useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
@@ -23,6 +23,7 @@ import { Input } from "@/components/Input";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
 import React from "react";
 import { useFilterSettings } from "@/context/filterSettings";
+import { Spinner } from "@/components/Spinner";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   type StateActionType = "updateApproved" | "set" | "decGroups";
@@ -37,6 +38,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const { addToast } = useToast();
   const { getToken } = useToken();
 
+  const [isPending, setIsPending] = useState<boolean>();
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
   const [eventSettings, setEventSetting] = useEventSettings();
   const { parse } = useJsonToCsv();
@@ -65,11 +67,13 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     new Event("", "", "", 1, 1, false, "", "", "", [])
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    setIsPending(true);
     getToken().then((token: string) => {
       if (token) {
         getEventById(token, params.event_id).then((event) => {
           dispatch({ type: "set", value: event });
+          setIsPending(false);
         });
       }
     });
@@ -134,12 +138,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           <CheckBox disabled value={!!group.approved} />
         </TD>
         <TD>{getLocalDateTime(group.createdAt)}</TD>
-        <TD
-          className="h-fit w-fit rounded-md cursor-pointer"
-          click={() => {
-            router.push(`/${state.id}/${state.groups![index].id}`);
-          }}
-        >
+        <TD className="h-fit w-fit rounded-md cursor-pointer">
           {!isEncrypted && <PencilIcon height={20} />}
         </TD>
       </TR>
@@ -161,17 +160,16 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       })
       .map((group: Group, index: number) => generateGroupEntry(group, index));
 
-    if (filteredList?.length) {
+    if (filteredList?.length != 0) {
       return filteredList;
     }
     return (
-      <TR>
-        <TD>Leer</TD>
-        <TD></TD>
-        <TD></TD>
-        <TD></TD>
-        <TD></TD>
-        <TD></TD>
+      <TR disabled>
+        <TD colspan={6}>
+          <div className="flex justify-center">
+            {isPending ? <Spinner /> : "Keine Einträge gefunden"}
+          </div>
+        </TD>
       </TR>
     );
   };

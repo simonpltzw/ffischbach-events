@@ -14,11 +14,13 @@ import { CreateEventPopup } from "@/components/popups/CreateEvent";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
 import React from "react";
 import { useFilterSettings } from "@/context/filterSettings";
+import { Spinner } from "@/components/Spinner";
 
 const Root: FC<any> = () => {
   const { addToast } = useToast();
   const [eventList, setEventList] = useState<Event[]>([]);
 
+  const [isPending, setIsPending] = useState<boolean>();
   const [filter, dispatchFilter] = useFilterSettings();
 
   const router = useRouter();
@@ -65,19 +67,21 @@ const Root: FC<any> = () => {
     } else {
       return (
         <TR disabled>
-          <TD>Leer</TD>
-          <TD></TD>
-          <TD></TD>
-          <TD></TD>
-          <TD></TD>
+          <TD colspan={5}>
+            <div className="flex justify-center">
+              {isPending ? <Spinner /> : "Keine Einträge gefunden"}
+            </div>
+          </TD>
         </TR>
       );
     }
   };
 
   useEffect(() => {
+    setIsPending(true);
     generateEventsList().then((ids) => {
       setEventList(ids);
+      setIsPending(false);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
