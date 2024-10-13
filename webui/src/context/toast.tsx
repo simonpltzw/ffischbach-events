@@ -27,7 +27,7 @@ export const ToastProvider = ({ children }: any) => {
 
   return (
     <Context.Provider value={{ state: [toastList, setToastList], addToast, removeToast }}>
-      <div className="relative w-full h-screen overscroll-none">
+      <div className="fixed z-0 inset-0">
         <div style={{
           position: "absolute",
           left: "10px",
