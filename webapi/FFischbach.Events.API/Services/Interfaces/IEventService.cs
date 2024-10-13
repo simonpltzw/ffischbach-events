@@ -1,0 +1,49 @@
+﻿using FFischbach.Events.API.Helpers;
+using FFischbach.Events.API.Models.InputModels;
+using FFischbach.Events.API.Models.OutputModels;
+using System.Security.Claims;
+
+namespace FFischbach.Events.API.Services.Interfaces
+{
+    public interface IEventService
+    {
+        /// <summary>
+        /// Gets all events assigned to the given <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <exception cref="CustomException"></exception>
+        Task<List<EventOutputModel>> GetEventsAsync(ClaimsPrincipal user);
+
+        /// <summary>
+        /// Gets an event by <paramref name="id"/> depending on the permissions of the <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="id"></param>
+        /// <exception cref="CustomException"></exception>
+        Task<EventDetailOutputModel> GetEventAsync(ClaimsPrincipal user, string id);
+
+        /// <summary>
+        /// Creates the given <paramref name="event"/> and adds the <paramref name="user"/> as an event manager.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="event"></param>
+        /// <exception cref="CustomException"></exception>
+        Task<EventDetailOutputModel> CreateEventAsync(ClaimsPrincipal user, EventCreateModel @event);
+
+        /// <summary>
+        /// Completes an event by <paramref name="id"/> depending on the permissions of the <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="id"></param>
+        /// <exception cref="CustomException"></exception>
+        Task CompleteEventAsync(ClaimsPrincipal user, string id);
+
+        /// <summary>
+        /// Deletes an event by <paramref name="id"/> depending on the permissions of the <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="id"></param>
+        /// <exception cref="CustomException"></exception>
+        Task DeleteEventAsync(ClaimsPrincipal user, string id);
+    }
+}

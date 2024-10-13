@@ -1,9 +1,8 @@
-﻿using AutoMapper;
-using FFischbach.Events.API.Data;
+﻿using FFischbach.Events.API.Helpers;
+using FFischbach.Events.API.Models.OutputModels;
+using FFischbach.Events.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using System.ComponentModel.DataAnnotations;
 
@@ -16,11 +15,10 @@ namespace FFischbach.Events.API.Controllers
     [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public class GroupsController(ILogger<RouteGroupContext> logger, IMapper mapper, DatabaseContext databaseContext) : ControllerBase
+    public class GroupsController(IGroupService groupService, IParticipantService participantService) : ControllerBase
     {
-        private ILogger<RouteGroupContext> Logger { get; } = logger;
-        private IMapper Mapper { get; } = mapper;
-        private DatabaseContext DatabaseContext { get; } = databaseContext;
+        private IGroupService GroupService { get; set; } = groupService;
+        private IParticipantService ParticipantService { get; set; } = participantService;
 
         // GET: <GroupsController>/5
         /// <summary>
@@ -31,48 +29,24 @@ namespace FFischbach.Events.API.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Models.OutputModels.GroupDetailOutputModel), StatusCodes.Status200OK)]
-        public async Task<ActionResult<Models.OutputModels.GroupDetailOutputModel>> Get([Required] int? id)
+        [ProducesResponseType(typeof(GroupDetailOutputModel), StatusCodes.Status200OK)]
+        public async Task<ActionResult<GroupDetailOutputModel>> Get([Required] int? id)
         {
-            // Validate.
-            if (!ModelState.IsValid)
+            GroupDetailOutputModel returnValue;
+            try
             {
-                return BadRequest(ModelState);
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                returnValue = await GroupService.GetGroupAsync(User, (int)id!);
             }
-
-            // Get display name.
-            string? displayName = User.GetDisplayName();
-
-            if (string.IsNullOrEmpty(displayName))
+            catch (CustomException ex)
             {
-                Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
             }
-
-            // Get group from the database.
-            Models.Group? dbGroup = (await DatabaseContext.Groups
-                                    .Include(x => x.Participants!)
-                                    .Include(x => x.Event!)
-                                        .ThenInclude(x => x.EventManagers!)
-                                            .ThenInclude(x => x.Manager)
-                                    .FirstOrDefaultAsync(x => x.Id == id));
-
-            // Check db response.
-            if (dbGroup == null)
-            {
-                // Nothing found.
-                return NotFound();
-            }
-            else if (!dbGroup.Event!.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
-            {
-                // Calling user is not an group manager of that group.
-                return Forbid();
-            }
-
-            // Success. Map the response.
-            Models.OutputModels.GroupDetailOutputModel returnValue = Mapper.Map<Models.OutputModels.GroupDetailOutputModel>(dbGroup);
-            returnValue.TotalParticipants = dbGroup.Participants?.Count ?? 0;
-
             return Ok(returnValue);
         }
 
@@ -85,41 +59,22 @@ namespace FFischbach.Events.API.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<ActionResult<Models.OutputModels.GroupOutputModel>> Post([FromBody, Required] Models.InputModels.GroupCreateModel? group)
+        public async Task<IActionResult> Post([FromBody, Required] Models.InputModels.GroupCreateModel? group)
         {
-            // Validate.
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await GroupService.CreateGroupAsync(group!);
             }
-
-            // Get event from the database.
-#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            Models.Event? dbEvent = (await DatabaseContext.Events.FirstOrDefaultAsync(x => x.Id.ToLower() == group!.EventId!.ToLower()));
-
-            if (dbEvent == null)
+            catch (CustomException ex)
             {
-                // Event already exists.
-                Logger.LogError("Attempt to create group for event '{EventId}' failed as the event could not be found.", group!.EventId);
-                return Problem(title: "Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status400BadRequest);
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
             }
-
-            // Map the group input.
-            Models.Group dbGroup = Mapper.Map<Models.Group>(group, opt => opt.Items["PublicKey"] = dbEvent.PublicKey);
-
-            // Check if the group already exists.
-            if (await DatabaseContext.Groups.AnyAsync(x => x.HashedName == dbGroup!.HashedName && x.EventId.ToLower() == group!.EventId!.ToLower()))
-            {
-                // Group already exists.
-                Logger.LogError("Attempt to create group '{GroupId}' failed as it already exists.", group!.Name);
-                return Problem(title: "Dieser Gruppenname ist bereits vergeben.", statusCode: StatusCodes.Status400BadRequest);
-            }
-#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-
-            // Create the group.
-            DatabaseContext.Groups.Add(dbGroup);
-            await DatabaseContext.SaveChangesAsync();
-
             return Created();
         }
 
@@ -133,77 +88,24 @@ namespace FFischbach.Events.API.Controllers
         /// 
         [HttpPost("{id}/Participant")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(typeof(Models.OutputModels.GroupDetailOutputModel), StatusCodes.Status200OK)]
-        public async Task<ActionResult<Models.OutputModels.GroupDetailOutputModel>> AddParticipant([Required] int? id, [FromBody, Required] Models.InputModels.ParticipantCreateModel? participant, [FromQuery] bool isContact = false)
+        [ProducesResponseType(typeof(GroupDetailOutputModel), StatusCodes.Status200OK)]
+        public async Task<ActionResult<GroupDetailOutputModel>> AddParticipant([Required] int? id, [FromBody, Required] Models.InputModels.ParticipantCreateModel? participant, [FromQuery] bool isContact = false)
         {
-            // Validate.
-            if (!ModelState.IsValid)
+            GroupDetailOutputModel returnValue;
+            try
             {
-                return BadRequest(ModelState);
-            }
-
-            // Get display name.
-            string? displayName = User.GetDisplayName();
-
-            if (string.IsNullOrEmpty(displayName))
-            {
-                Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-            // Get group from the database.
-            Models.Group? dbGroup = (await DatabaseContext.Groups
-                                    .Include(x => x.Event!)
-                                        .ThenInclude(x => x.EventManagers!)
-                                            .ThenInclude(x => x.Manager)
-                                    .FirstOrDefaultAsync(x => x.Id == id));
-
-            // Check db response.
-            if (dbGroup == null)
-            {
-                // Nothing found.
-                return NotFound();
-            }
-            else if (!dbGroup.Event!.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
-            {
-                // Calling user is not an group manager of that group.
-                return Forbid();
-            }
-
-            // Check if the contact should be changed.
-            if (isContact)
-            {
-                // Get the current contact.
-                Models.Participant? currentContact = await DatabaseContext.Participants.FirstOrDefaultAsync(x => x.GroupId == id && x.IsContact);
-
-                if (currentContact != null)
+                // Validate.
+                if (!ModelState.IsValid)
                 {
-                    // Update contact state.
-                    currentContact.IsContact = false;
+                    return BadRequest(ModelState);
                 }
+
+                returnValue = await ParticipantService.AddParticipantAsync(User, (int)id!, participant!, isContact);
             }
-
-            // Map the input.
-            Models.Participant dbParticipant = Mapper.Map<Models.Participant>(participant!, opt => opt.Items["PublicKey"] = dbGroup.Event.PublicKey);
-            dbParticipant.GroupId = dbGroup.Id;
-            dbParticipant.IsContact = isContact;
-
-            // Create the participant.
-            DatabaseContext.Participants.Add(dbParticipant);
-            await DatabaseContext.SaveChangesAsync();
-
-            // Read the group from the database.
-            dbGroup = (await DatabaseContext.Groups
-                        .Include(x => x.Participants!)
-                        .Include(x => x.Event!)
-                            .ThenInclude(x => x.EventManagers!)
-                                .ThenInclude(x => x.Manager)
-                        .FirstOrDefaultAsync(x => x.Id == id));
-
-            // Success. Map the response.
-            Models.OutputModels.GroupDetailOutputModel returnValue = Mapper.Map<Models.OutputModels.GroupDetailOutputModel>(dbGroup);
-            returnValue.TotalParticipants = dbGroup!.Participants?.Count ?? 0;
-
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
             return Ok(returnValue);
         }
 
@@ -218,9 +120,10 @@ namespace FFischbach.Events.API.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Models.OutputModels.GroupDetailOutputModel), StatusCodes.Status200OK)]
-        public async Task<ActionResult<Models.OutputModels.GroupDetailOutputModel>> Put([Required] int? id, [FromBody, Required] Models.InputModels.GroupUpdateModel? group)
+        [ProducesResponseType(typeof(GroupDetailOutputModel), StatusCodes.Status200OK)]
+        public async Task<ActionResult<GroupDetailOutputModel>> Put([Required] int? id, [FromBody, Required] Models.InputModels.GroupUpdateModel? group)
         {
+            GroupDetailOutputModel returnValue;
             try
             {
                 // Validate.
@@ -229,106 +132,13 @@ namespace FFischbach.Events.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                // Get display name.
-                string? displayName = User.GetDisplayName();
-
-                if (string.IsNullOrEmpty(displayName))
-                {
-                    Logger.LogError("Could not get display name of user.");
-                    return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
-                }
-
-                // Get group from the database.
-                Models.Group? dbGroup = (await DatabaseContext.Groups
-                                        .Include(x => x.Participants!)
-                                        .Include(x => x.Event!)
-                                            .ThenInclude(x => x.EventManagers!)
-                                                .ThenInclude(x => x.Manager)
-                                        .FirstOrDefaultAsync(x => x.Id == id));
-
-                // Check db response.
-                if (dbGroup == null)
-                {
-                    // Nothing found.
-                    return NotFound();
-                }
-                else if (!dbGroup.Event!.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
-                {
-                    // Calling user is not an group manager of that group.
-                    return Forbid();
-                }
-
-                // Map the input.
-                Models.Group inputGroup = Mapper.Map<Models.Group>(group!);
-
-                // Create local mapper.
-                IMapper updateMapper = new Mapper(new MapperConfiguration(c =>
-                {
-                    c.CreateMap<Models.Group, Models.Group>()
-                        .ForMember(x => x.Id, y => y.Ignore())
-                        .ForMember(x => x.EventId, y => y.Ignore())
-                        .ForMember(x => x.Event, y => y.Ignore())
-                        .ForMember(x => x.CreatedAt, y => y.Ignore())
-                        .ForMember(x => x.Participants, y => y.Ignore());
-
-                    c.CreateMap<Models.Participant, Models.Participant>()
-                        .ForMember(x => x.Id, y => y.Ignore())
-                        .ForMember(x => x.GroupId, y => y.Ignore())
-                        .ForMember(x => x.Group, y => y.Ignore())
-                        .ForMember(x => x.CreatedAt, y => y.Ignore());
-                }));
-
-                // Map the mapper input into the db value.
-                updateMapper.Map(inputGroup, dbGroup!);
-
-                // Map the participants.
-                List<int> idsToRemove = [];
-                foreach (Models.Participant dbParticipant in dbGroup.Participants!)
-                {
-                    // Get the corresponding input participant.
-                    Models.Participant? inputParticipant = inputGroup.Participants!.FirstOrDefault(x => x.Id == dbParticipant.Id);
-
-                    // Check if the participant can be found in input.
-                    if (inputParticipant == null)
-                    {
-                        // Mark the participant as removed for later.
-                        idsToRemove.Add(dbParticipant.Id);
-                        continue;
-                    }
-
-                    // Update the participant.
-                    updateMapper.Map(inputParticipant!, dbParticipant);
-                }
-
-                // Remove participants.
-                foreach (int i in idsToRemove)
-                {
-                    Models.Participant dbParticipant = dbGroup.Participants.First(x => x.Id == i);
-                    dbGroup.Participants.Remove(dbParticipant);
-                }
-
-                // Update the group.
-                await DatabaseContext.SaveChangesAsync();
-
-                // Read the group from the database.
-                dbGroup = (await DatabaseContext.Groups
-                            .Include(x => x.Participants!)
-                            .Include(x => x.Event!)
-                                .ThenInclude(x => x.EventManagers!)
-                                    .ThenInclude(x => x.Manager)
-                            .FirstOrDefaultAsync(x => x.Id == id));
-
-                // Success. Map the response.
-                Models.OutputModels.GroupDetailOutputModel returnValue = Mapper.Map<Models.OutputModels.GroupDetailOutputModel>(dbGroup);
-                returnValue.TotalParticipants = dbGroup!.Participants?.Count ?? 0;
-
-                return Ok(returnValue);
+                returnValue = await GroupService.UpdateGroupAsync(User, (int)id!, group!);
             }
-            catch (Exception ex)
+            catch (CustomException ex)
             {
-                Logger.LogError(ex, "Unexpected exception while updating the group with id {id}", id);
-                return Problem(detail: ex.Message, title: "Ein unerwarteter Fehler ist aufgetreten", statusCode: StatusCodes.Status500InternalServerError);
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
             }
+            return Ok(returnValue);
         }
 
         // DELETE <GroupsController>/5
@@ -342,43 +152,20 @@ namespace FFischbach.Events.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete([Required] int? id)
         {
-            // Validate.
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await GroupService.DeleteGroupAsync(User, (int)id!);
             }
-
-            // Get display name.
-            string? displayName = User.GetDisplayName();
-
-            if (string.IsNullOrEmpty(displayName))
+            catch (CustomException ex)
             {
-                Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
             }
-
-            // Get group from the database.
-            Models.Group? dbGroup = (await DatabaseContext.Groups
-                                    .Include(x => x.Event!)
-                                        .ThenInclude(x => x.EventManagers!)
-                                            .ThenInclude(x => x.Manager)
-                                    .FirstOrDefaultAsync(x => x.Id == id));
-
-            // Check db response.
-            if (dbGroup == null)
-            {
-                // Nothing found.
-                return NotFound();
-            }
-            else if (!dbGroup.Event!.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
-            {
-                // Calling user is not an group manager of that group.
-                return Forbid();
-            }
-
-            // Remove the group, resulting in a cascade of all participants.
-            DatabaseContext.Groups.Remove(dbGroup);
-            await DatabaseContext.SaveChangesAsync();
 
             return NoContent();
         }
