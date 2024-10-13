@@ -228,6 +228,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
               a.click();
 
               document.body.removeChild(a);
+              addToast({ message: "Event exportiert", type: "info" });
             }}
           >
             Event exportieren

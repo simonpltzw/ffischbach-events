@@ -16,15 +16,17 @@ export const useJsonToCsv = () => {
   const jsonToCsv = (jsonData: any) => {
     let csv = "";
 
-    // Extract headers
-    const headers = Object.keys(jsonData[0]);
-    csv += headers.join(";") + "\n";
+    if (jsonData.length) {
+      // Extract headers
+      const headers = Object.keys(jsonData[0]);
+      csv += headers.join(";") + "\n";
 
-    // Extract values
-    jsonData.forEach((obj: any) => {
-      const values = headers.map((header) => obj[header]);
-      csv += values.join(";") + "\n";
-    });
+      // Extract values
+      jsonData.forEach((obj: any) => {
+        const values = headers.map((header) => obj[header]);
+        csv += values.join(";") + "\n";
+      });
+    }
 
     return csv;
   };
