@@ -1,5 +1,7 @@
+using FFischbach.Events.API.AutoMapper;
 using FFischbach.Events.API.Data;
 using FFischbach.Events.API.Services;
+using FFischbach.Events.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +31,8 @@ namespace FFischbach.Events.API
             #region Logging
             builder.Host.UseSerilog((context, configuration) =>
             {
-                configuration.WriteTo.Console();
+                configuration.Enrich.FromLogContext();
+                configuration.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3} ({RequestId} {TraceId})] {Message:lj}{NewLine}{Exception}");
                 if (context.HostingEnvironment.IsDevelopment()) configuration.MinimumLevel.Debug();
                 else configuration.MinimumLevel.Information();
             });
@@ -117,6 +120,14 @@ namespace FFischbach.Events.API
             #region Cors
             builder.Services.AddCors();
             #endregion Cors
+
+            #region Services
+            builder.Services.AddScoped<IEventService, EventService>();
+            builder.Services.AddScoped<IEventManagerService, EventManagerService>();
+            builder.Services.AddScoped<IGroupService, GroupService>();
+            builder.Services.AddScoped<IParticipantService, ParticipantService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            #endregion Services
 
             #endregion Add Services
 

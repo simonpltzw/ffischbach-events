@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 
-namespace FFischbach.Events.API.Services
+namespace FFischbach.Events.API.AutoMapper
 {
     public class GroupHashedNameResolver : IValueResolver<GroupCreateModel, Group, string>
     {
