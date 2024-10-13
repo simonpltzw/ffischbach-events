@@ -2,7 +2,7 @@
 using FFischbach.Events.API.Models;
 using FFischbach.Events.API.Models.InputModels;
 
-namespace FFischbach.Events.API.Services
+namespace FFischbach.Events.API.AutoMapper
 {
     public class GroupCreateParticipantsResolver : IValueResolver<GroupCreateModel, Group, List<Participant>?>
     {

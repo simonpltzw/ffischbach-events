@@ -1,5 +1,5 @@
+using FFischbach.Events.API.AutoMapper;
 using FFischbach.Events.API.Data;
-using FFischbach.Events.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;

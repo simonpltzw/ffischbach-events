@@ -12,13 +12,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="Services\Interfaces\**" />
-		<Content Remove="Services\Interfaces\**" />
-		<EmbeddedResource Remove="Services\Interfaces\**" />
-		<None Remove="Services\Interfaces\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" NoWarn="NU1605" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.8" NoWarn="NU1605" />

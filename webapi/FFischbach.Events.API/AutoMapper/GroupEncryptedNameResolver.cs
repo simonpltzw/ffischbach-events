@@ -1,15 +1,14 @@
 ﻿using AutoMapper;
 using FFischbach.Events.API.Models;
 using FFischbach.Events.API.Models.InputModels;
-using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace FFischbach.Events.API.Services
+namespace FFischbach.Events.API.AutoMapper
 {
-    public class ParticipantEncryptedDataResolver : IValueResolver<ParticipantCreateModel, Participant, byte[]>
+    public class GroupEncryptedNameResolver : IValueResolver<GroupCreateModel, Group, byte[]>
     {
-        public byte[] Resolve(ParticipantCreateModel source, Participant destination, byte[] destMember, ResolutionContext context)
+        public byte[] Resolve(GroupCreateModel source, Group destination, byte[] destMember, ResolutionContext context)
         {
             // Get public key from context.
             string publicKey = context.Items["PublicKey"] as string ?? throw new Exception("Missing public key on participant encryption.");
@@ -18,11 +17,8 @@ namespace FFischbach.Events.API.Services
             using RSA rsa = RSA.Create();
             rsa.ImportFromPem(publicKey);
 
-            // Parse create model to json.
-            string json = JsonConvert.SerializeObject(source);
-
-            // Parse json to byte array.
-            byte[] data = Encoding.Default.GetBytes(json);
+            // Parse string to byte array.
+            byte[] data = Encoding.Default.GetBytes(source.Name!);
 
             // Encrypt data.
             destMember = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA256);

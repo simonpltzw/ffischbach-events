@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-namespace FFischbach.Events.API.Services
+namespace FFischbach.Events.API.AutoMapper
 {
     public class AutoMapperProfile : Profile
     {
