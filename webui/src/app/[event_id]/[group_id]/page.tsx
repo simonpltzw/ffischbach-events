@@ -30,7 +30,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   const { addToast } = useToast();
   const empty = "***";
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setIsPending(true);
     getToken().then((token: string) => {
       getGroup(token, parseInt(params.group_id)).then((group: Group) => {

@@ -67,7 +67,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     new Event("", "", "", 1, 1, false, "", "", "", [])
   );
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setIsPending(true);
     getToken().then((token: string) => {
       if (token) {
