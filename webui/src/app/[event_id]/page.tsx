@@ -127,7 +127,15 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const generateGroupEntry = (group: Group, index: number) => {
     return (
-      <TR key={`event-group-${index}`} disabled={isEncrypted}>
+      <TR
+        key={`event-group-${index}`}
+        disabled={isEncrypted}
+        onClick={() => {
+          if (!isEncrypted) {
+            router.push(`/${state.id}/${state.groups![index].id}`);
+          }
+        }}
+      >
         <TD>{group.name ?? "***"}</TD>
         <TD>{group.category}</TD>
         <TD>

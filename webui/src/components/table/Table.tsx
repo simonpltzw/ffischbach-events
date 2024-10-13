@@ -45,7 +45,7 @@ export const TR: FC<TRProps> = (props: TRProps) => {
           props.onClick(e);
         }
       }}
-      className={`bg-white border-b last:border-0 dark:bg-gray-900/40 dark:border-gray-900 ${props.disabled ? '' : 'hover:bg-gray-200 hover:dark:bg-gray-700 hover:rounded'}`}
+      className={`bg-white border-b last:border-0 dark:bg-gray-900/40 dark:border-gray-900 ${props.disabled ? 'cursor-default' : 'cursor-pointer hover:bg-gray-200 hover:dark:bg-gray-700 hover:rounded'}`}
     >
       {props.children}
     </tr>
