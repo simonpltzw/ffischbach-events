@@ -42,29 +42,35 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) =>
         <PopupBackdrop />
         <PopupDialogPanel>
           <PopupTitle>{props.title}</PopupTitle>
-          <div className="flex flex-col gap-2">
-            {errors.map((error: string, index: number) => {
-              return generateErrorMessage(error, index);
-            })}
-          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSubmit();
+            }}
+          >
+            <div className="flex flex-col gap-2">
+              {errors.map((error: string, index: number) => {
+                return generateErrorMessage(error, index);
+              })}
+            </div>
 
-          <div className="flex flex-row gap-3 py-3">
-            <Button
-              type="button"
-              onClick={onSubmit}
-              colorstyle="bg-green-600 hover:bg-green-700 hover:dark:bg-green-400"
-            >
-              Bestätigen
-            </Button>
-            <Button
-              autoFocus={true}
-              type="button"
-              onClick={() => setVisible(false)}
-              colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
-            >
-              Abbrechen
-            </Button>
-          </div>
+            <div className="flex flex-row gap-3 py-3">
+              <Button
+                type="submit"
+                colorstyle="bg-green-600 hover:bg-green-700 hover:dark:bg-green-400"
+              >
+                Bestätigen
+              </Button>
+              <Button
+                autoFocus={true}
+                type="button"
+                onClick={() => setVisible(false)}
+                colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
+              >
+                Abbrechen
+              </Button>
+            </div>
+          </form>
         </PopupDialogPanel>
       </Popup>
       <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>

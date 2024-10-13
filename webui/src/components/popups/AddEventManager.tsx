@@ -23,7 +23,7 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
 ) => {
   const [email, setEmail] = useState<string>("");
   const [errors, setErrors] = useState<string[]>([]);
-  const [visible, setVisible] = useState<boolean>(false)
+  const [visible, setVisible] = useState<boolean>(false);
 
   useEffect(() => {
     if (!visible) {
@@ -38,7 +38,7 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
       setVisible(false);
     } catch (e: any) {
       if (e.response?.data) {
-        setErrors([e.response.data.detail]);
+        setErrors(Object.entries(e.response.data.errors).map((error: any) => error[1]));
       }
     }
   };
@@ -62,37 +62,43 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
         <PopupBackdrop />
         <PopupDialogPanel>
           <PopupTitle>Event Manager hinzufügen</PopupTitle>
-          <div id="form" className="mt-2 flex flex-col gap-3 w-80">
-            <Input
-              isFocus={visible}
-              type="text"
-              placeholder="Email"
-              value={email}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            {errors.map((error: string, index: number) => {
-              return generateErrorMessage(error, index);
-            })}
-          </div>
-          <div className="flex flex-row py-3 gap-3">
-            <Button
-              type="button"
-              colorstyle="bg-green-600 hover:bg-green-700 hover:dark:bg-green-400"
-              onClick={onSubmit}
-            >
-              Bestätigen
-            </Button>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSubmit();
+            }}
+          >
+            <div id="form" className="mt-2 flex flex-col gap-3 w-80">
+              <Input
+                isFocus={visible}
+                type="text"
+                placeholder="Email"
+                value={email}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              {errors.map((error: string, index: number) => {
+                return generateErrorMessage(error, index);
+              })}
+            </div>
+            <div className="flex flex-row py-3 gap-3">
+              <Button
+                type="submit"
+                colorstyle="bg-green-600 hover:bg-green-700 hover:dark:bg-green-400"
+              >
+                Bestätigen
+              </Button>
 
-            <Button
-              type="button"
-              colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
-              onClick={() => setVisible(false)}
-            >
-              Abbrechen
-            </Button>
-          </div>
+              <Button
+                type="button"
+                colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
+                onClick={() => setVisible(false)}
+              >
+                Abbrechen
+              </Button>
+            </div>
+          </form>
         </PopupDialogPanel>
       </Popup>
       <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>

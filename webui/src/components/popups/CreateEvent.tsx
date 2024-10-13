@@ -36,6 +36,7 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
     if (!visible) {
       setName("");
       setDescription("");
+      setPassword("");
       setErrors([]);
     }
   }, [visible]);
@@ -59,7 +60,6 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
             if (e.response?.data) {
               setErrors([e.response.data.detail]);
             }
-            //setError()
           });
       });
     });
@@ -75,52 +75,59 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
 
   return (
     <>
-      <Popup state={{open: visible, setOpen: setVisible }}>
+      <Popup state={{ open: visible, setOpen: setVisible }}>
         <PopupBackdrop />
         <PopupDialogPanel>
           <PopupTitle>Event erstellen</PopupTitle>
-          <div id="form" className="mt-2 flex flex-col gap-3 w-80">
-            <Input
-              isFocus={visible}
-              type="text"
-              placeholder="Name"
-              value={name}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-            />
-            <Input
-              type="text"
-              placeholder="Beschreibung"
-              value={description}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)}
-            />
-            <Input
-              type="password"
-              placeholder="Passwort"
-              value={password}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            {errors.map((error: string, index: number) => {
-              return generateErrorMessage(error, index);
-            })}
-          </div>
-          <div className="flex flex-row gap-3 py-3">
-            <Button
-              type="button"
-              colorstyle="bg-green-600 hover:bg-green-700 hover:dark:bg-green-400"
-              onClick={onSubmit}
-            >
-              Bestätigen
-            </Button>
-            <Button
-              type="button"
-              colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
-              onClick={() => setVisible(false)}
-            >
-              Abbrechen
-            </Button>
-          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSubmit();
+            }}
+          >
+            <div id="form" className="mt-2 flex flex-col gap-3 w-80">
+              <Input
+                isFocus={visible}
+                type="text"
+                placeholder="Name"
+                value={name}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+              />
+              <Input
+                type="text"
+                placeholder="Beschreibung"
+                value={description}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)}
+              />
+              <Input
+                type="password"
+                placeholder="Passwort"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              {errors.map((error: string, index: number) => {
+                return generateErrorMessage(error, index);
+              })}
+            </div>
+            <div className="flex flex-row gap-3 py-3">
+              <Button
+                type="submit"
+                colorstyle="bg-green-600 hover:bg-green-700 hover:dark:bg-green-400"
+              >
+                Bestätigen
+              </Button>
+              <Button
+                type="button"
+                colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
+                onClick={() => setVisible(false)}
+              >
+                Abbrechen
+              </Button>
+            </div>
+          </form>
         </PopupDialogPanel>
       </Popup>
       <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>
