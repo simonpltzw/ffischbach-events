@@ -219,6 +219,58 @@ namespace FFischbach.Events.API.Services
             return returnValue;
         }
 
+        public async Task<EventDetailOutputModel> UpdateEventAsync(ClaimsPrincipal user, string id, EventUpdateModel @event)
+        {
+            EventDetailOutputModel returnValue;
+            try
+            {
+                // Get user display name.
+                string displayName = UserService.GetDisplayName(user);
+
+                // Get event from the database.
+                Event? dbEvent = (await DatabaseContext.Events
+                                        .Include(x => x.EventManagers!)
+                                            .ThenInclude(x => x.Manager)
+                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
+
+                // Check db response.
+                if (dbEvent == null)
+                {
+                    // Nothing found.
+                    throw new CustomException("Das Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status404NotFound);
+                }
+                else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
+                {
+                    // Calling user is not an event manager of that group.
+                    throw new CustomException("Du hast keine Berechtigungen für dieses Event. Lass dich von einem Manager des Events hinzufügen.", statusCode: StatusCodes.Status403Forbidden);
+                }
+
+                // Update the db event value by mapping the update event into it.
+                Mapper.Map(@event, dbEvent);
+
+                // Update trackables.
+                dbEvent.UpdatedBy = displayName;
+                dbEvent.UpdatedAt = DateTime.UtcNow;
+
+                DatabaseContext.Events.Update(dbEvent);
+                await DatabaseContext.SaveChangesAsync();
+
+                // Return the updated event.
+                returnValue = await GetEventAsync(user, id);
+            }
+            catch (CustomException ex)
+            {
+                Logger.LogWarning(ex, "Failed to complete the event '{id}'.", id);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to complete the event '{id}'.", id);
+                throw new CustomException("Unerwarteter Fehler beim Abschließen des Events.", ex);
+            }
+            return returnValue;
+        }
+
         public async Task DeleteEventAsync(ClaimsPrincipal user, string id)
         {
             try
@@ -236,7 +288,7 @@ namespace FFischbach.Events.API.Services
                 if (dbEvent == null)
                 {
                     // Nothing found.
-                    throw new CustomException("Das Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status400BadRequest);
+                    throw new CustomException("Das Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status404NotFound);
                 }
                 else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
                 {
@@ -256,53 +308,6 @@ namespace FFischbach.Events.API.Services
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Failed to delete the event '{id}'.", id);
-                throw new CustomException("Unerwarteter Fehler beim Abschließen des Events.", ex);
-            }
-        }
-
-        public async Task CompleteEventAsync(ClaimsPrincipal user, string id)
-        {
-            try
-            {
-                // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
-
-                // Get event from the database.
-                Event? dbEvent = (await DatabaseContext.Events
-                                        .Include(x => x.EventManagers!)
-                                            .ThenInclude(x => x.Manager)
-                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
-
-                // Check db response.
-                if (dbEvent == null)
-                {
-                    // Nothing found.
-                    throw new CustomException("Das Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status400BadRequest);
-                }
-                else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
-                {
-                    // Calling user is not an event manager of that group.
-                    throw new CustomException("Du hast keine Berechtigungen für dieses Event. Lass dich von einem Manager des Events hinzufügen.", statusCode: StatusCodes.Status403Forbidden);
-                }
-
-                // Update the completed value.
-                dbEvent.Completed = true;
-
-                // Update trackables.
-                dbEvent.UpdatedBy = displayName;
-                dbEvent.UpdatedAt = DateTime.UtcNow;
-
-                DatabaseContext.Events.Update(dbEvent);
-                await DatabaseContext.SaveChangesAsync();
-            }
-            catch (CustomException ex)
-            {
-                Logger.LogWarning(ex, "Failed to complete the event '{id}'.", id);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Failed to complete the event '{id}'.", id);
                 throw new CustomException("Unerwarteter Fehler beim Abschließen des Events.", ex);
             }
         }

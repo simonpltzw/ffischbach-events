@@ -17,6 +17,8 @@ namespace FFischbach.Events.API.AutoMapper
                 .ForMember(x => x.Completed, o => o.MapFrom(x => false))
                 .ForMember(x => x.CreatedAt, o => o.MapFrom(x => DateTime.UtcNow));
 
+            CreateMap<EventUpdateModel, Event>();
+
             CreateMap<Event, EventDetailOutputModel>();
 
             CreateMap<Event, EventOutputModel>();

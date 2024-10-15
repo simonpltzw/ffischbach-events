@@ -102,6 +102,36 @@ namespace FFischbach.Events.API.Controllers
         }
 
         /// <summary>
+        /// Updates an event.
+        /// </summary>
+        /// <param name="id">Id of the event</param>
+        /// <param name="event"></param>
+        /// <returns></returns>
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(EventDetailOutputModel), StatusCodes.Status200OK)]
+        public async Task<ActionResult<EventDetailOutputModel>> Put([Required] string? id, [Required] EventUpdateModel? @event)
+        {
+            EventDetailOutputModel returnValue;
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                returnValue = await EventService.UpdateEventAsync(User, id!, @event!);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return Ok(returnValue);
+        }
+
+        /// <summary>
         /// Deletes an event as well as all connected groups and participants.
         /// </summary>
         /// <param name="id">Id of the event</param>
@@ -120,33 +150,6 @@ namespace FFischbach.Events.API.Controllers
                 }
 
                 await EventService.DeleteEventAsync(User, id!);
-            }
-            catch (CustomException ex)
-            {
-                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
-            }
-
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Completes an event.
-        /// </summary>
-        /// <param name="id">Id of the event</param>
-        [HttpPost("{id}/Complete")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> Complete([Required] string? id)
-        {
-            try
-            {
-                // Validate.
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                await EventService.CompleteEventAsync(User, id!);
             }
             catch (CustomException ex)
             {

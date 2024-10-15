@@ -31,12 +31,13 @@ namespace FFischbach.Events.API.Services.Interfaces
         Task<EventDetailOutputModel> CreateEventAsync(ClaimsPrincipal user, EventCreateModel @event);
 
         /// <summary>
-        /// Completes an event by <paramref name="id"/> depending on the permissions of the <paramref name="user"/>.
+        /// Updates an event by <paramref name="id"/> depending on the permissions of the <paramref name="user"/>.
         /// </summary>
         /// <param name="user"></param>
         /// <param name="id"></param>
+        /// <param name="event"></param>
         /// <exception cref="CustomException"></exception>
-        Task CompleteEventAsync(ClaimsPrincipal user, string id);
+        Task<EventDetailOutputModel> UpdateEventAsync(ClaimsPrincipal user, string id, EventUpdateModel @event);
 
         /// <summary>
         /// Deletes an event by <paramref name="id"/> depending on the permissions of the <paramref name="user"/>.
