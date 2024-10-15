@@ -16,6 +16,11 @@
         public string? Description { get; set; }
 
         /// <summary>
+        /// Date of the event.
+        /// </summary>
+        public DateTime Date { get; set; }
+
+        /// <summary>
         /// Completed.
         /// </summary>
         public bool Completed { get; set; }
@@ -44,6 +49,26 @@
         /// List of groups.
         /// </summary>
         public required List<GroupOutputModel> Groups { get; set; }
+
+        /// <summary>
+        /// List of categories.
+        /// </summary>
+        public required List<CategoryOutputModel> Categories { get; set; }
+
+        /// <summary>
+        /// Last updated identifier.
+        /// </summary>
+        public string? UpdatedBy { get; set; }
+
+        /// <summary>
+        /// Last updated timestamp.
+        /// </summary>
+        public DateTime? UpdatedAt { get; set; }
+
+        /// <summary>
+        /// Create identifier.
+        /// </summary>
+        public required string CreatedBy { get; set; }
 
         /// <summary>
         /// Create timestamp.

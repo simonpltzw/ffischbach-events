@@ -22,12 +22,12 @@ namespace FFischbach.Events.API.Services
                 string displayName = UserService.GetDisplayName(user);
 
                 // Get event from the database.
-                Event? dbEvent = (await DatabaseContext.Events
+                Event? dbEvent = await DatabaseContext.Events
                                         .Include(x => x.Groups!)
                                             .ThenInclude(x => x.Participants)   // Include the participants to calculate the count.
                                         .Include(x => x.EventManagers!)
                                             .ThenInclude(x => x.Manager)
-                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == eventId!.ToLower()));
+                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == eventId.ToLower());
 
                 // Check db response.
                 if (dbEvent == null)
@@ -46,13 +46,14 @@ namespace FFischbach.Events.API.Services
                 }
 
                 // Check if the email is already a manager.
-                Manager? manager = await DatabaseContext.Managers.FirstOrDefaultAsync(x => x.Email.ToLower() == email!.ToLower());
+                Manager? manager = await DatabaseContext.Managers.FirstOrDefaultAsync(x => x.Email.ToLower() == email.ToLower());
                 if (manager == null)
                 {
                     // Add current user as manager.
                     manager = new Manager
                     {
-                        Email = email!,
+                        Email = email.ToLower(),
+                        CreatedBy = displayName,
                         CreatedAt = DateTime.UtcNow
                     };
 
@@ -66,6 +67,7 @@ namespace FFischbach.Events.API.Services
                 {
                     EventId = dbEvent.Id,
                     ManagerId = manager.Id,
+                    CreatedBy = displayName,
                     CreatedAt = DateTime.UtcNow
                 };
 

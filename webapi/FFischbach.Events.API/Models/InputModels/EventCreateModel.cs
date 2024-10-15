@@ -10,7 +10,7 @@ namespace FFischbach.Events.API.Models.InputModels
         /// <summary>
         /// Id. Has to follow a certain pattern, for example 'RAUP2026'
         /// </summary>
-        [Required, MaxLength(20)]
+        [Required, StringLength(20)]
         public string? Id { get; set; }
 
         /// <summary>
@@ -18,6 +18,12 @@ namespace FFischbach.Events.API.Models.InputModels
         /// </summary>
         [StringLength(1000)]
         public string? Description { get; set; }
+
+        /// <summary>
+        /// Date of the event.
+        /// </summary>
+        [Required]
+        public DateTime? Date { get; set; }
 
         /// <summary>
         /// Public RSA-OAEP encryption key in spki pem format.

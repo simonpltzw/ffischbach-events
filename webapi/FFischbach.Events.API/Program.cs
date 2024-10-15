@@ -46,7 +46,11 @@ namespace FFischbach.Events.API
 
             #region Routing
             builder.Services.AddControllers()
-                .AddNewtonsoftJson(options => options.SerializerSettings.Converters.Add(new StringEnumConverter()));
+                .AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.Converters.Add(new StringEnumConverter());
+                        options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
+                    });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             #endregion Routing
@@ -122,6 +126,7 @@ namespace FFischbach.Events.API
             #endregion Cors
 
             #region Services
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IEventService, EventService>();
             builder.Services.AddScoped<IEventManagerService, EventManagerService>();
             builder.Services.AddScoped<IGroupService, GroupService>();
@@ -160,10 +165,11 @@ namespace FFischbach.Events.API
                 var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
                 var exception = exceptionHandlerPathFeature?.Error;
 
-                var problem = new ProblemDetails { 
-                    Title = "Ein unerwarteter Fehler ist aufgetreten.", 
-                    Detail = exception?.Message, 
-                    Status = 500 
+                var problem = new ProblemDetails
+                {
+                    Title = "Ein unerwarteter Fehler ist aufgetreten.",
+                    Detail = exception?.Message,
+                    Status = 500
                 };
 
                 await context.Response.WriteAsJsonAsync(problem);

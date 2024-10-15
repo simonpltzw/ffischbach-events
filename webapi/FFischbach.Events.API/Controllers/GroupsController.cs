@@ -1,4 +1,5 @@
 ﻿using FFischbach.Events.API.Helpers;
+using FFischbach.Events.API.Models.InputModels;
 using FFischbach.Events.API.Models.OutputModels;
 using FFischbach.Events.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +21,33 @@ namespace FFischbach.Events.API.Controllers
         private IGroupService GroupService { get; set; } = groupService;
         private IParticipantService ParticipantService { get; set; } = participantService;
 
-        // GET: <GroupsController>/5
+        /// <summary>
+        /// Creates a group.
+        /// </summary>
+        /// <param name="group">The group to be created</param>
+        /// <returns></returns>
+        [HttpPost]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<IActionResult> Post([FromBody, Required] GroupCreateModel? group)
+        {
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await GroupService.CreateGroupAsync(group!);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return Created();
+        }
+
         /// <summary>
         /// Gets a single group.
         /// </summary>
@@ -50,66 +77,6 @@ namespace FFischbach.Events.API.Controllers
             return Ok(returnValue);
         }
 
-        // POST <GroupsController>
-        /// <summary>
-        /// Creates a group.
-        /// </summary>
-        /// <param name="group">The group to be created</param>
-        /// <returns></returns>
-        [HttpPost]
-        [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<IActionResult> Post([FromBody, Required] Models.InputModels.GroupCreateModel? group)
-        {
-            try
-            {
-                // Validate.
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                await GroupService.CreateGroupAsync(group!);
-            }
-            catch (CustomException ex)
-            {
-                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
-            }
-            return Created();
-        }
-
-        // POST <GroupsController>/5/Participant?isContact=false
-        /// <summary>
-        /// Adds a participant to an event.
-        /// </summary>
-        /// <param name="id">Id of the group</param>
-        /// <param name="participant">The participant to be created</param>
-        /// <param name="isContact">Value indicating if new participant should replace the current contact</param>
-        /// 
-        [HttpPost("{id}/Participant")]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(typeof(GroupDetailOutputModel), StatusCodes.Status200OK)]
-        public async Task<ActionResult<GroupDetailOutputModel>> AddParticipant([Required] int? id, [FromBody, Required] Models.InputModels.ParticipantCreateModel? participant, [FromQuery] bool isContact = false)
-        {
-            GroupDetailOutputModel returnValue;
-            try
-            {
-                // Validate.
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                returnValue = await ParticipantService.AddParticipantAsync(User, (int)id!, participant!, isContact);
-            }
-            catch (CustomException ex)
-            {
-                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
-            }
-            return Ok(returnValue);
-        }
-
-        // PUT: <GroupsController>/5
         /// <summary>
         /// Updates a group and its participants.
         /// </summary>
@@ -121,7 +88,7 @@ namespace FFischbach.Events.API.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(GroupDetailOutputModel), StatusCodes.Status200OK)]
-        public async Task<ActionResult<GroupDetailOutputModel>> Put([Required] int? id, [FromBody, Required] Models.InputModels.GroupUpdateModel? group)
+        public async Task<ActionResult<GroupDetailOutputModel>> Put([Required] int? id, [FromBody, Required] GroupUpdateModel? group)
         {
             GroupDetailOutputModel returnValue;
             try
@@ -141,7 +108,6 @@ namespace FFischbach.Events.API.Controllers
             return Ok(returnValue);
         }
 
-        // DELETE <GroupsController>/5
         /// <summary>
         /// Deletes a group and all of its participants.
         /// </summary>
@@ -166,8 +132,37 @@ namespace FFischbach.Events.API.Controllers
             {
                 return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
             }
-
             return NoContent();
+        }
+
+        /// <summary>
+        /// Adds a participant to an event.
+        /// </summary>
+        /// <param name="id">Id of the group</param>
+        /// <param name="participant">The participant to be created</param>
+        /// <param name="isContact">Value indicating if new participant should replace the current contact</param>
+        /// 
+        [HttpPost("{id}/Participant")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(GroupDetailOutputModel), StatusCodes.Status200OK)]
+        public async Task<ActionResult<GroupDetailOutputModel>> AddParticipant([Required] int? id, [FromBody, Required] ParticipantCreateModel? participant, [FromQuery] bool isContact = false)
+        {
+            GroupDetailOutputModel returnValue;
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                returnValue = await ParticipantService.AddParticipantAsync(User, (int)id!, participant!, isContact);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return Ok(returnValue);
         }
     }
 }

@@ -5,6 +5,7 @@ namespace FFischbach.Events.API.Data
 {
     public class DatabaseContext(DbContextOptions options) : DbContext(options)
     {
+        public required DbSet<Category> Categories { get; set; }
         public required DbSet<Event> Events { get; set; }
         public required DbSet<EventManager> EventManagers { get; set; }
         public required DbSet<Manager> Managers { get; set; }
@@ -23,6 +24,9 @@ namespace FFischbach.Events.API.Data
                 c.Property(x => x.Id)
                     .HasMaxLength(20);
 
+                c.Property(x => x.Date)
+                    .IsRequired();
+
                 c.Property(x => x.Completed)
                     .IsRequired();
 
@@ -32,7 +36,13 @@ namespace FFischbach.Events.API.Data
                 c.Property(x => x.EncryptedPrivateKey)
                     .IsRequired();
 
+                c.Property(x => x.UpdatedBy)
+                    .HasMaxLength(255);
+
+                c.Property(x => x.UpdatedAt);
+
                 c.Property(x => x.CreatedBy)
+                    .HasMaxLength(100)
                     .IsRequired();
 
                 c.Property(x => x.CreatedAt)
@@ -55,6 +65,10 @@ namespace FFischbach.Events.API.Data
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired();
 
+                c.Property(x => x.CreatedBy)
+                    .HasMaxLength(255)
+                    .IsRequired();
+
                 c.Property(x => x.CreatedAt)
                     .IsRequired();
             });
@@ -66,6 +80,13 @@ namespace FFischbach.Events.API.Data
                 c.Property(x => x.Email)
                     .HasMaxLength(100)
                     .IsRequired();
+
+                c.Property(x => x.CreatedBy)
+                    .HasMaxLength(255)
+                    .IsRequired();
+
+                c.Property(x => x.CreatedAt)
+                    .IsRequired();
             });
 
             modelBuilder.Entity<Group>(c =>
@@ -75,8 +96,14 @@ namespace FFischbach.Events.API.Data
                 c.HasOne(x => x.Event)
                     .WithMany(x => x.Groups)
                     .HasForeignKey(x => x.EventId)
-                    .IsRequired()
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                c.HasOne(x => x.Category)
+                    .WithMany(x => x.Groups)
+                    .HasForeignKey(x => x.CategoryId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
                 c.Property(x => x.HashedName)
                     .HasMaxLength(64)
@@ -85,10 +112,13 @@ namespace FFischbach.Events.API.Data
                 c.Property(x => x.EncryptedName)
                     .IsRequired();
 
-                c.Property(x => x.Category)
-                    .IsRequired();
+                c.Property(x => x.UpdatedBy)
+                    .HasMaxLength(255);
 
-                c.Property(x => x.CreatedAt);
+                c.Property(x => x.UpdatedAt);
+
+                c.Property(x => x.CreatedAt)
+                    .IsRequired();
             });
 
             modelBuilder.Entity<Participant>(c =>
@@ -105,7 +135,39 @@ namespace FFischbach.Events.API.Data
 
                 c.Property(x => x.VIP);
 
-                c.Property(x => x.CreatedAt);
+                c.Property(x => x.CreatedAt)
+                    .IsRequired();
+            });
+
+            modelBuilder.Entity<Category>(c =>
+            {
+                c.HasKey(x => x.Id);
+
+                c.HasOne(x => x.Event)
+                    .WithMany(x => x.Categories)
+                    .HasForeignKey(x => x.EventId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                c.Property(x => x.Name)
+                    .HasMaxLength(255)
+                    .IsRequired();
+
+                c.Property(x => x.SignUpFrom);
+
+                c.Property(x => x.SignUpTo);
+
+                c.Property(x => x.UpdatedBy)
+                    .HasMaxLength(255);
+
+                c.Property(x => x.UpdatedAt);
+
+                c.Property(x => x.CreatedBy)
+                    .HasMaxLength(255)
+                    .IsRequired();
+
+                c.Property(x => x.CreatedAt)
+                    .IsRequired();
             });
             
             base.OnModelCreating(modelBuilder);

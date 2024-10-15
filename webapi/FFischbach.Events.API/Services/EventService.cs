@@ -18,6 +18,91 @@ namespace FFischbach.Events.API.Services
         private DatabaseContext DatabaseContext { get; } = databaseContext;
         private IUserService UserService { get; } = userService;
 
+        public async Task<EventDetailOutputModel> CreateEventAsync(ClaimsPrincipal user, EventCreateModel @event)
+        {
+            EventDetailOutputModel returnValue;
+            try
+            {
+                // Check if the event already exists.
+                if (await DatabaseContext.Events.AnyAsync(x => x.Id == @event.Id))
+                {
+                    // Event already exists.
+                    throw new CustomException($"Das Event '{@event.Id}' existiert bereits.", statusCode: StatusCodes.Status400BadRequest);
+                }
+
+                // Get user display name.
+                string displayName = UserService.GetDisplayName(user);
+
+                // Check if the current user is already a manager.
+                Manager? manager = await DatabaseContext.Managers.FirstOrDefaultAsync(x => x.Email.ToLower() == displayName.ToLower());
+                if (manager == null)
+                {
+                    // Add current user as manager.
+                    manager = new Manager
+                    {
+                        Email = displayName,
+                        CreatedBy = displayName,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    // Create the manager.
+                    DatabaseContext.Managers.Add(manager);
+                    await DatabaseContext.SaveChangesAsync();
+                }
+
+                // Map the event input.
+                Event dbEvent = Mapper.Map<Event>(@event, x => x.AfterMap((src, dest) => dest.CreatedBy = displayName));
+
+                // Create the event.
+                DatabaseContext.Events.Add(dbEvent);
+                await DatabaseContext.SaveChangesAsync();
+
+                // Create default categories.
+                List<string> defaultCategories = ["Freunde, Familie, Arbeitskollegen FF Fischbach", "Mitglieder Feuerwehren Stadt Kelkheim", "Fischbacher Vereine", "Kelkheimer Vereine", "Privatgruppen", "Bauhof Stadt Kelkheim"];
+                dbEvent.Categories = new List<Category>();
+                foreach (string category in defaultCategories)
+                {
+                    dbEvent.Categories.Add(new Category
+                    {
+                        Name = category,
+                        EventId = dbEvent.Id,
+                        SignUpFrom = DateTime.UtcNow,
+                        SignUpTo = @event.Date,
+                        CreatedBy = displayName,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                // Create the event manager.
+                EventManager eventManager = new EventManager
+                {
+                    EventId = dbEvent.Id,
+                    ManagerId = manager.Id,
+                    CreatedBy = displayName,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                DatabaseContext.EventManagers.Add(eventManager);
+
+                // Add Categories as well as event manager.
+                await DatabaseContext.SaveChangesAsync();
+
+                // Map the database version of the event as return value.
+                returnValue = Mapper.Map<EventDetailOutputModel>(dbEvent);
+            }
+            catch (CustomException ex)
+            {
+                Logger.LogWarning(ex, "Failed to create event '{id}'.", @event.Id);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to create event '{id}'.", @event.Id);
+                throw new CustomException("Unerwarteter Fehler beim Erstellen des Events.", ex);
+            }
+            return returnValue;
+        }
+
         public async Task<List<EventOutputModel>> GetEventsAsync(ClaimsPrincipal user)
         {
             List<EventOutputModel> returnValue = [];
@@ -33,7 +118,8 @@ namespace FFischbach.Events.API.Services
                     {
                         Id = x.Id,
                         TotalGroups = x.Groups!.Count,
-                        TotalParticipants = x.Groups!.Sum(y => y.Participants!.Count)
+                        TotalParticipants = x.Groups!.Sum(y => y.Participants!.Count),
+                        CreatedBy = x.CreatedBy // This is only because the output model does not allow empty created by fields. If we don't want this we need a new query model specifically for this case.
                     })
                     .ToListAsync();
 
@@ -79,12 +165,13 @@ namespace FFischbach.Events.API.Services
                 string displayName = UserService.GetDisplayName(user);
 
                 // Get event from the database.
-                Event? dbEvent = (await DatabaseContext.Events
+                Event? dbEvent = await DatabaseContext.Events
                                         .Include(x => x.Groups!)
                                             .ThenInclude(x => x.Participants)   // Include the participants to calculate the count.
                                         .Include(x => x.EventManagers!)
                                             .ThenInclude(x => x.Manager)
-                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
+                                        .Include(x => x.Categories)
+                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower());
 
                 // Check db response.
                 if (dbEvent == null)
@@ -121,100 +208,36 @@ namespace FFischbach.Events.API.Services
             }
             catch (CustomException ex)
             {
-                Logger.LogWarning(ex, "Failed to get the event '{id}'.", id);
+                Logger.LogWarning(ex, "Failed to get event '{id}'.", id);
                 throw;
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to get the event '{id}'.", id);
+                Logger.LogError(ex, "Failed to get event '{id}'.", id);
                 throw new CustomException("Unerwarteter Fehler beim Lesen des Events.", ex);
             }
             return returnValue;
         }
 
-        public async Task<EventDetailOutputModel> CreateEventAsync(ClaimsPrincipal user, EventCreateModel @event)
+        public async Task<EventDetailOutputModel> UpdateEventAsync(ClaimsPrincipal user, string id, EventUpdateModel @event)
         {
             EventDetailOutputModel returnValue;
-            try
-            {
-                // Check if the event already exists.
-                if (await DatabaseContext.Events.AnyAsync(x => x.Id == @event.Id))
-                {
-                    // Event already exists.
-                    throw new CustomException($"Das Event '{@event.Id}' existiert bereits.", statusCode: StatusCodes.Status400BadRequest);
-                }
-
-                // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
-
-                // Check if the current user is already a manager.
-                Manager? manager = await DatabaseContext.Managers.FirstOrDefaultAsync(x => x.Email.ToLower() == displayName.ToLower());
-                if (manager == null)
-                {
-                    // Add current user as manager.
-                    manager = new Manager
-                    {
-                        Email = displayName,
-                        CreatedAt = DateTime.UtcNow
-                    };
-
-                    // Create the manager.
-                    DatabaseContext.Managers.Add(manager);
-                    await DatabaseContext.SaveChangesAsync();
-                }
-
-                // Map the event input.
-                Event dbEvent = Mapper.Map<Event>(@event, x => x.AfterMap((src, dest) => dest.CreatedBy = displayName));
-
-                // Create the event.
-                DatabaseContext.Events.Add(dbEvent);
-                await DatabaseContext.SaveChangesAsync();
-
-                // Create the event manager.
-                EventManager eventManager = new EventManager
-                {
-                    EventId = dbEvent.Id,
-                    ManagerId = manager.Id,
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                DatabaseContext.EventManagers.Add(eventManager);
-                await DatabaseContext.SaveChangesAsync();
-
-                // Map the database version of the event as return value.
-                returnValue = Mapper.Map<EventDetailOutputModel>(dbEvent);
-            }
-            catch (CustomException ex)
-            {
-                Logger.LogWarning(ex, "Failed to create the event.");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Failed to create the event.");
-                throw new CustomException("Unerwarteter Fehler beim Erstellen des Events.", ex);
-            }
-            return returnValue;
-        }
-        
-        public async Task CompleteEventAsync(ClaimsPrincipal user, string id)
-        {
             try
             {
                 // Get user display name.
                 string displayName = UserService.GetDisplayName(user);
 
                 // Get event from the database.
-                Event? dbEvent = (await DatabaseContext.Events
+                Event? dbEvent = await DatabaseContext.Events
                                         .Include(x => x.EventManagers!)
                                             .ThenInclude(x => x.Manager)
-                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
+                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower());
 
                 // Check db response.
                 if (dbEvent == null)
                 {
                     // Nothing found.
-                    throw new CustomException("Das Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status400BadRequest);
+                    throw new CustomException("Das Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status404NotFound);
                 }
                 else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
                 {
@@ -222,21 +245,30 @@ namespace FFischbach.Events.API.Services
                     throw new CustomException("Du hast keine Berechtigungen für dieses Event. Lass dich von einem Manager des Events hinzufügen.", statusCode: StatusCodes.Status403Forbidden);
                 }
 
-                // Update the completed value.
-                dbEvent.Completed = true;
+                // Update the db event value by mapping the update event into it.
+                Mapper.Map(@event, dbEvent);
+
+                // Update trackables.
+                dbEvent.UpdatedBy = displayName;
+                dbEvent.UpdatedAt = DateTime.UtcNow;
+
                 DatabaseContext.Events.Update(dbEvent);
                 await DatabaseContext.SaveChangesAsync();
+
+                // Return the updated event.
+                returnValue = await GetEventAsync(user, id);
             }
             catch (CustomException ex)
             {
-                Logger.LogWarning(ex, "Failed to complete the event '{id}'.", id);
+                Logger.LogWarning(ex, "Failed to update event '{id}'.", id);
                 throw;
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to complete the event '{id}'.", id);
-                throw new CustomException("Unerwarteter Fehler beim Abschließen des Events.", ex);
+                Logger.LogError(ex, "Failed to update event '{id}'.", id);
+                throw new CustomException("Unerwarteter Fehler beim Aktualisieren des Events.", ex);
             }
+            return returnValue;
         }
 
         public async Task DeleteEventAsync(ClaimsPrincipal user, string id)
@@ -247,16 +279,16 @@ namespace FFischbach.Events.API.Services
                 string displayName = UserService.GetDisplayName(user);
 
                 // Get event from the database.
-                Event? dbEvent = (await DatabaseContext.Events
+                Event? dbEvent = await DatabaseContext.Events
                                         .Include(x => x.EventManagers!)
                                             .ThenInclude(x => x.Manager)
-                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
+                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower());
 
                 // Check db response.
                 if (dbEvent == null)
                 {
                     // Nothing found.
-                    throw new CustomException("Das Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status400BadRequest);
+                    throw new CustomException("Das Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status404NotFound);
                 }
                 else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
                 {
@@ -270,12 +302,12 @@ namespace FFischbach.Events.API.Services
             }
             catch (CustomException ex)
             {
-                Logger.LogWarning(ex, "Failed to delete the event '{id}'.", id);
+                Logger.LogWarning(ex, "Failed to delete event '{id}'.", id);
                 throw;
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to delete the event '{id}'.", id);
+                Logger.LogError(ex, "Failed to delete event '{id}'.", id);
                 throw new CustomException("Unerwarteter Fehler beim Abschließen des Events.", ex);
             }
         }
