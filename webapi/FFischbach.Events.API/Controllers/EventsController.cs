@@ -24,7 +24,33 @@ namespace FFischbach.Events.API.Controllers
         private IEventService EventService { get; } = eventService;
         private IEventManagerService EventManagerService { get; } = eventManagerService;
 
-        // GET: <EventsController>
+        /// <summary>
+        /// Creates an event.
+        /// </summary>
+        /// <param name="event">The event to be created</param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(typeof(EventDetailOutputModel), StatusCodes.Status200OK)]
+        public async Task<ActionResult<EventDetailOutputModel>> Post([FromBody, Required] EventCreateModel @event)
+        {
+            EventDetailOutputModel returnValue;
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                returnValue = await EventService.CreateEventAsync(User, @event);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return CreatedAtAction(nameof(Get), new { id = returnValue.Id }, returnValue);
+        }
+
         /// <summary>
         /// Gets all events.
         /// </summary>
@@ -46,7 +72,6 @@ namespace FFischbach.Events.API.Controllers
             return Ok(returnValue);
         }
 
-        // GET: <EventsController>/5
         /// <summary>
         /// Gets a single event.
         /// </summary>
@@ -76,45 +101,15 @@ namespace FFischbach.Events.API.Controllers
             return Ok(returnValue);
         }
 
-        // POST <EventsController>
         /// <summary>
-        /// Creates an event.
-        /// </summary>
-        /// <param name="event">The event to be created</param>
-        /// <returns></returns>
-        [HttpPost]
-        [ProducesResponseType(typeof(EventDetailOutputModel), StatusCodes.Status200OK)]
-        public async Task<ActionResult<EventDetailOutputModel>> Post([FromBody, Required] EventCreateModel @event)
-        {
-            EventDetailOutputModel returnValue;
-            try
-            {
-                // Validate.
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                returnValue = await EventService.CreateEventAsync(User, @event);
-            }
-            catch (CustomException ex)
-            {
-                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
-            }
-            return CreatedAtAction(nameof(Get), new { id = returnValue.Id }, returnValue);
-        }
-
-        // POST <EventsController>/5/EventManager
-        /// <summary>
-        /// Adds a new manager to an event.
+        /// Deletes an event as well as all connected groups and participants.
         /// </summary>
         /// <param name="id">Id of the event</param>
-        /// <param name="email">Email of the manager</param>
-        /// <remarks>Permit other users to manage the event using their email.</remarks>
-        [HttpPost("{id}/EventManager")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> AddEventManager([Required] string? id, [FromQuery, Required, EmailAddress] string? email)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete([Required] string? id)
         {
             try
             {
@@ -124,16 +119,16 @@ namespace FFischbach.Events.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                await EventManagerService.AddEventManagerAsync(User, id!, email!);
+                await EventService.DeleteEventAsync(User, id!);
             }
             catch (CustomException ex)
             {
                 return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
             }
+
             return NoContent();
         }
 
-        // POST <EventsController>/5/EventManager
         /// <summary>
         /// Completes an event.
         /// </summary>
@@ -161,16 +156,16 @@ namespace FFischbach.Events.API.Controllers
             return NoContent();
         }
 
-        // DELETE <EventsController>/5
         /// <summary>
-        /// Deletes an event as well as all connected groups and participants.
+        /// Adds a new manager to an event.
         /// </summary>
         /// <param name="id">Id of the event</param>
-        [HttpDelete("{id}")]
+        /// <param name="email">Email of the manager</param>
+        /// <remarks>Permit other users to manage the event using their email.</remarks>
+        [HttpPost("{id}/EventManager")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete([Required] string? id)
+        public async Task<IActionResult> AddEventManager([Required] string? id, [FromQuery, Required, EmailAddress] string? email)
         {
             try
             {
@@ -180,13 +175,12 @@ namespace FFischbach.Events.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                await EventService.DeleteEventAsync(User, id!);
+                await EventManagerService.AddEventManagerAsync(User, id!, email!);
             }
             catch (CustomException ex)
             {
                 return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
             }
-
             return NoContent();
         }
     }
