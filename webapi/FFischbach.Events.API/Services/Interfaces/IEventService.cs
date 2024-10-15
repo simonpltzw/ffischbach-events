@@ -8,6 +8,14 @@ namespace FFischbach.Events.API.Services.Interfaces
     public interface IEventService
     {
         /// <summary>
+        /// Creates the given <paramref name="event"/> and adds the <paramref name="user"/> as an event manager.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="event"></param>
+        /// <exception cref="CustomException"></exception>
+        Task<EventDetailOutputModel> CreateEventAsync(ClaimsPrincipal user, EventCreateModel @event);
+
+        /// <summary>
         /// Gets all events assigned to the given <paramref name="user"/>.
         /// </summary>
         /// <param name="user"></param>
@@ -21,14 +29,6 @@ namespace FFischbach.Events.API.Services.Interfaces
         /// <param name="id"></param>
         /// <exception cref="CustomException"></exception>
         Task<EventDetailOutputModel> GetEventAsync(ClaimsPrincipal user, string id);
-
-        /// <summary>
-        /// Creates the given <paramref name="event"/> and adds the <paramref name="user"/> as an event manager.
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="event"></param>
-        /// <exception cref="CustomException"></exception>
-        Task<EventDetailOutputModel> CreateEventAsync(ClaimsPrincipal user, EventCreateModel @event);
 
         /// <summary>
         /// Updates an event by <paramref name="id"/> depending on the permissions of the <paramref name="user"/>.
