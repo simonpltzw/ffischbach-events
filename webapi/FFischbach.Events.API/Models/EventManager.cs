@@ -7,6 +7,7 @@
         public Manager? Manager { get; set; }
         public required string EventId { get; set; }
         public Event? Event { get; set; }
+        public required string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

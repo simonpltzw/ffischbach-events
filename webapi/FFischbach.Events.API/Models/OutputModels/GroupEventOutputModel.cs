@@ -28,6 +28,16 @@
         public required string EncryptedPrivateKey { get; set; }
 
         /// <summary>
+        /// Last updated identifier.
+        /// </summary>
+        public string? UpdatedBy { get; set; }
+
+        /// <summary>
+        /// Last updated timestamp.
+        /// </summary>
+        public DateTime? UpdatedAt { get; set; }
+
+        /// <summary>
         /// Create timestamp.
         /// </summary>
         public DateTime CreatedAt { get; set; }

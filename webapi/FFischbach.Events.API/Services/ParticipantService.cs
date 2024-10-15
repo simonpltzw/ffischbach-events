@@ -27,11 +27,11 @@ namespace FFischbach.Events.API.Services
                 string displayName = UserService.GetDisplayName(user);
 
                 // Get group from the database.
-                Group? dbGroup = (await DatabaseContext.Groups
+                Group? dbGroup = await DatabaseContext.Groups
                                         .Include(x => x.Event!)
                                         .ThenInclude(x => x.EventManagers!)
                                             .ThenInclude(x => x.Manager)
-                                    .FirstOrDefaultAsync(x => x.Id == groupId));
+                                    .FirstOrDefaultAsync(x => x.Id == groupId);
 
                 // Check db response.
                 if (dbGroup == null)
@@ -59,9 +59,10 @@ namespace FFischbach.Events.API.Services
                 }
 
                 // Map the input.
-                Participant dbParticipant = Mapper.Map<Models.Participant>(participant!, opt => opt.Items["PublicKey"] = dbGroup.Event.PublicKey);
+                Participant dbParticipant = Mapper.Map<Participant>(participant!, x => x.Items["PublicKey"] = dbGroup.Event.PublicKey);
                 dbParticipant.GroupId = dbGroup.Id;
                 dbParticipant.IsContact = isContact;
+                dbParticipant.CreatedAt = DateTime.UtcNow;
 
                 // Create the participant.
                 DatabaseContext.Participants.Add(dbParticipant);

@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using FFischbach.Events.API.Models;
+using FFischbach.Events.API.Models.InputModels;
+using FFischbach.Events.API.Models.OutputModels;
 
 namespace FFischbach.Events.API.AutoMapper
 {
@@ -6,42 +9,45 @@ namespace FFischbach.Events.API.AutoMapper
     {
         public AutoMapperProfile()
         {
+            // Category.
+            CreateMap<Category, CategoryOutputModel>();
+
             // Event.
-            CreateMap<Models.InputModels.EventCreateModel, Models.Event>()
+            CreateMap<EventCreateModel, Event>()
                 .ForMember(x => x.Completed, o => o.MapFrom(x => false))
                 .ForMember(x => x.CreatedAt, o => o.MapFrom(x => DateTime.UtcNow));
 
-            CreateMap<Models.Event, Models.OutputModels.EventDetailOutputModel>();
+            CreateMap<Event, EventDetailOutputModel>();
 
-            CreateMap<Models.Event, Models.OutputModels.EventOutputModel>();
+            CreateMap<Event, EventOutputModel>();
 
-            CreateMap<Models.Event, Models.OutputModels.GroupEventOutputModel>();
+            CreateMap<Event, GroupEventOutputModel>();
 
             // Group.
-            CreateMap<Models.InputModels.GroupCreateModel, Models.Group>()
+            CreateMap<GroupCreateModel, Group>()
                 .ForMember(x => x.CreatedAt, o => o.MapFrom(x => DateTime.UtcNow))
                 .ForMember(x => x.HashedName, o => o.MapFrom<GroupHashedNameResolver>())
                 .ForMember(x => x.EncryptedName, o => o.MapFrom<GroupEncryptedNameResolver>())
                 .ForMember(x => x.Participants, o => o.MapFrom<GroupCreateParticipantsResolver>());
 
-            CreateMap<Models.InputModels.GroupUpdateModel, Models.Group>()
+            CreateMap<GroupUpdateModel, Group>()
                 .ForMember(x => x.Participants, o => o.MapFrom<GroupUpdateParticipantsResolver>());
 
-            CreateMap<Models.Group, Models.OutputModels.GroupOutputModel>()
+            CreateMap<Group, GroupOutputModel>()
                 .ForMember(x => x.Contact, o => o.MapFrom(x => x.Participants!.First(y => y.IsContact)));
 
-            CreateMap<Models.Group, Models.OutputModels.GroupDetailOutputModel>()
+            CreateMap<Group, GroupDetailOutputModel>()
                 .ForMember(x => x.Contact, o => o.MapFrom(x => x.Participants!.First(y => y.IsContact)))
                 .ForMember(x => x.Participants, o => o.MapFrom(x => x.Participants!.Where(y => !y.IsContact).ToList()));
 
             // Participant.
-            CreateMap<Models.InputModels.ParticipantCreateModel, Models.Participant>()
+            CreateMap<ParticipantCreateModel, Participant>()
                 .ForMember(x => x.CreatedAt, o => o.MapFrom(x => DateTime.UtcNow))
                 .ForMember(x => x.EncryptedData, o => o.MapFrom<ParticipantEncryptedDataResolver>()); // Requires "PublicKey" as passed in Items dict.
 
-            CreateMap<Models.InputModels.ParticipantUpdateModel, Models.Participant>();
+            CreateMap<ParticipantUpdateModel, Participant>();
 
-            CreateMap<Models.Participant, Models.OutputModels.ParticipantOutputModel>();
+            CreateMap<Participant, ParticipantOutputModel>();
         }
     }
 }

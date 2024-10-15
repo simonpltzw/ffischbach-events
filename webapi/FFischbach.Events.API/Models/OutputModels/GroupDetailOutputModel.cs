@@ -1,9 +1,5 @@
 ﻿#nullable enable
 
-using FFischbach.Events.API.Models.Enums;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-
 namespace FFischbach.Events.API.Models.OutputModels
 {
     /// <summary>
@@ -29,7 +25,7 @@ namespace FFischbach.Events.API.Models.OutputModels
         /// <summary>
         /// Category.
         /// </summary>
-        public required GroupCategory Category { get; set; }
+        public required CategoryOutputModel Category { get; set; }
 
         /// <summary>
         /// Approved.
@@ -55,6 +51,16 @@ namespace FFischbach.Events.API.Models.OutputModels
         /// Other participants.
         /// </summary>
         public required List<ParticipantOutputModel> Participants { get; set; }
+
+        /// <summary>
+        /// Last updated identifier.
+        /// </summary>
+        public string? UpdatedBy { get; set; }
+
+        /// <summary>
+        /// Last updated timestamp.
+        /// </summary>
+        public DateTime? UpdatedAt { get; set; }
 
         /// <summary>
         /// Create timestamp.

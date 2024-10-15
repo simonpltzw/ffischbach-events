@@ -33,7 +33,8 @@ namespace FFischbach.Events.API.Services
                     {
                         Id = x.Id,
                         TotalGroups = x.Groups!.Count,
-                        TotalParticipants = x.Groups!.Sum(y => y.Participants!.Count)
+                        TotalParticipants = x.Groups!.Sum(y => y.Participants!.Count),
+                        CreatedBy = x.CreatedBy // This is only because the output model does not allow empty created by fields. If we don't want this we need a new query model specifically for this case.
                     })
                     .ToListAsync();
 
@@ -84,6 +85,7 @@ namespace FFischbach.Events.API.Services
                                             .ThenInclude(x => x.Participants)   // Include the participants to calculate the count.
                                         .Include(x => x.EventManagers!)
                                             .ThenInclude(x => x.Manager)
+                                        .Include(x => x.Categories)
                                         .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
 
                 // Check db response.
@@ -155,6 +157,7 @@ namespace FFischbach.Events.API.Services
                     manager = new Manager
                     {
                         Email = displayName,
+                        CreatedBy = displayName,
                         CreatedAt = DateTime.UtcNow
                     };
 
@@ -170,15 +173,34 @@ namespace FFischbach.Events.API.Services
                 DatabaseContext.Events.Add(dbEvent);
                 await DatabaseContext.SaveChangesAsync();
 
+                // Create default categories.
+                List<string> defaultCategories = ["Freunde, Familie, Arbeitskollegen FF Fischbach", "Mitglieder Feuerwehren Stadt Kelkheim", "Fischbacher Vereine", "Kelkheimer Vereine", "Privatgruppen", "Bauhof Stadt Kelkheim"];
+                dbEvent.Categories = new List<Category>();
+                foreach (string category in defaultCategories)
+                {
+                    dbEvent.Categories.Add(new Category
+                    {
+                        Name = category,
+                        EventId = dbEvent.Id,
+                        SignUpFrom = DateTime.UtcNow,
+                        SignUpTo = @event.Date,
+                        CreatedBy = displayName,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
                 // Create the event manager.
                 EventManager eventManager = new EventManager
                 {
                     EventId = dbEvent.Id,
                     ManagerId = manager.Id,
+                    CreatedBy = displayName,
                     CreatedAt = DateTime.UtcNow
                 };
 
                 DatabaseContext.EventManagers.Add(eventManager);
+
+                // Add Categories as well as event manager.
                 await DatabaseContext.SaveChangesAsync();
 
                 // Map the database version of the event as return value.
@@ -224,6 +246,11 @@ namespace FFischbach.Events.API.Services
 
                 // Update the completed value.
                 dbEvent.Completed = true;
+
+                // Update trackables.
+                dbEvent.UpdatedBy = displayName;
+                dbEvent.UpdatedAt = DateTime.UtcNow;
+
                 DatabaseContext.Events.Update(dbEvent);
                 await DatabaseContext.SaveChangesAsync();
             }

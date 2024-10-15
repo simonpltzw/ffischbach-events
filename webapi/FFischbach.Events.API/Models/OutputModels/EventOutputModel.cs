@@ -17,6 +17,11 @@
         public string? Description { get; set; }
 
         /// <summary>
+        /// Date of the event.
+        /// </summary>
+        public DateTime Date { get; set; }
+
+        /// <summary>
         /// Completed.
         /// </summary>
         public bool Completed { get; set; }
@@ -30,6 +35,21 @@
         /// Amount of participants.
         /// </summary>
         public int TotalParticipants { get; set; }
+
+        /// <summary>
+        /// Last updated identifier.
+        /// </summary>
+        public string? UpdatedBy { get; set; }
+
+        /// <summary>
+        /// Last updated timestamp.
+        /// </summary>
+        public DateTime? UpdatedAt { get; set; }
+
+        /// <summary>
+        /// Create identifier.
+        /// </summary>
+        public required string CreatedBy { get; set; }
 
         /// <summary>
         /// Create timestamp.

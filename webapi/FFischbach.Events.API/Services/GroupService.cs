@@ -23,7 +23,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get event from the database.
-                Event? dbEvent = (await DatabaseContext.Events.FirstOrDefaultAsync(x => x.Id.ToLower() == group!.EventId!.ToLower()));
+                Event? dbEvent = await DatabaseContext.Events.Include(x => x.Categories).FirstOrDefaultAsync(x => x.Id.ToLower() == group.EventId!.ToLower());
 
                 if (dbEvent == null)
                 {
@@ -31,11 +31,37 @@ namespace FFischbach.Events.API.Services
                     throw new CustomException("Das Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status400BadRequest);
                 }
 
+                // Check the given category id.
+                Category? category = dbEvent.Categories?.FirstOrDefault(x => x.Id == group.CategoryId);
+                if (category == null)
+                {
+                    // Category could not be found.
+                    throw new CustomException("Die angegebene Kategorie konnte nicht gefunden werden.", detail: $"CategoryId: '{group.CategoryId}'", statusCode: StatusCodes.Status400BadRequest);
+                }
+                else
+                {
+                    // Check if the category sign up is valid for the current date.
+                    DateTime from = category.SignUpFrom ?? DateTime.MinValue;
+                    DateTime to = category.SignUpTo ?? DateTime.MaxValue;
+                    DateTime current = DateTime.UtcNow;
+
+                    if (current < from)
+                    {
+                        // Too early.
+                        throw new CustomException($"Du bist zu früh, die Anmeldung für '{category.Name}' noch nicht möglich.", detail: $"Category '{category.Id}' sign up starts at '{from:dd.MM.yyyy HH:mm}', it is currently '{current:dd.MM.yyyy HH:mm}'. (TZ=Utc)", statusCode: StatusCodes.Status400BadRequest);
+                    }
+                    else if (current > to)
+                    {
+                        // Too late.
+                        throw new CustomException($"Du bist zu spät, die Anmeldung für '{category.Name}' ist nicht mehr möglich.", detail: $"Category '{category.Id}' sign up ended '{to:dd.MM.yyyy HH:mm}', it is currently '{current:dd.MM.yyyy HH:mm}'. (TZ=Utc)", statusCode: StatusCodes.Status400BadRequest);
+                    }
+                }
+
                 // Map the group input. Pass the public key since this mapping also encrypts the data.
                 Group dbGroup = Mapper.Map<Group>(group, x => x.Items["PublicKey"] = dbEvent.PublicKey);
 
                 // Check if the group already exists.
-                if (await DatabaseContext.Groups.AnyAsync(x => x.HashedName == dbGroup!.HashedName && x.EventId.ToLower() == group!.EventId!.ToLower()))
+                if (await DatabaseContext.Groups.AnyAsync(x => x.HashedName == dbGroup.HashedName && x.EventId.ToLower() == group.EventId!.ToLower()))
                 {
                     // Group already exists.
                     throw new CustomException("Dieser Gruppenname ist bereits vergeben.", statusCode: StatusCodes.Status400BadRequest);
@@ -131,7 +157,7 @@ namespace FFischbach.Events.API.Services
                 }
 
                 // Map the input.
-                Group inputGroup = Mapper.Map<Group>(group!);
+                Group inputGroup = Mapper.Map<Group>(group);
 
                 // Create local mapper.
                 IMapper updateMapper = new Mapper(new MapperConfiguration(c =>
@@ -151,7 +177,11 @@ namespace FFischbach.Events.API.Services
                 }));
 
                 // Map the mapper input into the db value.
-                updateMapper.Map(inputGroup, dbGroup!);
+                updateMapper.Map(inputGroup, dbGroup);
+
+                // Update trackables.
+                dbGroup.UpdatedBy = displayName;
+                dbGroup.UpdatedAt = DateTime.UtcNow;
 
                 // Map the participants.
                 List<int> idsToRemove = [];
@@ -169,7 +199,7 @@ namespace FFischbach.Events.API.Services
                     }
 
                     // Update the participant.
-                    updateMapper.Map(inputParticipant!, dbParticipant);
+                    updateMapper.Map(inputParticipant, dbParticipant);
                 }
 
                 // Remove participants.

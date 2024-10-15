@@ -1,5 +1,4 @@
-﻿using FFischbach.Events.API.Models.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace FFischbach.Events.API.Models.InputModels
 {
@@ -24,7 +23,7 @@ namespace FFischbach.Events.API.Models.InputModels
         /// Category.
         /// </summary>
         [Required]
-        public GroupCategory? Category { get; set; }
+        public int? CategoryId { get; set; }
 
         /// <summary>
         /// Approved.

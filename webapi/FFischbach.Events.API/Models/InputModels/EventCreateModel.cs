@@ -20,6 +20,12 @@ namespace FFischbach.Events.API.Models.InputModels
         public string? Description { get; set; }
 
         /// <summary>
+        /// Date of the event.
+        /// </summary>
+        [Required]
+        public DateTime? Date { get; set; }
+
+        /// <summary>
         /// Public RSA-OAEP encryption key in spki pem format.
         /// </summary>
         [Required]
