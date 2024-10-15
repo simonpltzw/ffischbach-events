@@ -92,12 +92,12 @@ namespace FFischbach.Events.API.Services
             }
             catch (CustomException ex)
             {
-                Logger.LogWarning(ex, "Failed to create the event.");
+                Logger.LogWarning(ex, "Failed to create event '{id}'.", @event.Id);
                 throw;
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to create the event.");
+                Logger.LogError(ex, "Failed to create event '{id}'.", @event.Id);
                 throw new CustomException("Unerwarteter Fehler beim Erstellen des Events.", ex);
             }
             return returnValue;
@@ -165,13 +165,13 @@ namespace FFischbach.Events.API.Services
                 string displayName = UserService.GetDisplayName(user);
 
                 // Get event from the database.
-                Event? dbEvent = (await DatabaseContext.Events
+                Event? dbEvent = await DatabaseContext.Events
                                         .Include(x => x.Groups!)
                                             .ThenInclude(x => x.Participants)   // Include the participants to calculate the count.
                                         .Include(x => x.EventManagers!)
                                             .ThenInclude(x => x.Manager)
                                         .Include(x => x.Categories)
-                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
+                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower());
 
                 // Check db response.
                 if (dbEvent == null)
@@ -208,12 +208,12 @@ namespace FFischbach.Events.API.Services
             }
             catch (CustomException ex)
             {
-                Logger.LogWarning(ex, "Failed to get the event '{id}'.", id);
+                Logger.LogWarning(ex, "Failed to get event '{id}'.", id);
                 throw;
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to get the event '{id}'.", id);
+                Logger.LogError(ex, "Failed to get event '{id}'.", id);
                 throw new CustomException("Unerwarteter Fehler beim Lesen des Events.", ex);
             }
             return returnValue;
@@ -228,10 +228,10 @@ namespace FFischbach.Events.API.Services
                 string displayName = UserService.GetDisplayName(user);
 
                 // Get event from the database.
-                Event? dbEvent = (await DatabaseContext.Events
+                Event? dbEvent = await DatabaseContext.Events
                                         .Include(x => x.EventManagers!)
                                             .ThenInclude(x => x.Manager)
-                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
+                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower());
 
                 // Check db response.
                 if (dbEvent == null)
@@ -260,13 +260,13 @@ namespace FFischbach.Events.API.Services
             }
             catch (CustomException ex)
             {
-                Logger.LogWarning(ex, "Failed to complete the event '{id}'.", id);
+                Logger.LogWarning(ex, "Failed to update event '{id}'.", id);
                 throw;
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to complete the event '{id}'.", id);
-                throw new CustomException("Unerwarteter Fehler beim Abschließen des Events.", ex);
+                Logger.LogError(ex, "Failed to update event '{id}'.", id);
+                throw new CustomException("Unerwarteter Fehler beim Aktualisieren des Events.", ex);
             }
             return returnValue;
         }
@@ -279,10 +279,10 @@ namespace FFischbach.Events.API.Services
                 string displayName = UserService.GetDisplayName(user);
 
                 // Get event from the database.
-                Event? dbEvent = (await DatabaseContext.Events
+                Event? dbEvent = await DatabaseContext.Events
                                         .Include(x => x.EventManagers!)
                                             .ThenInclude(x => x.Manager)
-                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
+                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower());
 
                 // Check db response.
                 if (dbEvent == null)
@@ -302,12 +302,12 @@ namespace FFischbach.Events.API.Services
             }
             catch (CustomException ex)
             {
-                Logger.LogWarning(ex, "Failed to delete the event '{id}'.", id);
+                Logger.LogWarning(ex, "Failed to delete event '{id}'.", id);
                 throw;
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to delete the event '{id}'.", id);
+                Logger.LogError(ex, "Failed to delete event '{id}'.", id);
                 throw new CustomException("Unerwarteter Fehler beim Abschließen des Events.", ex);
             }
         }

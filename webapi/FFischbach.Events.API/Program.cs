@@ -126,6 +126,7 @@ namespace FFischbach.Events.API
             #endregion Cors
 
             #region Services
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IEventService, EventService>();
             builder.Services.AddScoped<IEventManagerService, EventManagerService>();
             builder.Services.AddScoped<IGroupService, GroupService>();

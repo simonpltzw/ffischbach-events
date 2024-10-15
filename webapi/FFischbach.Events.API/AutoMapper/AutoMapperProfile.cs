@@ -10,6 +10,11 @@ namespace FFischbach.Events.API.AutoMapper
         public AutoMapperProfile()
         {
             // Category.
+            CreateMap<CategoryCreateModel, Category>()
+                .ForMember(x => x.CreatedAt, o => o.MapFrom(x => DateTime.UtcNow));
+
+            CreateMap<CategoryUpdateModel, Category>();
+
             CreateMap<Category, CategoryOutputModel>();
 
             // Event.

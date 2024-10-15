@@ -10,7 +10,7 @@ namespace FFischbach.Events.API.Models.InputModels
         /// <summary>
         /// Id. Has to follow a certain pattern, for example 'RAUP2026'
         /// </summary>
-        [Required, MaxLength(20)]
+        [Required, StringLength(20)]
         public string? Id { get; set; }
 
         /// <summary>

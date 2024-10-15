@@ -1,4 +1,5 @@
 ﻿using FFischbach.Events.API.Helpers;
+using FFischbach.Events.API.Models.InputModels;
 using FFischbach.Events.API.Models.OutputModels;
 using FFischbach.Events.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +29,7 @@ namespace FFischbach.Events.API.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<IActionResult> Post([FromBody, Required] Models.InputModels.GroupCreateModel? group)
+        public async Task<IActionResult> Post([FromBody, Required] GroupCreateModel? group)
         {
             try
             {
@@ -87,7 +88,7 @@ namespace FFischbach.Events.API.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(GroupDetailOutputModel), StatusCodes.Status200OK)]
-        public async Task<ActionResult<GroupDetailOutputModel>> Put([Required] int? id, [FromBody, Required] Models.InputModels.GroupUpdateModel? group)
+        public async Task<ActionResult<GroupDetailOutputModel>> Put([Required] int? id, [FromBody, Required] GroupUpdateModel? group)
         {
             GroupDetailOutputModel returnValue;
             try
@@ -131,7 +132,6 @@ namespace FFischbach.Events.API.Controllers
             {
                 return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
             }
-
             return NoContent();
         }
 
@@ -145,7 +145,7 @@ namespace FFischbach.Events.API.Controllers
         [HttpPost("{id}/Participant")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(GroupDetailOutputModel), StatusCodes.Status200OK)]
-        public async Task<ActionResult<GroupDetailOutputModel>> AddParticipant([Required] int? id, [FromBody, Required] Models.InputModels.ParticipantCreateModel? participant, [FromQuery] bool isContact = false)
+        public async Task<ActionResult<GroupDetailOutputModel>> AddParticipant([Required] int? id, [FromBody, Required] ParticipantCreateModel? participant, [FromQuery] bool isContact = false)
         {
             GroupDetailOutputModel returnValue;
             try

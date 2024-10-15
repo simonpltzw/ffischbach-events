@@ -155,7 +155,6 @@ namespace FFischbach.Events.API.Controllers
             {
                 return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
             }
-
             return NoContent();
         }
 

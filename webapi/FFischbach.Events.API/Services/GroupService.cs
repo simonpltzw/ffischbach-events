@@ -73,12 +73,12 @@ namespace FFischbach.Events.API.Services
             }
             catch (CustomException ex)
             {
-                Logger.LogWarning(ex, "Failed to create the group '{group}' for event '{id}'.", group.Name, group.EventId);
+                Logger.LogWarning(ex, "Failed to create group '{group}' for event '{id}'.", group.Name, group.EventId);
                 throw;
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to create the group '{group}' for event '{id}'.", group.Name, group.EventId);
+                Logger.LogError(ex, "Failed to create group '{group}' for event '{id}'.", group.Name, group.EventId);
                 throw new CustomException("Unerwarteter Fehler beim Erstellen der Gruppe.", ex);
             }
         }
@@ -137,12 +137,12 @@ namespace FFischbach.Events.API.Services
                 string displayName = UserService.GetDisplayName(user);
 
                 // Get group from the database.
-                Group? dbGroup = (await DatabaseContext.Groups
+                Group? dbGroup = await DatabaseContext.Groups
                                         .Include(x => x.Participants!)
                                         .Include(x => x.Event!)
                                             .ThenInclude(x => x.EventManagers!)
                                                 .ThenInclude(x => x.Manager)
-                                        .FirstOrDefaultAsync(x => x.Id == id));
+                                        .FirstOrDefaultAsync(x => x.Id == id);
 
                 // Check db response.
                 if (dbGroup == null)
@@ -154,6 +154,13 @@ namespace FFischbach.Events.API.Services
                 {
                     // Calling user is not an event manager of that group.
                     throw new CustomException("Du hast keine Berechtigungen für Gruppen dieses Events. Lass dich von einem Manager des Events hinzufügen.", statusCode: StatusCodes.Status403Forbidden);
+                }
+
+                // Validate the category.
+                if (!await DatabaseContext.Categories.AnyAsync(x => x.Id == group.CategoryId && x.EventId == dbGroup.EventId))
+                {
+                    // Category does not exist for this event.
+                    throw new CustomException("Die angegebene Kategorie existiert für das Event nicht.", statusCode: StatusCodes.Status400BadRequest);
                 }
 
                 // Map the input.
@@ -217,12 +224,12 @@ namespace FFischbach.Events.API.Services
             }
             catch (CustomException ex)
             {
-                Logger.LogWarning(ex, "Failed to update the group '{id}'.", id);
+                Logger.LogWarning(ex, "Failed to update group '{id}'.", id);
                 throw;
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to update the group '{id}'.", id);
+                Logger.LogError(ex, "Failed to update group '{id}'.", id);
                 throw new CustomException("Unerwarteter Fehler beim Aktualisieren der Gruppe.", ex);
             }
             return returnValue;
@@ -260,12 +267,12 @@ namespace FFischbach.Events.API.Services
             }
             catch (CustomException ex)
             {
-                Logger.LogWarning(ex, "Failed to delete the group '{id}'.", id);
+                Logger.LogWarning(ex, "Failed to delete group '{id}'.", id);
                 throw;
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to delete the group '{id}'.", id);
+                Logger.LogError(ex, "Failed to delete group '{id}'.", id);
                 throw new CustomException("Unerwarteter Fehler beim Löschen der Gruppe.", ex);
             }
         }
