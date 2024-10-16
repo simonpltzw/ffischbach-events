@@ -14,7 +14,7 @@
             margin-bottom: 0;
         }
 
-        .flex {
+        .d-flex {
             display: flex;
             gap: 0.5em;
         }
@@ -105,83 +105,103 @@
         .smaller-text {
             font-size: 14px;
         }
+
+        .d-none {
+            display: none;
+        }
+
+        .d-block {
+            display: block;
+        }
+
+        .text-center {
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
-    <form action="" id="container" onsubmit="submitForm(event)">
-        <div class="flex flex-col">
-            <h3 style="margin-top: 0">Anmeldeformular RAUP 2025</h3>
+    <!-- Displayed when sign up was successful. -->
+    <div id="content_success" class="d-none flex-col" style="align-items: center">
+        <h3 class="text-center" style="margin-top: 100px;">Anmeldung erfolgreich abgeschlossen</h3>
+        <img height="150" src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExamJ0OHc2MXNvdmM1amNuZTdpeXU1c2pkMG16Zmc1ZGUzMXdtMG52MSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Q81NcsY6YxK7jxnr4v/giphy.webp" />
+    </div>
 
-            <div class="title">
-                <p for="groupName">Gruppenname</p>
-                <p class="required">*</p>
-            </div>
-            <input required id="groupName" type="text" placeholder="Gruppenname - verwende Deinen Namen, wenn Du dich als Einzelperson anmeldest" />
+    <!-- Displayed when sign up was successful. -->
+    <div id="content_error" class="d-none flex-col" style="align-items: center">
+        <h3 style="margin-top: 100px;">Das hat wohl nicht geklappt</h3>
+        <p id="txt_error" style="color: red;">Es ist ein unerwarteter Fehler aufgetreten</p>
+        <button id="btnErrorRepeat" type="button" style="margin-top: 2rem;" onclick="returnToForm(event)">Erneut versuchen</button>
+    </div>
 
-            <div class="title">
-                <p for="category">Kategorie</p>
-                <p class="required">*</p>
-            </div>
-            <select id="category" title="category">
-                <option value="600">Bauhof Stadt Kelkheim</option>
-                <option value="500">Privatgruppen</option>
-                <option value="400">Kelkheimer Vereine</option>
-                <option value="300">Fischbacher Vereine</option>
-                <option value="200">Mitglieder Feuerwehren Stadt Kelkheim</option>
-                <option value="100">Freunde, Familie, Arbeitskollegen FF Fischbach</option>
-                <option value="0">Sonstiges</option>
-            </select>
+    <!-- Displayed during sign up. -->
+    <div id="content_form" class="d-block">
+        <form action="" id="container" onsubmit="submitForm(event)">
+            <div class="d-flex flex-col">
+                <h3 style="margin-top: 0">Anmeldeformular RAUP 2025</h3>
 
-            <!--error message-->
-            <!--<div id="category_error" class="error" visible="true">
-      Der ausgewählte Zeitraum liegt in der Zukunft
-    </div>-->
+                <div class="title">
+                    <p for="groupName">Gruppenname</p>
+                    <p class="required">*</p>
+                </div>
+                <input required id="groupName" type="text" placeholder="Gruppenname - verwende Deinen Namen, wenn Du dich als Einzelperson anmeldest" />
 
-            <h3>Ansprechpartner</h3>
+                <div class="title">
+                    <p for="category">Kategorie</p>
+                    <p class="required">*</p>
+                </div>
+                <select id="category" title="category">
+                    <option value="600">Bauhof Stadt Kelkheim</option>
+                    <option value="500">Privatgruppen</option>
+                    <option value="400">Kelkheimer Vereine</option>
+                    <option value="300">Fischbacher Vereine</option>
+                    <option value="200">Mitglieder Feuerwehren Stadt Kelkheim</option>
+                    <option value="100">Freunde, Familie, Arbeitskollegen FF Fischbach</option>
+                    <option value="0">Sonstiges</option>
+                </select>
 
-            <div class="title">
-                <p for="contactFirst">Vorname</p>
-                <p class="required">*</p>
-            </div>
-            <input required id="contactFirst" type="text" placeholder="Vorname" />
+                <h3>Ansprechpartner</h3>
 
-            <div class="title">
-                <p for="contactFirst">Nachname</p>
-                <p class="required">*</p>
-            </div>
-            <input required id="contactLast" type="text" placeholder="Nachname" />
+                <div class="title">
+                    <p for="contactFirst">Vorname</p>
+                    <p class="required">*</p>
+                </div>
+                <input required id="contactFirst" type="text" placeholder="Vorname" />
 
-            <div class="title">
-                <p for="contactFirst">Geburtsdatum</p>
-                <p class="required">*</p>
-            </div>
-            <input required id="contact_BirthDate" type="date" placeholder="Geburtstag" />
+                <div class="title">
+                    <p for="contactFirst">Nachname</p>
+                    <p class="required">*</p>
+                </div>
+                <input required id="contactLast" type="text" placeholder="Nachname" />
 
-            <div class="title">
-                <p for="contactFirst">E-Mail</p>
-                <p class="required">*</p>
-            </div>
-            <input required id="contactEmail" type="email" placeholder="E-Mail" />
+                <div class="title">
+                    <p for="contactFirst">Geburtsdatum</p>
+                    <p class="required">*</p>
+                </div>
+                <input required id="contact_BirthDate" type="date" placeholder="Geburtstag" />
 
-            <!--Additional participants-->
-            <h3>Weitere Teilnehmer</h3>
-            <div class="flex flex-col" style="margin-bottom: 20px;">
-                <div id="list" class="flex flex-col"></div>
-                <button id="add" class="align-self-start" type="button" onclick="addParticipant()">
-                    +
-                </button>
-            </div>
+                <div class="title">
+                    <p for="contactFirst">E-Mail</p>
+                    <p class="required">*</p>
+                </div>
+                <input required id="contactEmail" type="email" placeholder="E-Mail" />
 
-            <!--Datenschutzvereinbarung-->
-            <div class="flex" style="gap: 0.2em">
-                <input id="datenschutzCheck" type="checkbox" required />
-                <label class="smaller-text">Ich willige der Verarbeitung meiner Daten im Rahmen der <a href="https://www.feuerwehr-fischbach.de/datenschutzerkl%C3%A4rung/" target="_blank">Datenschutzerklärung</a> ein.</label>
-                <label class="required">*</label>
-            </div>
+                <!--Additional participants-->
+                <h3>Weitere Teilnehmer</h3>
+                <div class="flex flex-col" style="margin-bottom: 20px;">
+                    <div id="list" class="flex flex-col"></div>
+                    <button id="add" class="align-self-start" type="button" style="margin-top: 1rem;" onclick="addParticipant()">+</button>
+                </div>
 
-            <!--AGB section-->
-            <!-- Textarea is white-space sensitive which is why its content has to be left aligned in the document.-->
+                <!--Datenschutzvereinbarung-->
+                <div class="flex" style="gap: 0.2em">
+                    <input id="datenschutzCheck" type="checkbox" required />
+                    <label class="smaller-text">Ich stimme der Verarbeitung meiner Daten im Rahmen der <a href="https://www.feuerwehr-fischbach.de/datenschutzerkl%C3%A4rung/" target="_blank">Datenschutzvereinbarung</a> zu.</label>
+                    <label class="required">*</label>
+                </div>
+
+                <!--AGB section-->
+                <!-- Textarea is white-space sensitive which is why its content has to be left aligned in the document.-->
 <textarea id="agb" class="agb smaller-text" readonly rows="6">
 Allgemeine Geschäftsbedingungen
 
@@ -198,44 +218,43 @@ Allgemeine Geschäftsbedingungen
 - Wir übernehmen keine Haftung für Garderobe, Sachschäden oder Körperschäden.
 </textarea>
 
-            <div class="flex" style="gap: 0.2em">
-                <input id="agbCheck" type="checkbox" required oninput="this.setCustomValidity('')"/>
-                <label class="smaller-text">Ich habe die AGB's gelesen</label>
-                <label class="required">*</label>
-            </div>
+                <div class="flex" style="gap: 0.2em">
+                    <input id="agbCheck" type="checkbox" required />
+                    <label class="smaller-text">Ich habe die AGB's gelesen</label>
+                    <label class="required">*</label>
+                </div>
 
-            <!--Submit Button-->
-            <button id="submitBtm" class="align-self-start" type="submit">Absenden</button>
-        </div>
-    </form>
+                <!--Submit Button-->
+                <button id="submitBtn" class="align-self-start" type="submit">Absenden</button>
+            </div>
+        </form>
+
+    </div>
 
     <script>
-        //Event ID (changes permitted by staff ^^)
         const EVENT_ID = 'string';
         let hasError = false;
         let scrolledAgb = false;
-        let stayDisabled = false;
-        const currentYear = new Date().getFullYear();
-        /*const dates = {
-          Feuerwehr: new Date(currentYear, 15, 11),
-          Verein: new Date(currentYear, 21, 11),
-          Privat: new Date(currentYear, 15, 0),
-        };*/
 
-        /*input elements*/
+        // Input elements.
         const groupName = document.getElementById("groupName");
         const contactFirst = document.getElementById("contactFirst");
         const contactLast = document.getElementById("contactLast");
         const contact_BirthDate = document.getElementById("contact_BirthDate");
         const contactEmail = document.getElementById("contactEmail");
         const addBtn = document.getElementById("add");
-        const submitBtn = document.getElementById("submitBtm");
+        const submitBtn = document.getElementById("submitBtn");
         const agbCheck = document.getElementById("agbCheck");
         const agbText = document.getElementById("agb");
         const category = document.getElementById("category");
         const category_error = document.getElementById("category_error");
+        const error_text = document.getElementById("txt_error");
+        const errorRepeatBtn = document.getElementById("btnErrorRepeat");
+        const content_success = document.getElementById("content_success");
+        const content_error = document.getElementById("content_error");
+        const content_form = document.getElementById("content_form");
 
-        /*api model*/
+        // Api model.
         let form = {
             Name: undefined,
             EventId: EVENT_ID,
@@ -249,6 +268,7 @@ Allgemeine Geschäftsbedingungen
             Participants: [],
         };
 
+        // Call the api on submit.
         const submitForm = (event) => {
             event.preventDefault();
             fetch("https://ffischbach-events-api.palzone.de/Groups", {
@@ -259,115 +279,103 @@ Allgemeine Geschäftsbedingungen
                 body: JSON.stringify(form),
             }).then((event) => {
                 if (event.ok) {
-                    alert("Erfolgreich angemeldet");
+                    // Api returned success status.
+                    content_form.className = "d-none";
+                    content_success.className = "d-flex flex-col";
                 } else {
-                    console.log(event);
+                    // Api returned bad status. 
+                    // Get the body to extract the error message.
+                    event.json().then(x => {
+                        // Check if a title can be found and the status code indicates an error that can be shown to the user.
+                        if (x.title && event.status == 400) {
+                            // Show that error.
+                            error_text.innerText = x.title;
+                        }
+                        else {
+                            // Show a generalized error.
+                            error_text.innerText = "Ein unerwarteter Fehler ist aufgetreten";
+                        }
+
+                        content_form.className = "d-none";
+                        content_error.className = "d-flex flex-col";
+                    });
                 }
             });
         };
 
-        const getDateFormat = (string) => {
+        // Return to the form.
+        const returnToForm = (event) => {
+            content_error.className = "d-none";
+            content_form.className = "d-block";
+        }
+
+        const formatDate = (string) => {
             return new Date(string).toISOString().split("T")[0];
         };
 
-        const setInputsDisables = (isDisabled) => {
-            groupName.disabled = isDisabled;
-            contactFirst.disabled = isDisabled;
-            contactLast.disabled = isDisabled;
-            contact_BirthDate.disabled = isDisabled;
-            contactEmail.disabled = isDisabled;
-
-            if (stayDisabled) {
-                submitBtn.disabled = true;
-            }
-        };
-
-        const isAGBOverflown = () => {
-            return agbText.scrollHeight > agbText.clientHeight;
-        };
-
-        const setAGBCheckEnabled = () => {
-            if (!isAGBOverflown()) {
-                agbCheck.disabled = false;
-            }
-        };
-
-        /*form input listener*/
+        // Adds listeners
         const addListeners = () => {
+            // Update json data on input change.
             groupName.addEventListener("change", (evt) => (form.Name = evt.target.value));
             contactFirst.addEventListener("change", (evt) => (form.Contact.FirstName = evt.target.value));
             contactLast.addEventListener("change", (evt) => (form.Contact.LastName = evt.target.value));
-            contact_BirthDate.addEventListener(
-                "change",
-                (evt) => (form.Contact.BirthDate = getDateFormat(evt.target.value))
-            );
+            contact_BirthDate.addEventListener("change", (evt) => (form.Contact.BirthDate = formatDate(evt.target.value)));
             contactEmail.addEventListener("change", (evt) => (form.Contact.Email = evt.target.value));
+            category.addEventListener("change", (evt) => (form.Category = evt.target.value));
 
-            /*Category*/
-            category.addEventListener("change", (evt) => {
-                const selection = evt.target.value;
-
-                form.Category = selection;
-
-                const isDisabled = false; //dates[selection] > new Date();
-                stayDisabled = isDisabled;
-
-                //category_error.visible = !isDisabled;
-
-                setInputsDisables(isDisabled);
-            });
-
-            /*AGB check*/
+            // React to agb checks.
             agbCheck.addEventListener("change", (evt) => {
                 if (agbCheck.checked) {
                     if (!scrolledAgb) {
+                        // Agb was checked but not ready yet.
+                        // Uncheck it and show a validation error.
                         agbCheck.checked = false;
-                        agbCheck.setCustomValidity('Du musst die AGB\'s gelesen haben um sie zu akzeptieren.');
                         agbCheck.reportValidity();
                     }
                 }
             });
 
+            // React to agb scroll events (when they finish -> 'scrollEND').
             agbText.addEventListener("scrollend", (evt) => {
-                // Aktuelle Scroll-Position und maximale Scroll-Höhe berechnen
                 const scrollTop = agbText.scrollTop;
                 const scrollHeight = agbText.scrollHeight;
                 const clientHeight = agbText.clientHeight;
 
-                // Prüfen, ob das Ende erreicht wurde
+                // Check if element is scrolled to the bottom.
                 if (scrollTop + clientHeight >= scrollHeight) {
                     scrolledAgb = true;
+                    // Reset the agb validity message.
+                    agbCheck.setCustomValidity('');
                 }
             });
         };
 
-        /*Adds participants to list*/
+        // Adds participants input fields.
         const addParticipant = () => {
             const list = document.getElementById("list");
+
+            // Create a new flex div to put the elements into.
             const container = document.createElement("div");
-            container.className = "flex";
+            container.className = "d-flex";
 
+            // Create all the input elements.
             const firstName = document.createElement("input");
-            const lastName = document.createElement("input");
-            const birthDate = document.createElement("input");
-            const deleteBtn = document.createElement("button");
-
-            /*Firstname input properties*/
             firstName.placeholder = "Vorname";
             firstName.setAttribute("type", "text");
             firstName.setAttribute("required", "");
 
-            /*Lastname input properties*/
+            const lastName = document.createElement("input");
             lastName.placeholder = "Nachname";
             lastName.setAttribute("type", "text");
             lastName.setAttribute("required", "");
 
-            /*Delete Button properties*/
+            const birthDate = document.createElement("input");
             birthDate.setAttribute("type", "date");
             birthDate.style = "min-width: 7.5em";
             birthDate.setAttribute("required", "");
 
-            /*Delete Button properties*/
+            // Create the remove button.
+            const deleteBtn = document.createElement("button");
             deleteBtn.innerHTML = "×";
             deleteBtn.style = "background-color: red; color: white; cursor: pointer";
             deleteBtn.className = "min-width";
@@ -376,38 +384,40 @@ Allgemeine Geschäftsbedingungen
 
             const inputs = [firstName, lastName, birthDate, deleteBtn];
 
-            const obj = {
-                firstName: "",
-                lastName: "",
-                birthDate: "",
-            };
-
-            /*set further participant properties*/
+            // Update json data on input change.
             firstName.addEventListener("change", (evt) => (obj.firstName = evt.target.value));
             lastName.addEventListener("change", (evt) => (obj.lastName = evt.target.value));
-            birthDate.addEventListener(
-                "change",
-                (evt) => (obj.birthDate = getDateFormat(evt.target.value))
-            );
+            birthDate.addEventListener("change", (evt) => (obj.birthDate = getDateFormat(evt.target.value)));
 
-            /*remove participant from list*/
+            // Remove participant from list on delete click.
             deleteBtn.addEventListener("click", (evt) => {
                 list.removeChild(container);
                 form.Participants = form.Participants.filter((e) => e !== obj);
             });
 
+            // Add the input elements to the container.
             for (let e of inputs) {
                 e.classList.add("flex-1", "rounded");
                 container.appendChild(e);
             }
 
+            // Add an empty participant to the json data.
+            const obj = {
+                firstName: "",
+                lastName: "",
+                birthDate: "",
+            };
             form.Participants.push(obj);
+
+            // Add the container to the DOM.
             list.appendChild(container);
         };
 
-        /*initial function calls*/
+        // Add the event listeners.
         addListeners();
-        setAGBCheckEnabled();
+
+        // Initially set the agb validation message.
+        agbCheck.setCustomValidity('Du musst die AGB\'s gelesen haben um sie zu akzeptieren.');
     </script>
 </body>
 </html>
