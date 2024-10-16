@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -151,13 +151,7 @@
                     <p class="required">*</p>
                 </div>
                 <select id="category" title="category">
-                    <option value="600">Bauhof Stadt Kelkheim</option>
-                    <option value="500">Privatgruppen</option>
-                    <option value="400">Kelkheimer Vereine</option>
-                    <option value="300">Fischbacher Vereine</option>
-                    <option value="200">Mitglieder Feuerwehren Stadt Kelkheim</option>
-                    <option value="100">Freunde, Familie, Arbeitskollegen FF Fischbach</option>
-                    <option value="0">Sonstiges</option>
+                    <!-- %OPTIONFLAG%: This is a flag for the api to insert the category options here.-->
                 </select>
 
                 <h3>Ansprechpartner</h3>
@@ -232,7 +226,7 @@ Allgemeine Geschäftsbedingungen
     </div>
 
     <script>
-        const EVENT_ID = 'string';
+        const EVENT_ID = ''; // %EVENTIDFLAG%: This is a flag for the api to insert the correct event id.
         let hasError = false;
         let scrolledAgb = false;
 

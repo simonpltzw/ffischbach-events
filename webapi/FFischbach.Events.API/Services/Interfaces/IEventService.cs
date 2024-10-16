@@ -46,5 +46,13 @@ namespace FFischbach.Events.API.Services.Interfaces
         /// <param name="id"></param>
         /// <exception cref="CustomException"></exception>
         Task DeleteEventAsync(ClaimsPrincipal user, string id);
+
+        /// <summary>
+        /// Gets the sign up form suited to the event with the given <paramref name="id"/>.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>The html document as string.</returns>
+        /// <exception cref="CustomException"></exception>
+        Task<string> GetSignUpFormAsync(string id);
     }
 }
