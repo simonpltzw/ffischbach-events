@@ -7,6 +7,7 @@ using FFischbach.Events.API.Models.OutputModels;
 using FFischbach.Events.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Text;
 
 namespace FFischbach.Events.API.Services
 {
@@ -308,8 +309,84 @@ namespace FFischbach.Events.API.Services
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Failed to delete event '{id}'.", id);
-                throw new CustomException("Unerwarteter Fehler beim Abschließen des Events.", ex);
+                throw new CustomException("Unerwarteter Fehler beim Löschen des Events.", ex);
             }
+        }
+
+        public async Task<string> GetSignUpFormAsync(string id)
+        {
+            string returnValue;
+            try
+            {
+                // Get event from the database.
+                Event? dbEvent = await DatabaseContext.Events
+                    .Include(x => x.Categories!)
+                    .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower());
+
+                // Check db response.
+                if (dbEvent == null)
+                {
+                    // Nothing found.
+                    throw new CustomException("Das Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status404NotFound);
+                }
+
+                returnValue = string.Empty;
+
+                // Get the file contents line by line.
+                using var fileStream = File.OpenRead("signup-form.html");
+                using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true);
+                string? line;
+                while ((line = streamReader.ReadLine()) != null)
+                {
+                    // Check if line contains one of the flags.
+                    if (line.Contains("%OPTIONFLAG%"))
+                    {
+                        DateTime currentTime = DateTime.UtcNow;
+
+                        // Insert the category options here.
+                        foreach (Category category in dbEvent.Categories!.OrderBy(x => x.SignUpFrom))
+                        {
+                            string dateInformation = string.Empty;
+                            if (category.SignUpFrom != null && category.SignUpFrom > currentTime)
+                            {
+                                // Too early.
+                                dateInformation = $"ab {TimeZoneInfo.ConvertTimeFromUtc((DateTime)category.SignUpFrom, TimeZoneInfo.Local):dd.MM.yyyy HH:mm}";
+                            }
+                            else if (category.SignUpTo != null && category.SignUpTo < currentTime)
+                            {
+                                // Too late.
+                                dateInformation = $"bis {TimeZoneInfo.ConvertTimeFromUtc((DateTime)category.SignUpTo, TimeZoneInfo.Local):dd.MM.yyyy HH:mm}";
+                            }
+
+                            // Build the option element.
+                            returnValue += $"<option value=\"{category.Id}\"";
+                            if (!string.IsNullOrEmpty(dateInformation)) returnValue += " disabled";
+                            returnValue += $">{category.Name}";
+                            if (!string.IsNullOrEmpty(dateInformation)) returnValue += $" ({dateInformation})";
+                            returnValue += "</option>" + Environment.NewLine;
+                        }
+                    }
+                    else if (line.Contains("%EVENTIDFLAG%"))
+                    {
+                        returnValue += $"const EVENT_ID = '{id}';{Environment.NewLine}";
+                    }
+                    else
+                    {
+                        returnValue += line + Environment.NewLine;
+                    }
+                }
+            }
+            catch (CustomException ex)
+            {
+                Logger.LogWarning(ex, "Failed to get sign up form for event '{id}'.", id);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to get sign up form for event '{id}'.", id);
+                throw new CustomException("Unerwarteter Fehler beim Lesen des Event Sign Up Formulars.", ex);
+            }
+            return returnValue;
         }
     }
 #pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
