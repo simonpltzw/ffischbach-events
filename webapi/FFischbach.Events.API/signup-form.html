@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #container {
+            width: 80vw;
+            margin: auto;
+        }
+
+        .flex {
+            display: flex;
+            gap: 0.5em;
+        }
+
+        .flex-col {
+            flex-direction: column;
+        }
+
+        .flex-row {
+            flex-direction: row;
+        }
+
+        .flex-shrink {
+            flex-shrink: 3;
+        }
+
+        .flex-1 {
+            flex: auto;
+            overflow: auto;
+        }
+
+        .flex-0 {
+            flex: 0;
+        }
+
+        .align-self-start {
+            align-self: flex-start;
+        }
+
+        .fit {
+            display: inline-block;
+        }
+
+        .min-width {
+            max-width: 2.4em;
+            min-width: 2.4em;
+            width: 2.4em;
+        }
+
+        input {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+            input[type="text"],
+            input[type="date"],
+            input[type="email"],
+            select {
+                height: 3em;
+                display: inline-block;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                cursor: pointer;
+                box-sizing: border-box;
+            }
+
+        button {
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .agb {
+            height: 8em;
+            overflow-y: scroll;
+        }
+
+        .error[visible="true"] {
+            color: red;
+            display: block;
+        }
+
+        .error[visible="false"] {
+            display: none;
+        }
+
+        p {
+            margin-bottom: 0;
+        }
+
+        .required {
+            color: red;
+            margin-left: 0.1em;
+        }
+
+        .title {
+            display: flex;
+        }
+
+        .rounded {
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <form action="" id="container" onsubmit="submitForm(event)">
+        <div class="flex flex-col">
+            <!--Categories of users-->
+            <select id="category" title="category">
+                <option value="600">Bauhof Stadt Kelkheim</option>
+                <option value="500">Privatgruppen</option>
+                <option value="400">Kelkheimer Vereine</option>
+                <option value="300">Fischbacher Vereine</option>
+                <option value="200">Mitglieder Feuerwehren Stadt Kelkheim</option>
+                <option value="100">Freunde, Familie, Arbeitskollegen FF Fischbach</option>
+                <option value="0">Sonstiges</option>
+            </select>
+
+            <!--error message-->
+            <!--<div id="category_error" class="error" visible="true">
+              Der ausgewählte Zeitraum liegt in der Zukunft
+            </div>-->
+
+            <h3>Ansprechpartner</h3>
+
+            <!--Input section-->
+            <div class="title">
+                <p for="groupName">Gruppenname</p>
+                <p class="required">*</p>
+            </div>
+            <input required id="groupName" type="text" placeholder="Gruppenname" />
+
+            <div class="title">
+                <p for="contactFirst">Vorname</p>
+                <p class="required">*</p>
+            </div>
+            <input required id="contactFirst" type="text" placeholder="Vorname" />
+
+            <div class="title">
+                <p for="contactFirst">Nachname</p>
+                <p class="required">*</p>
+            </div>
+            <input required id="contactLast" type="text" placeholder="Nachname" />
+
+            <div class="title">
+                <p for="contactFirst">Geburtstag</p>
+                <p class="required">*</p>
+            </div>
+            <input required id="contact_BirthDate" type="date" placeholder="Geburtstag" />
+
+            <div class="title">
+                <p for="contactFirst">E-Mail</p>
+                <p class="required">*</p>
+            </div>
+            <input required id="contactEmail" type="email" placeholder="E-Mail" />
+
+            <!--Additional participants-->
+            <h3>Weitere Teilnehmer</h3>
+            <div class="flex flex-col" style="margin-bottom: 20px;">
+                <div id="list" class="flex flex-col"></div>
+                <button id="add" class="align-self-start" type="button" onclick="addParticipant()">
+                    +
+                </button>
+            </div>
+            <!--AGB section-->
+            <div class="flex" style="gap: 0.2em">
+                <input id="agbCheck" type="checkbox" title="agb" disabled />
+                <label>AGB</label>
+                <label class="required">*</label>
+            </div>
+
+            <div id="agb" class="agb">
+                Die Anmeldung führt nicht automatisch zum Erhalt von Karten. Dies erfolgt nur nach
+                Kapazität und Prüfung der angegebenen Daten.
+                <br />
+                Falsche Angaben führen automatisch zu einer Ablehnung der Eintrittskarten.
+                <br />
+                Einlass wird nur mit einer personalisierten Eintrittskarte gewährt.
+                <br />
+                Bei Einlass ist ggf. ein Ausweisdokument vorzulegen.
+                <br />
+                Die Eintrittskarte berechtigt nicht verbindlich, bzw. nicht zum sofortigen Einlass in den
+                Veranstaltungsraum.
+                <br />
+                Am Eingang kann es, je nach Auslastung im Veranstaltungsraum, zu Wartezeiten kommen.
+                <br />
+                Stark alkoholisierten Personen wird kein Einlass gewährt.
+                <br />
+                Mitgebrachte Getränke müssen am Eingang abgegeben werden.
+                <br />
+                Verkauf von Getränken und Speisen nur gegen Wertmarken.
+                <br />
+                Wir halten uns an das Gesetz zum Schutz der Jugend in der Öffentlichkeit.
+                <br />
+                Wir übernehmen keine Haftung für Garderobe, Sachschäden oder Körperschäden.
+            </div>
+
+            <!--Submit Button-->
+            <button id="submitBtm" class="align-self-start" type="submit" disabled>Absenden</button>
+        </div>
+    </form>
+
+    <script>
+        //Event ID (changes permitted by staff ^^)
+        const EVENT_ID = 32024;
+        let hasError = false;
+        let stayDisabled = false;
+        const currentYear = new Date().getFullYear();
+        /*const dates = {
+          Feuerwehr: new Date(currentYear, 15, 11),
+          Verein: new Date(currentYear, 21, 11),
+          Privat: new Date(currentYear, 15, 0),
+        };*/
+
+        /*input elements*/
+        const groupName = document.getElementById("groupName");
+        const contactFirst = document.getElementById("contactFirst");
+        const contactLast = document.getElementById("contactLast");
+        const contact_BirthDate = document.getElementById("contact_BirthDate");
+        const contactEmail = document.getElementById("contactEmail");
+        const addBtn = document.getElementById("add");
+        const submitBtn = document.getElementById("submitBtm");
+        const agbCheck = document.getElementById("agbCheck");
+        const agbText = document.getElementById("agb");
+        const category = document.getElementById("category");
+        const category_error = document.getElementById("category_error");
+
+        /*api model*/
+        let form = {
+            Name: undefined,
+            EventId: EVENT_ID,
+            Contact: {
+                Email: undefined,
+                FirstName: undefined,
+                LastName: undefined,
+                BirthDate: undefined,
+            },
+            Category: undefined,
+            Participants: [],
+        };
+
+        const submitForm = (event) => {
+            event.preventDefault();
+            fetch("https://ffischbach-events-api.palzone.de/Groups", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(form),
+            }).then((event) => {
+                if (event.ok) {
+                    alert("Erfolgreich angemeldet");
+                } else {
+                    alert("Som ting wong");
+                }
+            });
+        };
+
+        const getDateFormat = (string) => {
+            return new Date(string).toISOString().split("T")[0];
+        };
+
+        const setInputsDisables = (isDisabled) => {
+            groupName.disabled = isDisabled;
+            contactFirst.disabled = isDisabled;
+            contactLast.disabled = isDisabled;
+            contact_BirthDate.disabled = isDisabled;
+            contactEmail.disabled = isDisabled;
+
+            if (stayDisabled) {
+                submitBtn.disabled = true;
+            }
+        };
+
+        const isAGBOverflown = () => {
+            return agbText.scrollHeight > agbText.clientHeight;
+        };
+
+        const setAGBCheckEnabled = () => {
+            if (!isAGBOverflown()) {
+                agbCheck.disabled = false;
+            }
+        };
+
+        /*form input listener*/
+        const addListeners = () => {
+            groupName.addEventListener("change", (evt) => (form.Name = evt.target.value));
+            contactFirst.addEventListener("change", (evt) => (form.Contact.FirstName = evt.target.value));
+            contactLast.addEventListener("change", (evt) => (form.Contact.LastName = evt.target.value));
+            contact_BirthDate.addEventListener(
+                "change",
+                (evt) => (form.Contact.BirthDate = getDateFormat(evt.target.value))
+            );
+            contactEmail.addEventListener("change", (evt) => (form.Contact.Email = evt.target.value));
+
+            /*Category*/
+            category.addEventListener("change", (evt) => {
+                const selection = evt.target.value;
+
+                form.Category = selection;
+
+                const isDisabled = false; //dates[selection] > new Date();
+                stayDisabled = isDisabled;
+
+                //category_error.visible = !isDisabled;
+
+                setInputsDisables(isDisabled);
+            });
+
+            /*AGB check*/
+            agbCheck.addEventListener("change", (evt) => {
+                if (agbCheck.checked) {
+                    submitBtn.disabled = false;
+                } else {
+                    submitBtn.disabled = true;
+                }
+            });
+
+            agbText.addEventListener("scrollend", (evt) => {
+                if (!stayDisabled) {
+                    submitBtn.disabled = false;
+                    agbCheck.checked = true;
+                }
+            });
+        };
+
+        /*Adds participants to list*/
+        const addParticipant = () => {
+            const list = document.getElementById("list");
+            const container = document.createElement("div");
+            container.className = "flex";
+
+            const firstName = document.createElement("input");
+            const lastName = document.createElement("input");
+            const birthDate = document.createElement("input");
+            const deleteBtn = document.createElement("button");
+
+            /*Firstname input properties*/
+            firstName.placeholder = "Vorname";
+            firstName.setAttribute("type", "text");
+
+            /*Lastname input properties*/
+            lastName.placeholder = "Nachname";
+            lastName.setAttribute("type", "text");
+
+            /*Delete Button properties*/
+            birthDate.setAttribute("type", "date");
+            birthDate.style = "min-width: 7.5em";
+
+            /*Delete Button properties*/
+            deleteBtn.innerHTML = "🗑️";
+            deleteBtn.style = "background-color: red";
+            deleteBtn.className = "min-width";
+            deleteBtn.labels = "birth date";
+            deleteBtn.setAttribute("type", "button");
+
+            const inputs = [firstName, lastName, birthDate, deleteBtn];
+
+            const obj = {
+                firstName: "",
+                lastName: "",
+                birthDate: "",
+            };
+
+            /*set further participant properties*/
+            firstName.addEventListener("change", (evt) => (obj.firstName = evt.target.value));
+            lastName.addEventListener("change", (evt) => (obj.lastName = evt.target.value));
+            birthDate.addEventListener(
+                "change",
+                (evt) => (obj.birthDate = getDateFormat(evt.target.value))
+            );
+
+            /*remove participant from list*/
+            deleteBtn.addEventListener("click", (evt) => {
+                list.removeChild(container);
+                form.Participants = form.Participants.filter((e) => e !== obj);
+            });
+
+            for (let e of inputs) {
+                e.classList.add("flex-1", "rounded");
+                container.appendChild(e);
+            }
+
+            form.Participants.push(obj);
+            list.appendChild(container);
+        };
+
+        /*initial function calls*/
+        addListeners();
+        setAGBCheckEnabled();
+    </script>
+</body>
+</html>
