@@ -124,7 +124,6 @@
     <!-- Displayed when sign up was successful. -->
     <div id="content_success" class="d-none flex-col" style="align-items: center">
         <h3 class="text-center" style="margin-top: 100px;">Anmeldung erfolgreich abgeschlossen</h3>
-        <img height="150" src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExamJ0OHc2MXNvdmM1amNuZTdpeXU1c2pkMG16Zmc1ZGUzMXdtMG52MSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Q81NcsY6YxK7jxnr4v/giphy.webp" />
     </div>
 
     <!-- Displayed when sign up was successful. -->
@@ -138,7 +137,9 @@
     <div id="content_form" class="d-block">
         <form action="" id="container" onsubmit="submitForm(event)">
             <div class="d-flex flex-col">
-                <h3 style="margin-top: 0">Anmeldeformular RAUP 2025</h3>
+                <h3 style="margin-top: 0">
+                    <!-- %DESCRIPTIONFLAG% This is a flag for the api to insert the event description here. -->
+                </h3>
 
                 <div class="title">
                     <p for="groupName">Gruppenname</p>
@@ -151,7 +152,7 @@
                     <p class="required">*</p>
                 </div>
                 <select id="category" title="category">
-                    <!-- %OPTIONFLAG%: This is a flag for the api to insert the category options here.-->
+                    <!-- %OPTIONFLAG%: This is a flag for the api to insert the category options here. -->
                 </select>
 
                 <h3>Ansprechpartner</h3>
@@ -258,7 +259,7 @@ Allgemeine Geschäftsbedingungen
                 LastName: undefined,
                 BirthDate: undefined,
             },
-            Category: undefined,
+            CategoryId: undefined,
             Participants: [],
         };
 
@@ -315,7 +316,7 @@ Allgemeine Geschäftsbedingungen
             contactLast.addEventListener("change", (evt) => (form.Contact.LastName = evt.target.value));
             contact_BirthDate.addEventListener("change", (evt) => (form.Contact.BirthDate = formatDate(evt.target.value)));
             contactEmail.addEventListener("change", (evt) => (form.Contact.Email = evt.target.value));
-            category.addEventListener("change", (evt) => (form.Category = evt.target.value));
+            category.addEventListener("change", (evt) => (form.CategoryId = evt.target.value));
 
             // React to agb checks.
             agbCheck.addEventListener("change", (evt) => {

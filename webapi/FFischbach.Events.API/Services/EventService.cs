@@ -370,6 +370,10 @@ namespace FFischbach.Events.API.Services
                     {
                         returnValue += $"const EVENT_ID = '{id}';{Environment.NewLine}";
                     }
+                    else if (line.Contains("%DESCRIPTIONFLAG%"))
+                    {
+                        returnValue += $"<span>{dbEvent.Description}</span>";
+                    }
                     else
                     {
                         returnValue += line + Environment.NewLine;
