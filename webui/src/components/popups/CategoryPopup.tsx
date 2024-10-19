@@ -14,6 +14,7 @@ import { Input } from "../Input";
 import { Button } from "../Button";
 import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
 import { Action, Error } from "@/util/types";
+import { getDateTime } from "@/util/converter";
 
 export interface EditCategoriesPopupProps extends HTMLAttributes<HTMLElement> {
   eventId: string;
@@ -102,7 +103,7 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (props: EditCategorie
               <Input
                 title="Start (Anmeldezeitraum)"
                 type="datetime-local"
-                value={new Date(category.signUpFrom).toISOString().slice(0, 16)}
+                value={getDateTime(category.signUpFrom)}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setCategory({ signUpFrom: e.target.value })
                 }
@@ -110,7 +111,7 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (props: EditCategorie
               <Input
                 title="Ende (Anmeldezeitraum)"
                 type="datetime-local"
-                value={new Date(category.signUpTo).toISOString().slice(0, 16)}
+                value={getDateTime(category.signUpTo)}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setCategory({ signUpTo: e.target.value })
                 }

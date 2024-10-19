@@ -23,19 +23,32 @@ export const base64ToArrayBuffer = (base64: string) => {
 
 export const getLocalDateTime = (dateStr: string): string => {
   const date: Date = new Date(dateStr);
-  return `${date.toLocaleDateString([], {
+  const result = `${date.toLocaleDateString([], {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   })} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+
+  return !isNaN(date.getTime()) ? result : "";
 };
 
 export const parseJwt = (token: string) => {
-  var base64Url = token.split('.')[1];
-  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-  }).join(''));
+  var base64Url = token.split(".")[1];
+  var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  var jsonPayload = decodeURIComponent(
+    window
+      .atob(base64)
+      .split("")
+      .map(function (c) {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join("")
+  );
 
   return JSON.parse(jsonPayload);
-}
+};
+
+export const getDateTime = (str: string) => {
+  const result = new Date(str);
+  return !isNaN(result.getTime()) ? result.toISOString().slice(0, 16) : "";
+};

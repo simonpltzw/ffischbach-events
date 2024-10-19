@@ -27,6 +27,7 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [date, setDate] = useState<string>("");
   const [visible, setVisible] = useState<boolean>(false);
 
   const [errors, setErrors] = useState<string[]>([]);
@@ -45,8 +46,9 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
     getToken().then((token: string) => {
       encryptWithPassword(password).then(({ encryptedPrivateKey, publicKey }) => {
         const newEvent: EventOut = {
-          id: `${name}${new Date().getFullYear()}`,
-          description: description,
+          id: `${name}`,
+          description,
+          date,
           encryptedPrivateKey,
           publicKey,
         };
@@ -87,23 +89,37 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
           >
             <div id="form" className="mt-2 flex flex-col gap-3 w-80">
               <Input
+                title="Name"
                 isFocus={visible}
                 type="text"
                 placeholder="Name"
                 value={name}
+                labelClassName="text-white"
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
               />
               <Input
+                title="Beschreibung"
                 type="text"
                 placeholder="Beschreibung"
                 value={description}
+                labelClassName="text-white"
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)}
               />
               <Input
+                title="Veranstaltungsdatum"
+                type="datetime-local"
+                placeholder="Veranstaltungsdatum"
+                value={date}
+                labelClassName="text-white"
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setDate(e.target.value)}
+              />
+              <Input
+                title="Passwort"
                 type="password"
                 placeholder="Passwort"
                 autoComplete="new-password"
                 value={password}
+                labelClassName="text-white"
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               />
             </div>

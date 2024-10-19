@@ -12,11 +12,11 @@ import {
 import { useRouter } from "next/navigation";
 import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
-import { addEventManager, getEventById, setEventCompleted } from "@/services/eventsService";
+import { addEventManager, getEventById, putEvent, setEventCompleted } from "@/services/eventsService";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { AddEventManagerPopup } from "@/components/popups/AddEventManager";
 import useToken from "@/services/tokenService";
-import {PencilIcon} from "@heroicons/react/24/solid";
+import { PencilIcon } from "@heroicons/react/24/solid";
 import { useToast } from "@/context/toast";
 import { Lock } from "@/components/Lock";
 import { Button } from "@/components/Button";
@@ -34,9 +34,10 @@ import { useFilterSettings } from "@/context/filterSettings";
 import { Spinner } from "@/components/Spinner";
 import { Action } from "@/util/types";
 import { Categories } from "./Categories";
+import { EditEventPopup } from "@/components/popups/EditEventPopup";
+import { EditEvent } from "@/models/EditEvent";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
-
   const router = useRouter();
   const { addToast } = useToast();
   const { getToken } = useToken();
@@ -56,7 +57,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         ...action,
       };
     },
-    new Event("", "", "", 1, 1, false, "", [], "", "", [])
+    new Event("", "", "", 1, 1, false, "", [], "", "", "", [])
   );
 
   useEffect(() => {
@@ -205,8 +206,22 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         <div>Beschreibung:</div>
         <div className="text-base font-semibold">{state?.description}</div>
       </div>
+      <div className="flex flex-row gap-3">
+        <div>Veranstaltungsdatum:</div>
+        <div className="text-base font-semibold">{getLocalDateTime(state?.date)}</div>
+      </div>
       {!state.completed && !isEncrypted && (
         <div className="flex flex-row gap-3 flex-wrap">
+          <EditEventPopup event={state} done={async(editedEvent: EditEvent) => {
+            const token = await getToken()
+            await putEvent(token, state.id, editedEvent)
+            dispatch(editedEvent)
+          }}>
+            <Button className="md:flex-none flex-1 text-white" type="button">
+              Event bearbeiten
+            </Button>
+          </EditEventPopup>
+
           <AddEventManagerPopup done={onAddEventManager}>
             <Button className="md:flex-none flex-1 text-white" type="button">
               Manager hinzufügen
