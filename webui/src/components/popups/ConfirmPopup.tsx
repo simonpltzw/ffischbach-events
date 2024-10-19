@@ -4,6 +4,7 @@ import { Button } from "../Button";
 import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
 
 export interface ConfirmPopupProps extends HTMLAttributes<HTMLElement> {
+  title?: string;
   done(): void;
 }
 
@@ -73,7 +74,14 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) =>
           </form>
         </PopupDialogPanel>
       </Popup>
-      <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>
+      <PopupOpener
+        onClick={(e) => {
+          e.stopPropagation();
+          setVisible(true);
+        }}
+      >
+        {props.children}
+      </PopupOpener>
     </div>
   );
 };
