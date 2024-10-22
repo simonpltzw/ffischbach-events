@@ -17,6 +17,14 @@ namespace FFischbach.Events.API.Services.Interfaces
         Task<CategoryOutputModel> CreateCategoryAsync(ClaimsPrincipal user, CategoryCreateModel category);
 
         /// <summary>
+        /// Gets a category by id.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="id"></param>
+        /// <exception cref="CustomException"></exception>
+        Task<CategoryOutputModel> ReadCategoryAsync(ClaimsPrincipal user, int id);
+
+        /// <summary>
         /// Updates the category.
         /// </summary>
         /// <param name="user"></param>

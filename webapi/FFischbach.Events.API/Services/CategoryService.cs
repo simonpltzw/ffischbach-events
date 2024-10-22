@@ -71,6 +71,49 @@ namespace FFischbach.Events.API.Services
             return returnValue;
         }
 
+        public async Task<CategoryOutputModel> ReadCategoryAsync(ClaimsPrincipal user, int id)
+        {
+            CategoryOutputModel returnValue;
+            try
+            {
+                // Get user display name.
+                string displayName = UserService.GetDisplayName(user);
+
+                // Get category from the database.
+                Category? dbCategory = await DatabaseContext.Categories
+                                                .Include(x => x.Event!)
+                                                    .ThenInclude(x => x.EventManagers!)
+                                                        .ThenInclude(x => x.Manager)
+                                                .FirstOrDefaultAsync(x => x.Id == id);
+
+                // Check db response.
+                if (dbCategory == null)
+                {
+                    // Nothing found.
+                    throw new CustomException("Die Kategorie konnte nicht gefunden werden.", statusCode: StatusCodes.Status404NotFound);
+                }
+                else if (!dbCategory.Event!.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
+                {
+                    // Calling user is not an event manager of that group.
+                    throw new CustomException("Du hast keine Berechtigungen für dieses Event. Lass dich von einem Manager des Events hinzufügen.", statusCode: StatusCodes.Status403Forbidden);
+                }
+
+                // Use the database category as return value.
+                returnValue = Mapper.Map<CategoryOutputModel>(dbCategory);
+            }
+            catch (CustomException ex)
+            {
+                Logger.LogWarning(ex, "Failed to get category '{id}'.", id);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to get category '{id}'.", id);
+                throw new CustomException("Unerwarteter Fehler beim Lesen der Kategorie.", ex);
+            }
+            return returnValue;
+        }
+
         public async Task<CategoryOutputModel> UpdateCategoryAsync(ClaimsPrincipal user, int id, CategoryUpdateModel category)
         {
             CategoryOutputModel returnValue;

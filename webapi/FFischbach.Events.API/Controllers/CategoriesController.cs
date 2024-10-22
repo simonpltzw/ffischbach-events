@@ -1,7 +1,6 @@
 ﻿using FFischbach.Events.API.Helpers;
 using FFischbach.Events.API.Models.InputModels;
 using FFischbach.Events.API.Models.OutputModels;
-using FFischbach.Events.API.Services;
 using FFischbach.Events.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +40,35 @@ namespace FFischbach.Events.API.Controllers
                 }
 
                 returnValue = await CategoryService.CreateCategoryAsync(User, category);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return Ok(returnValue);
+        }
+
+        /// <summary>
+        /// Gets a category by id.
+        /// </summary>
+        /// <param name="id">Id of the category</param>
+        /// <returns></returns>
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(CategoryOutputModel), StatusCodes.Status200OK)]
+        public async Task<ActionResult<CategoryOutputModel>> Put([Required] int? id)
+        {
+            CategoryOutputModel returnValue;
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                returnValue = await CategoryService.ReadCategoryAsync(User, (int)id!);
             }
             catch (CustomException ex)
             {
