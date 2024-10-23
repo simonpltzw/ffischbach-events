@@ -15,6 +15,7 @@ import { Button } from "../Button";
 import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
 import { Action, Error } from "@/util/types";
 import { getDateTime } from "@/util/converter";
+import { Category } from "@/models/Category";
 
 export interface EditCategoriesPopupProps extends HTMLAttributes<HTMLElement> {
   eventId: string;
@@ -122,17 +123,18 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (props: EditCategorie
                 return generateErrorMessage(error, index);
               })}
             </div>
-            <div className="flex flex-row py-3 gap-3">
+            <div className="flex flex-row py-3 gap-3 justify-end">
               <Button
+              color="green"
                 type="submit"
-                colorstyle="bg-green-600 hover:bg-green-700 hover:dark:bg-green-400"
               >
                 Bestätigen
               </Button>
 
               <Button
+              color="gray"
+              styletype="secondary"
                 type="button"
-                colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
                 onClick={() => {
                   props.setVisible(false);
                   props.setCategoryToEdit(null);

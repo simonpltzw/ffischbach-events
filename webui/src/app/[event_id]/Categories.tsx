@@ -4,6 +4,7 @@ import { CategoryPopup } from "@/components/popups/CategoryPopup";
 import { ConfirmPopup } from "@/components/popups/ConfirmPopup";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
 import { useToast } from "@/context/toast";
+import { Category } from "@/models/Category";
 import { Event } from "@/models/in/Event";
 import { createCategory, deleteCategory, putCategory } from "@/services/categoryService";
 import useToken from "@/services/tokenService";
@@ -79,11 +80,7 @@ export const Categories: FC<CategoriesProps> = (props: CategoriesProps) => {
         <div>
           <Accordion
             opener={
-              <Button
-                colorstyle=""
-                className="md:flex-none flex-1 bg-transparent border border-blue-500 text-blue-500 dark:text-white hover:text-white hover:bg-blue-700 hover:dark:bg-blue-400"
-                type="button"
-              >
+              <Button color="blue" styletype="secondary" type="button">
                 <div className="flex items-center gap-3">
                   <div>Kategorien anzeigen</div>
                   <ChevronDownIcon height={20} />
@@ -108,8 +105,8 @@ export const Categories: FC<CategoriesProps> = (props: CategoriesProps) => {
                 }}
               >
                 <Button
-                  colorstyle="bg-transparent border border-blue-500 text-blue-500 dark:text-white hover:text-white hover:bg-blue-700 hover:dark:bg-blue-400"
-                  className=""
+                  color="blue"
+                  styletype="secondary"
                   type="button"
                   onClick={() => setIsCategoryCreatePopupVisible(true)}
                 >

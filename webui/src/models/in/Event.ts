@@ -1,3 +1,4 @@
+import { Category } from "../Category";
 import { Group } from "./Group";
 
 export class Event {

@@ -1,4 +1,18 @@
+import { Category } from "@/models/Category";
 import axios, { AxiosResponse } from "axios";
+
+export const getCategories = async (token: string, categoryId: string) => {
+  const response: AxiosResponse<Category> = await axios.get(
+    `${process.env.NEXT_PUBLIC_WEB_API}/Categories/${categoryId}`,
+    {
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
 
 export const createCategory = async (token: string, category: Category) => {
   const response: AxiosResponse<Category> = await axios.post(

@@ -28,6 +28,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   const [isPending, setIsPending] = useState<boolean>();
   const { getToken } = useToken();
   const { addToast } = useToast();
+  const [categories, setCategories] = useCategories();
   const empty = "***";
 
   useEffect(() => {

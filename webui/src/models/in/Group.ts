@@ -1,3 +1,4 @@
+import { Category } from "../Category";
 import { Event } from "./Event";
 import { Participant } from "./Participant";
 
@@ -6,7 +7,7 @@ export class Group {
     public id: number,
     public hashedName: string,
     public name: string,
-    public category: string,
+    public category: Category,
     public approved: boolean,
     public contact: Participant,
     public participants: Participant[],
