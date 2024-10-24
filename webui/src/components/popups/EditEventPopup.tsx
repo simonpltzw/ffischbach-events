@@ -118,17 +118,18 @@ export const EditEventPopup: FC<EditEventPopupProps> = (props: EditEventPopupPro
                 return generateErrorMessage(error, index);
               })}
             </div>
-            <div className="flex flex-row py-3 gap-3">
+            <div className="flex flex-row py-3 gap-3 justify-end">
               <Button
+              color="green"
                 type="submit"
-                colorstyle="bg-green-600 hover:bg-green-700 hover:dark:bg-green-400"
               >
                 Bestätigen
               </Button>
 
               <Button
+              color="gray"
+              styletype="secondary"
                 type="button"
-                colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
                 onClick={() => setVisible(false)}
               >
                 Abbrechen

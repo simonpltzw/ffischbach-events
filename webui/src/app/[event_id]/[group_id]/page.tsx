@@ -165,9 +165,9 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             <TD>
               <div className="col-auto col-span-1 h-full">
                 <Button
+                  color="red"
                   type="button"
                   disabled={isEncrypted}
-                  colorstyle="bg-red-600 hover:bg-red-700 hover:dark:bg-red-400"
                   onClick={() => deleteParticipant(p.id)}
                 >
                   <TrashIcon height={16} />

@@ -1,5 +1,4 @@
 import localFont from "next/font/local";
-import type { Metadata } from "next";
 import { AppWrapper } from "@/components/wrapper/appWrapper";
 
 import "./globals.css";
