@@ -71,6 +71,7 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
               <Input
                 type="password"
                 placeholder="Passwort"
+                labelClassName="text-white"
                 autoComplete="current-password"
                 value={password}
                 isFocus={visible}

@@ -7,6 +7,7 @@ export interface CheckBoxProps extends React.HTMLAttributes<HTMLInputElement> {
   title?: string;
   size?: number;
   disabled?: boolean;
+  labelClassName?: string;
 }
 
 export const CheckBox: FC<CheckBoxProps> = (props: CheckBoxProps) => {
@@ -16,7 +17,7 @@ export const CheckBox: FC<CheckBoxProps> = (props: CheckBoxProps) => {
 
   return (
     <div className="flex flex-col">
-      {props.title && <label className={`block text-sm font-semibold h-fit mb-1`}>{props.title}</label>}
+      {props.title && <label className={`block text-sm font-semibold h-fit mb-1 ${props.labelClassName}`}>{props.title}</label>}
       <div className="flex items-center w-10 h-10 shadow-md">
         <input
           disabled={props.disabled}

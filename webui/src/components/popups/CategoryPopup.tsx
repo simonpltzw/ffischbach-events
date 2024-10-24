@@ -95,6 +95,7 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (props: EditCategorie
                 title="Name"
                 isFocus={props.visible}
                 type="text"
+                labelClassName="text-white"
                 value={category.name}
                 containerClassName="w-96"
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -104,6 +105,7 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (props: EditCategorie
               <Input
                 title="Start (Anmeldezeitraum)"
                 type="datetime-local"
+                labelClassName="text-white"
                 value={getDateTime(category.signUpFrom)}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setCategory({ signUpFrom: e.target.value })
@@ -112,6 +114,7 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (props: EditCategorie
               <Input
                 title="Ende (Anmeldezeitraum)"
                 type="datetime-local"
+                labelClassName="text-white"
                 value={getDateTime(category.signUpTo)}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setCategory({ signUpTo: e.target.value })
@@ -124,16 +127,13 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (props: EditCategorie
               })}
             </div>
             <div className="flex flex-row py-3 gap-3 justify-end">
-              <Button
-              color="green"
-                type="submit"
-              >
+              <Button color="green" type="submit">
                 Bestätigen
               </Button>
 
               <Button
-              color="gray"
-              styletype="secondary"
+                color="gray"
+                styletype="secondary"
                 type="button"
                 onClick={() => {
                   props.setVisible(false);

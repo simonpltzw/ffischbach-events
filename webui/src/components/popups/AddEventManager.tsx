@@ -73,6 +73,7 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
                 isFocus={visible}
                 type="text"
                 placeholder="Email"
+                labelClassName="text-white"
                 value={email}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               />

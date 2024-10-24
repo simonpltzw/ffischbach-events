@@ -92,6 +92,7 @@ export const EditEventPopup: FC<EditEventPopupProps> = (props: EditEventPopupPro
             <div id="form" className="mt-2 flex flex-col gap-3 w-80">
               <CheckBox
                 title="Beendet"
+                labelClassName="text-white"
                 value={event.completed}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {}}
               />
@@ -100,6 +101,7 @@ export const EditEventPopup: FC<EditEventPopupProps> = (props: EditEventPopupPro
                 isFocus={visible}
                 type="text"
                 placeholder="Beschreibung"
+                labelClassName="text-white"
                 value={event.description}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setEvent({ description: e.target.value })
@@ -108,6 +110,7 @@ export const EditEventPopup: FC<EditEventPopupProps> = (props: EditEventPopupPro
               <Input
                 title="Veranstaltungsdatum"
                 type="datetime-local"
+                labelClassName="text-white"
                 placeholder="Veranstaltungsdatum"
                 value={getDateTime(event.date)}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setEvent({ date: e.target.value })}
@@ -119,16 +122,13 @@ export const EditEventPopup: FC<EditEventPopupProps> = (props: EditEventPopupPro
               })}
             </div>
             <div className="flex flex-row py-3 gap-3 justify-end">
-              <Button
-              color="green"
-                type="submit"
-              >
+              <Button color="green" type="submit">
                 Bestätigen
               </Button>
 
               <Button
-              color="gray"
-              styletype="secondary"
+                color="gray"
+                styletype="secondary"
                 type="button"
                 onClick={() => setVisible(false)}
               >
