@@ -41,7 +41,7 @@ export const updateGroup = async (token: string, group: Group) => {
     group.hashedName,
     group.event!.id,
     encryptedGroupName,
-    group.category,
+    group.category.id,
     group.approved,
     contactOut,
     participantsOut

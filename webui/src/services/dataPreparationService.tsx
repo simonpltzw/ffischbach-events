@@ -50,7 +50,7 @@ export const useJsonToCsv = () => {
 
           const exportData: ExportEntry = {
             Anzahl: decGroup.participants.length,
-            Kategorie: decGroup.category,
+            Kategorie: decGroup.category.name,
             Ansprechpartner: `${decGroup.contact.FirstName} ${decGroup.contact.LastName}`,
             groupId: decGroup.id,
             Gruppe: decGroup.name,

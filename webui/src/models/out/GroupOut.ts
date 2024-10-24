@@ -6,7 +6,7 @@ export class GroupOut {
     public hashedName: string,
     public eventId: string,
     public encryptedName: string,
-    public category: string,
+    public categoryId: string,
     public approved: boolean,
     public contact: ParticipantOut,
     public participants: ParticipantOut[],

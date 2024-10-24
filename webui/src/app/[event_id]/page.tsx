@@ -1,10 +1,18 @@
 "use client";
 
-import { ChangeEvent, Fragment, Reducer, useEffect, useLayoutEffect, useReducer, useState } from "react";
+import {
+  ChangeEvent,
+  Fragment,
+  Reducer,
+  useEffect,
+  useLayoutEffect,
+  useReducer,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
 import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
-import { addEventManager, getEventById, setEventCompleted } from "@/services/eventsService";
+import { addEventManager, getEventById, putEvent, setEventCompleted } from "@/services/eventsService";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { AddEventManagerPopup } from "@/components/popups/AddEventManager";
 import useToken from "@/services/tokenService";
@@ -24,16 +32,12 @@ import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
 import React from "react";
 import { useFilterSettings } from "@/context/filterSettings";
 import { Spinner } from "@/components/Spinner";
+import { Action } from "@/util/types";
+import { Categories } from "./Categories";
+import { EditEventPopup } from "@/components/popups/EditEventPopup";
+import { EditEvent } from "@/models/EditEvent";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
-  type StateActionType = "updateApproved" | "set" | "decGroups";
-
-  interface StateAction {
-    type: StateActionType;
-    value: any;
-    index?: number;
-  }
-
   const router = useRouter();
   const { addToast } = useToast();
   const { getToken } = useToken();
@@ -46,25 +50,14 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [filter, dispatchFilter] = useFilterSettings();
   const [groupFilter, setGroupFilter] = useState<string>("");
 
-  const [state, dispatch] = useReducer<Reducer<Event, any>>(
-    (state: Event, action: StateAction): any => {
-      switch (action.type) {
-        case "updateApproved":
-          if (action.index) {
-            const groups: Group[] = state.groups!;
-            groups[action.index].approved = action.value;
-          }
-          break;
-        case "set":
-          return action.value;
-        case "decGroups":
-          state.groups = action.value;
-          return { ...state };
-      }
-
-      return state;
+  const [state, dispatch] = useReducer<Reducer<Event, Action<Partial<Event>>>>(
+    (state: Event, action: Action<Partial<Event>>): Event => {
+      return {
+        ...state,
+        ...action,
+      };
     },
-    new Event("", "", "", 1, 1, false, "", "", "", [])
+    new Event("", "", "", 1, 1, false, "", [], "", "", "", [])
   );
 
   useEffect(() => {
@@ -72,7 +65,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     getToken().then((token: string) => {
       if (token) {
         getEventById(token, params.event_id).then((event) => {
-          dispatch({ type: "set", value: event });
+          dispatch(event);
           setIsPending(false);
         });
       }
@@ -106,7 +99,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       state.groups = await decryptEvent(state, password);
       setEventSetting({ eventId: params.event_id, password });
 
-      dispatch({ type: "decGroups", value: state.groups });
+      dispatch({ groups: state.groups });
       setIsEncrypted(false);
       if (isManual) {
         addToast({ message: "Entschlüsselt", type: "info" });
@@ -182,6 +175,21 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     );
   };
 
+  const download = async () => {
+    const data = await parse(state);
+    const file = new File([data], "d.csv");
+    const url = URL.createObjectURL(file);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name;
+
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+  };
+
   return (
     <>
       {state.completed && <InfoBadge text="Event ist beendet" />}
@@ -198,44 +206,51 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         <div>Beschreibung:</div>
         <div className="text-base font-semibold">{state?.description}</div>
       </div>
+      <div className="flex flex-row gap-3">
+        <div>Veranstaltungsdatum:</div>
+        <div className="text-base font-semibold">{getLocalDateTime(state?.date)}</div>
+      </div>
       {!state.completed && !isEncrypted && (
         <div className="flex flex-row gap-3 flex-wrap">
+          <EditEventPopup event={state} done={async(editedEvent: EditEvent) => {
+            const token = await getToken()
+            await putEvent(token, state.id, editedEvent)
+            dispatch(editedEvent)
+          }}>
+            <Button className="md:flex-none flex-1 text-white" type="button">
+              Event bearbeiten
+            </Button>
+          </EditEventPopup>
+
           <AddEventManagerPopup done={onAddEventManager}>
-            <Button className="md:flex-none flex-1" type="button">
+            <Button className="md:flex-none flex-1 text-white" type="button">
               Manager hinzufügen
             </Button>
           </AddEventManagerPopup>
-
-          <ConfirmPopup title="Event beenden" done={onCompleteEvent}>
-            <Button className="md:flex-none flex-1" type="button">
-              Event beenden
-            </Button>
-          </ConfirmPopup>
-
           <Button
-            className="md:flex-none flex-1"
+            className="md:flex-none flex-1 text-white"
             type="button"
             onClick={async () => {
-              const data = await parse(state);
-              const file = new File([data], "d.csv");
-              const url = URL.createObjectURL(file);
-
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = file.name;
-
-              document.body.appendChild(a);
-              a.click();
-
-              document.body.removeChild(a);
+              await download();
               addToast({ message: "Event exportiert", type: "info" });
             }}
           >
             Event exportieren
           </Button>
+          <ConfirmPopup title="Event beenden" done={onCompleteEvent}>
+            <Button
+              colorstyle="bg-red-600 hover:bg-red-700 hover:dark:bg-red-400 text-white"
+              className="md:flex-none flex-1"
+              type="button"
+            >
+              Event beenden
+            </Button>
+          </ConfirmPopup>
         </div>
       )}
       <div className="flex flex-col gap-3">
+        <Categories state={state} dispatch={dispatch} isVisible={isEncrypted} />
+
         <div className="flex flex-col gap-3 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-lg mb-5">
           <label className="text-lg font-bold">Filter</label>
           <div className="flex flex-row-reverse gap-5 items-end">

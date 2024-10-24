@@ -4,6 +4,7 @@ import { Button } from "../Button";
 import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
 
 export interface ConfirmPopupProps extends HTMLAttributes<HTMLElement> {
+  title?: string;
   done(): void;
 }
 
@@ -54,18 +55,19 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) =>
               })}
             </div>
 
-            <div className="flex flex-row gap-3 py-3">
+            <div className="flex flex-row gap-3 py-3 justify-end">
               <Button
+              color="green"
                 type="submit"
-                colorstyle="bg-green-600 hover:bg-green-700 hover:dark:bg-green-400"
               >
                 Bestätigen
               </Button>
               <Button
+              color="gray"
+              styletype="secondary"
                 autoFocus={true}
                 type="button"
                 onClick={() => setVisible(false)}
-                colorstyle="bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400"
               >
                 Abbrechen
               </Button>
@@ -73,7 +75,14 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) =>
           </form>
         </PopupDialogPanel>
       </Popup>
-      <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>
+      <PopupOpener
+        onClick={(e) => {
+          e.stopPropagation();
+          setVisible(true);
+        }}
+      >
+        {props.children}
+      </PopupOpener>
     </div>
   );
 };

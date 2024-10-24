@@ -30,30 +30,34 @@ export const PopupDialogPanel: FC<PopupPanelProps> = (props: PopupPanelProps) =>
 };
 
 export const PopupTitle: FC<PopupTitleProps> = (props: PopupTitleProps) => {
-  return <DialogTitle className="text-base text-white  font-semibold leading-6">{props.children}</DialogTitle>;
+  return (
+    <DialogTitle className="text-base text-white  font-semibold leading-6">
+      {props.children}
+    </DialogTitle>
+  );
 };
 
 export const PopupOpener: FC<PopupOpenerProps> = (props: PopupOpenerProps) => {
-  return <div onClick={props.onClick}>{props.children}</div>
-}
+  return <div onClick={props.onClick}>{props.children}</div>;
+};
 
 export const Popup: FC<PopupProps> = (props: PopupProps) => {
   return (
     <>
-    <Dialog
-      open={props.state.open}
-      onClose={() => {
-        if (!!props.onClose) {
-          props.onClose();
-        }
-        props.state.setOpen(false);
-      }}
-      className="relative z-10 focus:outline-none"
-    >
-      <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-        {props.children}
-      </div>
-    </Dialog>
+      <Dialog
+        open={props.state.open}
+        onClose={() => {
+          if (!!props.onClose) {
+            props.onClose();
+          }
+          props.state.setOpen(false);
+        }}
+        className="relative z-10 focus:outline-none"
+      >
+        <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+          {props.children}
+        </div>
+      </Dialog>
     </>
   );
 };
