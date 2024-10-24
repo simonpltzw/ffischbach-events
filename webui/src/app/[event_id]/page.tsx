@@ -43,8 +43,6 @@ import { EditEventPopup } from "@/components/popups/EditEventPopup";
 import { EditEvent } from "@/models/EditEvent";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
-  
-
   const router = useRouter();
   const { addToast } = useToast();
   const { getToken } = useToken();
@@ -68,7 +66,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   );
 
   useLayoutEffect(() => {
-    params.event_id = decodeURI(params.event_id)
+    params.event_id = decodeURI(params.event_id);
 
     setIsPending(true);
     getToken().then((token: string) => {
@@ -76,11 +74,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         getEventById(token, params.event_id).then((event) => {
           dispatch(event);
           setIsPending(false);
-          if (
-            eventSettings &&
-            eventSettings.password &&
-            eventSettings.eventId == params.event_id
-          ) {
+          if (eventSettings && eventSettings.password && eventSettings.eventId == params.event_id) {
             onDecryptEvent(eventSettings.password, false, event);
           }
         });
@@ -98,8 +92,8 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const onDecryptEvent = async (password: string, isManual?: boolean, localState?: Event) => {
     try {
-      if(!localState) {
-        localState = state
+      if (!localState) {
+        localState = state;
       }
 
       localState.groups = await decryptEvent(localState, password);

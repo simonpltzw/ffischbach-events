@@ -35,7 +35,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   const empty = "***";
 
   useLayoutEffect(() => {
-    params.event_id = decodeURI(params.event_id)
+    params.event_id = decodeURI(params.event_id);
 
     setIsPending(true);
     getToken().then((token: string) => {
@@ -44,12 +44,8 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
         setParticipants([...group.participants]);
         setIsPending(false);
 
-        if (
-          eventSettings &&
-          eventSettings.password &&
-          eventSettings.eventId == params.event_id
-        ) {
-          if (groupState.event) {
+        if (eventSettings && eventSettings.password && eventSettings.eventId == params.event_id) {
+          if (group.event) {
             onDecryptEventData(eventSettings.password, false, group);
           }
         }
@@ -57,7 +53,6 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   useEffect(() => {
     if (params.event_id != eventSettings.eventId && categories.length == 0) {
@@ -80,8 +75,8 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   };
 
   const onDecryptEventData = async (password: string, isManual?: boolean, localState?: Group) => {
-    if(!localState) {
-      localState = groupState
+    if (!localState) {
+      localState = groupState;
     }
 
     const updatedGroup: Group = await decryptGroup(localState, { password });
