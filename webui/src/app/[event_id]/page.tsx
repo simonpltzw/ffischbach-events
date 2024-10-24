@@ -226,22 +226,18 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
               dispatch(editedEvent);
             }}
           >
-          <EditEventPopup event={state} done={async(editedEvent: EditEvent) => {
-            const token = await getToken()
-            await putEvent(token, state.id, editedEvent)
-            dispatch(editedEvent)
-          }}>
-            <Button className="md:flex-none flex-1 text-white" type="button">
+            <Button color="blue" className="md:flex-none flex-1 text-white" type="button">
               Event bearbeiten
             </Button>
           </EditEventPopup>
 
           <AddEventManagerPopup done={onAddEventManager}>
-            <Button className="md:flex-none flex-1 text-white" type="button">
+            <Button color="blue" className="md:flex-none flex-1 text-white" type="button">
               Manager hinzufügen
             </Button>
           </AddEventManagerPopup>
           <Button
+            color="blue"
             className="md:flex-none flex-1 text-white"
             type="button"
             onClick={async () => {
@@ -252,11 +248,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             Event exportieren
           </Button>
           <ConfirmPopup title="Event beenden" done={onCompleteEvent}>
-            <Button
-              colorstyle="bg-red-600 hover:bg-red-700 hover:dark:bg-red-400 text-white"
-              className="md:flex-none flex-1"
-              type="button"
-            >
+            <Button className="md:flex-none flex-1" type="button">
               Event beenden
             </Button>
           </ConfirmPopup>

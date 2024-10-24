@@ -50,16 +50,17 @@ const Navigation: FC<NavigationProps> = (props: NavigationProps) => {
         <div>
           {isAuthenticated ? (
             <Button
+            color="blue"
               type="button"
-              className="dark:bg-gray-900 dark:hover:bg-gray-700"
               onClick={() => instance.logoutRedirect(logoutRequest)}
             >
               Sign out
             </Button>
           ) : (
             <Button
+            color="gray"
               type="button"
-              className="dark:bg-gray-900"
+              styletype="secondary"
               onClick={() => instance.loginRedirect(loginRequest)}
             >
               Sign in
