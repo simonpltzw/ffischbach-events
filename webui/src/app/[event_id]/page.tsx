@@ -12,7 +12,12 @@ import {
 import { useRouter } from "next/navigation";
 import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
-import { addEventManager, getEventById, putEvent, setEventCompleted } from "@/services/eventsService";
+import {
+  addEventManager,
+  getEventById,
+  putEvent,
+  setEventCompleted,
+} from "@/services/eventsService";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { AddEventManagerPopup } from "@/components/popups/AddEventManager";
 import useToken from "@/services/tokenService";
@@ -38,6 +43,8 @@ import { EditEventPopup } from "@/components/popups/EditEventPopup";
 import { EditEvent } from "@/models/EditEvent";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
+  
+
   const router = useRouter();
   const { addToast } = useToast();
   const { getToken } = useToken();
@@ -60,32 +67,27 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     new Event("", "", "", 1, 1, false, "", [], "", "", "", [])
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    params.event_id = decodeURI(params.event_id)
+
     setIsPending(true);
     getToken().then((token: string) => {
       if (token) {
         getEventById(token, params.event_id).then((event) => {
           dispatch(event);
           setIsPending(false);
+          if (
+            eventSettings &&
+            eventSettings.password &&
+            eventSettings.eventId == params.event_id
+          ) {
+            onDecryptEvent(eventSettings.password, false, event);
+          }
         });
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    //objectId as indicator for initial object
-    if (
-      eventSettings &&
-      eventSettings.password &&
-      eventSettings.eventId == params.event_id &&
-      state.id.length &&
-      isEncrypted
-    ) {
-      onDecryptEvent(eventSettings.password);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state]);
 
   const onCompleteEvent = () => {
     getToken().then((token: string) => {
@@ -94,12 +96,16 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     });
   };
 
-  const onDecryptEvent = async (password: string, isManual?: boolean) => {
+  const onDecryptEvent = async (password: string, isManual?: boolean, localState?: Event) => {
     try {
-      state.groups = await decryptEvent(state, password);
+      if(!localState) {
+        localState = state
+      }
+
+      localState.groups = await decryptEvent(localState, password);
       setEventSetting({ eventId: params.event_id, password });
 
-      dispatch({ groups: state.groups });
+      dispatch({ groups: localState.groups });
       setIsEncrypted(false);
       if (isManual) {
         addToast({ message: "Entschlüsselt", type: "info" });
@@ -130,7 +136,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         }}
       >
         <TD>{group.name ?? "***"}</TD>
-        <TD>{group.category}</TD>
+        <TD>{group.category.name}</TD>
         <TD>
           <span className="mr-3">{group.contact.FirstName ?? "***"}</span>
           <span>{group.contact.LastName ?? "***"}</span>
@@ -153,7 +159,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
         return (
           (group.name?.includes(f) ||
-            group.category.includes(f) ||
+            group.category.name.includes(f) ||
             group.createdAt.includes(f) ||
             f == "") &&
           filter.eventDetail?.approved == !!group.approved
@@ -212,6 +218,14 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       </div>
       {!state.completed && !isEncrypted && (
         <div className="flex flex-row gap-3 flex-wrap">
+          <EditEventPopup
+            event={state}
+            done={async (editedEvent: EditEvent) => {
+              const token = await getToken();
+              await putEvent(token, state.id, editedEvent);
+              dispatch(editedEvent);
+            }}
+          >
           <EditEventPopup event={state} done={async(editedEvent: EditEvent) => {
             const token = await getToken()
             await putEvent(token, state.id, editedEvent)

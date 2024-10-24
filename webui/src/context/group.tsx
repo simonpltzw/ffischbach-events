@@ -27,36 +27,36 @@ export const GroupProvider = ({ children }: any) => {
     const newState = { ...state }!;
 
     switch (action.type) {
-      case 'new':
+      case "new":
         return { ...action.value };
-      case 'name':
+      case "name":
         newState.name = action.value;
         break;
-      case 'category':
+      case "category":
         newState.category = action.value;
         break;
-      case 'approved':
+      case "approved":
         newState.approved = action.value;
         break;
-      case 'contact_new':
+      case "contact_new":
         newState.contact = action.value;
         break;
-      case 'contact_email':
+      case "contact_email":
         newState.contact!.Email = action.value;
         break;
-      case 'contact_firstName':
+      case "contact_firstName":
         newState.contact!.FirstName = action.value;
         break;
-      case 'contact_lastName':
+      case "contact_lastName":
         newState.contact!.LastName = action.value;
         break;
-      case 'contact_birthDate':
+      case "contact_birthDate":
         newState.contact!.BirthDate = action.value;
         break;
-      case 'contact_vip':
+      case "contact_vip":
         newState.contact!.vip = action.value;
         break;
-      case 'participants':
+      case "participants":
         newState.participants = action.value;
     }
     return newState;
@@ -64,7 +64,22 @@ export const GroupProvider = ({ children }: any) => {
 
   const [groupState, dispatchGroup] = useReducer<Reducer<Group, GroupAction>>(
     groupReducer,
-    new Group(-1, "", "", "", false, new Participant(-1, "", "", "", "", false, ""), [], "", "")
+    new Group(
+      -1,
+      "",
+      "",
+      {
+        id: "",
+        name: "",
+        signUpFrom: "",
+        signUpTo: "",
+      },
+      false,
+      new Participant(-1, "", "", "", "", false, ""),
+      [],
+      "",
+      ""
+    )
   );
 
   return <Context.Provider value={[groupState, dispatchGroup]}>{children}</Context.Provider>;

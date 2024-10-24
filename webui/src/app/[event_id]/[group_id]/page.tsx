@@ -7,17 +7,20 @@ import { Lock } from "@/components/Lock";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { Spinner } from "@/components/Spinner";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
+import { useCategories } from "@/context/category";
 import { useEventSettings } from "@/context/eventSettings";
 import { useGroupContext } from "@/context/group";
 import { useToast } from "@/context/toast";
+import { Category } from "@/models/Category";
 import { Group } from "@/models/in/Group";
 import { Participant } from "@/models/in/Participant";
 import { decryptGroup } from "@/services/decryptService";
+import { getEventById } from "@/services/eventsService";
 import { getGroup, updateGroup } from "@/services/groupsService";
 import useToken from "@/services/tokenService";
-import { MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { TrashIcon } from "@heroicons/react/24/solid";
 import React, { useLayoutEffect } from "react";
-import { ChangeEvent, Fragment, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 const GroupPage = ({ params }: { params: { event_id: string; group_id: string } }) => {
   const [groupState, dispatchGroup] = useGroupContext();
@@ -31,34 +34,38 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   const [categories, setCategories] = useCategories();
   const empty = "***";
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    params.event_id = decodeURI(params.event_id)
+
     setIsPending(true);
     getToken().then((token: string) => {
       getGroup(token, parseInt(params.group_id)).then((group: Group) => {
         dispatchGroup({ type: "new", value: group });
         setParticipants([...group.participants]);
         setIsPending(false);
+
+        if (
+          eventSettings &&
+          eventSettings.password &&
+          eventSettings.eventId == params.event_id
+        ) {
+          if (groupState.event) {
+            onDecryptEventData(eventSettings.password, false, group);
+          }
+        }
       });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    //objectId as indicator for initial object
 
-    if (
-      eventSettings &&
-      eventSettings.password &&
-      eventSettings.eventId == params.event_id &&
-      !!!groupState.name &&
-      isEncrypted
-    ) {
-      if (groupState.event) {
-        onDecryptEventData(eventSettings.password);
-      }
+  useEffect(() => {
+    if (params.event_id != eventSettings.eventId && categories.length == 0) {
+      getToken().then((token) =>
+        getEventById(token, params.event_id).then((event) => setCategories(event.categories))
+      );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groupState]);
+  }, [groupState, eventSettings]);
 
   const onSubmit: any = () => {
     //todo
@@ -72,8 +79,12 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
     });
   };
 
-  const onDecryptEventData = async (password: string, isManual?: boolean) => {
-    const updatedGroup: Group = await decryptGroup(groupState, { password });
+  const onDecryptEventData = async (password: string, isManual?: boolean, localState?: Group) => {
+    if(!localState) {
+      localState = groupState
+    }
+
+    const updatedGroup: Group = await decryptGroup(localState, { password });
 
     dispatchGroup({
       type: "new",
@@ -82,7 +93,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
 
     setIsEncrypted(false);
 
-    setEventSetting({ eventId: groupState.event?.id, password });
+    setEventSetting({ eventId: localState.event?.id, password });
     setParticipants([...updatedGroup.participants]);
     if (isManual) {
       addToast({ message: "Entschlüsselt", type: "info" });
@@ -168,7 +179,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       });
 
     if (filteredParticipants.length > 0) {
-      return filteredParticipants
+      return filteredParticipants;
     } else {
       return (
         <TR disabled>
@@ -201,7 +212,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       <div>
         <div className="block text-sm font-semibold h-fit mb-2">Kategorie</div>
         <select
-          value={groupState.category ?? empty}
+          value={groupState.category?.id ?? empty}
           disabled={isEncrypted}
           className={`shadow-md border rounded w-full py-2 px-3 dark:text-white leading-tight outline-none 
                focus:border-2 focus:border-blue-500 dark:focus:border-2 dark:focus:border-blue-500
@@ -213,13 +224,13 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             dispatchGroup({ type: "category", value: e.target.value })
           }
         >
-          <option value="600">Bauhof Stadt Kelkheim</option>
-          <option value="500">Privatgruppen</option>
-          <option value="400">Kelkheimer Vereine</option>
-          <option value="300">Fischbacher Vereine</option>
-          <option value="200">Mitglieder Feuerwehren Stadt Kelkheim</option>
-          <option value="100">Freunde, Familie, Arbeitskollegen FF Fischbach</option>
-          <option value="0">Sonstiges</option>
+          {categories.map((c) => {
+            return (
+              <option key={`category-${c.id}`} value={c.id}>
+                {c.name}
+              </option>
+            );
+          })}
         </select>
       </div>
 
@@ -313,7 +324,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
 
       {!isEncrypted && (
         <div className="flex flex-row justify-end">
-          <Button type="button" onClick={onSubmit}>
+          <Button color="blue" type="button" onClick={onSubmit}>
             Gruppe updaten
           </Button>
         </div>
