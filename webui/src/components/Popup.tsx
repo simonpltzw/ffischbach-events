@@ -15,14 +15,14 @@ export interface PopupProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const PopupBackdrop = () => {
-  return <DialogBackdrop className="fixed z-0 inset-0 bg-gray-400/30 blur-lg" />;
+  return <DialogBackdrop className="fixed z-0 inset-0 bg-gray-400/50 blur-lg" />;
 };
 
 export const PopupDialogPanel: FC<PopupPanelProps> = (props: PopupPanelProps) => {
   return (
     <DialogPanel
       transition
-      className="z-50 w-fit max-w-md rounded-xl border border-2 dark:border-0 bg-gray-400 dark:bg-gray-800 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
+      className="z-50 w-fit max-w-md rounded-xl border-2 border-gray-500 dark:border-0 bg-gray-400 dark:bg-gray-800 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0 shadow-lg"
     >
       {props.children}
     </DialogPanel>

@@ -1,5 +1,6 @@
 import { createContext, Dispatch, Reducer, useContext, useReducer } from "react";
 import { FilterSettings } from "@/models/FilterSettings";
+import { Action } from "@/util/types";
 
 const Context = createContext<any | undefined>(null);
 

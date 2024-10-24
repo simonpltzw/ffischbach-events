@@ -16,7 +16,7 @@ export interface TDProps extends React.HTMLAttributes<HTMLTableCellElement> {
 
 export const Table: FC<GeneralProps> = (props: GeneralProps) => {
   return (
-    <div className="relative overflow-x-auto border dark:border-0 shadow-md rounded-lg">
+    <div className={`relative overflow-x-auto border dark:border-0 shadow-md rounded-lg ${props.className}`}>
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         {props.children}
       </table>
@@ -45,7 +45,7 @@ export const TR: FC<TRProps> = (props: TRProps) => {
           props.onClick(e);
         }
       }}
-      className={`bg-white border-b last:border-0 dark:bg-gray-900/40 dark:border-gray-900 ${props.disabled ? 'cursor-default' : 'cursor-pointer hover:bg-gray-200 hover:dark:bg-gray-700 hover:rounded'}`}
+      className={`bg-white border-b last:border-0 dark:bg-gray-900/40 dark:border-gray-900 ${props.disabled ? 'cursor-default' : 'cursor-pointer hover:bg-gray-200 hover:dark:bg-gray-700 hover:rounded-md'}`}
     >
       {props.children}
     </tr>
@@ -66,7 +66,7 @@ export const TD: FC<TDProps> = (props: TDProps) => {
       onClick={props.click}
       colSpan={props.colspan}
       scope="row"
-      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white justify-items-start"
+      className={`px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white justify-items-start ${props.className}`}
     >
       {props.children}
     </td>
