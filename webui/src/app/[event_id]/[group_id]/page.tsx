@@ -6,6 +6,7 @@ import { DataList } from "@/components/DataList";
 import { Input } from "@/components/Input";
 import { Lock } from "@/components/Lock";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
+import { Select } from "@/components/Select";
 import { TD, TR } from "@/components/table/Table";
 import { useCategories } from "@/context/category";
 import { useEventSettings } from "@/context/eventSettings";
@@ -196,37 +197,25 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
           dispatchGroup({ type: "name", value: e.target.value })
         }
       />
-      <div>
-        <div className="block text-sm font-semibold h-fit mb-1">Kategorie</div>
-        <select
-          value={groupState.category?.id}
-          disabled={isEncrypted}
-          className={`
-            shadow-md border rounded w-full py-2 px-3 dark:text-white leading-tight outline-none 
-               focus:border-2 focus:border-blue-500 dark:focus:border-2 dark:focus:border-blue-500
-               text-black dark:text-white dark:border-0 h-10
-               block p-2.5 dark:placeholder-gray-400 dark:text-white ${
-                 isEncrypted ? "bg-gray-200 dark:bg-gray-700/70" : "bg-white dark:bg-gray-900"
-               }`}
-
-               //
-          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            const c: Category | undefined = categories.find((c) => c.id == e.target.value);
-            if (c) {
-              dispatchGroup({ type: "category", value: c });
-            }
-          }}
-        >
-          {categories.map((c) => {
-            return (
-              <option key={`category-${c.id}`} value={c.id}>
-                {c.name}
-              </option>
-            );
-          })}
-        </select>
-      </div>
-
+      <Select
+        title="Kategorie"
+        disabled={isEncrypted}
+        value={groupState.category?.id}
+        onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+          const c: Category | undefined = categories.find((c) => c.id == e.target.value);
+          if (c) {
+            dispatchGroup({ type: "category", value: c });
+          }
+        }}
+      >
+        {categories.map((c) => {
+          return (
+            <option key={`category-${c.id}`} value={c.id}>
+              {c.name}
+            </option>
+          );
+        })}
+      </Select>
       <CheckBox
         title="Genehmigt"
         disabled={isEncrypted}
