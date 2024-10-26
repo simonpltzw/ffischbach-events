@@ -61,6 +61,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
         getEventById(token, params.event_id).then((event) => setCategories(event.categories))
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupState, eventSettings]);
 
   const onSubmit: any = () => {

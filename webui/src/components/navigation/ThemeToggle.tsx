@@ -11,6 +11,7 @@ export const ThemeToggle: FC<any> = () => {
 
   useEffect(() => {
     toggle(!appSettings.isDarkMode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggle = (value: boolean) => {
