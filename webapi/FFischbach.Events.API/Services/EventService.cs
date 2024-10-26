@@ -60,7 +60,7 @@ namespace FFischbach.Events.API.Services
 
                 // Create default categories.
                 List<string> defaultCategories = ["Freunde, Familie, Arbeitskollegen FF Fischbach", "Mitglieder Feuerwehren Stadt Kelkheim", "Fischbacher Vereine", "Kelkheimer Vereine", "Privatgruppen", "Bauhof Stadt Kelkheim"];
-                dbEvent.Categories = new List<Category>();
+                dbEvent.Categories = [];
                 foreach (string category in defaultCategories)
                 {
                     dbEvent.Categories.Add(new Category

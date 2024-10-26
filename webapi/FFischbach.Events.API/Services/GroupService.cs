@@ -173,7 +173,7 @@ namespace FFischbach.Events.API.Services
                 Group inputGroup = Mapper.Map<Group>(group);
 
                 // Create local mapper.
-                IMapper updateMapper = new Mapper(new MapperConfiguration(c =>
+                Mapper updateMapper = new Mapper(new MapperConfiguration(c =>
                 {
                     c.CreateMap<Group, Group>()
                         .ForMember(x => x.Id, y => y.Ignore())
