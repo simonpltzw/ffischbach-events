@@ -65,5 +65,19 @@
     "msal",
     "Msal",
     "styletype"
-  ]
+  ],
+  "restoreTerminals.terminals": [
+        {
+            "splitTerminals": [
+                {
+                    "name": "npm",
+                    "commands": ["cd webui", "clear"]
+                },
+                {
+                    "name": "git",
+                }
+            ]
+        }
+        
+    ]
 }
