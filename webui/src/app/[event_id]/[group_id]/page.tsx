@@ -81,6 +81,10 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
 
     const updatedGroup: Group = await decryptGroup(localState, { password });
 
+    if (!updatedGroup.category) {
+      updatedGroup.category = categories[0];
+    }
+
     dispatchGroup({
       type: "new",
       value: updatedGroup,
@@ -207,7 +211,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       <div>
         <div className="block text-sm font-semibold h-fit mb-2">Kategorie</div>
         <select
-          value={groupState.category?.id ?? empty}
+          value={groupState.category?.id}
           disabled={isEncrypted}
           className={`shadow-md border rounded w-full py-2 px-3 dark:text-white leading-tight outline-none 
                focus:border-2 focus:border-blue-500 dark:focus:border-2 dark:focus:border-blue-500
@@ -215,9 +219,12 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
                block p-2.5 dark:placeholder-gray-400 dark:text-white ${
                  isEncrypted ? "bg-gray-200 dark:bg-gray-700/70" : "bg-white dark:bg-gray-900"
                }`}
-          onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-            dispatchGroup({ type: "category", value: e.target.value })
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+            const c: Category | undefined = categories.find((c) => c.id == e.target.value);
+            if (c) {
+              dispatchGroup({ type: "category", value: c });
           }
+          }}
         >
           {categories.map((c) => {
             return (
