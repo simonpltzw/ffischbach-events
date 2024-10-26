@@ -235,6 +235,8 @@ namespace FFischbach.Events.API.Services
 
                 // Get event from the database.
                 Event? dbEvent = await DatabaseContext.Events
+                                        .Include (x => x.Groups!)
+                                            .ThenInclude(x => x.Participants)
                                         .Include(x => x.EventManagers!)
                                             .ThenInclude(x => x.Manager)
                                         .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower());
@@ -262,6 +264,13 @@ namespace FFischbach.Events.API.Services
                 // Update trackables.
                 dbEvent.UpdatedBy = displayName;
                 dbEvent.UpdatedAt = DateTime.UtcNow;
+
+                // Check if the event was completed by the user.
+                if (@event.Completed == true)
+                {
+                    // Anonymize the dsgvo relevant user data.
+                    dbEvent.Groups?.ForEach(x => { x.EncryptedName = []; x.HashedName = string.Empty; x.Participants?.ForEach(x => x.EncryptedData = []); });
+                }
 
                 DatabaseContext.Events.Update(dbEvent);
                 await DatabaseContext.SaveChangesAsync();
