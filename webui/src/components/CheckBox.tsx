@@ -18,7 +18,7 @@ export const CheckBox: FC<CheckBoxProps> = (props: CheckBoxProps) => {
   return (
     <div className="flex flex-col">
       {props.title && <label className={`block text-sm font-semibold h-fit mb-1 ${props.labelClassName}`}>{props.title}</label>}
-      <div className="flex items-center w-10 h-10 shadow-md">
+      <div className="flex items-center w-8 h-8 shadow-md">
         <input
           disabled={props.disabled}
           type="checkbox"
@@ -29,7 +29,7 @@ export const CheckBox: FC<CheckBoxProps> = (props: CheckBoxProps) => {
             }
             setValue(e.target.checked);
           }}
-          className="relative shadow-inner cursor-pointer disabled:cursor-default appearance-none w-10 h-10 bg-white border rounded 
+          className="relative shadow-inner cursor-pointer disabled:cursor-default appearance-none w-8 h-8 bg-white border rounded 
           dark:bg-gray-900 dark:border-0
           hover:bg-gray-100 hover:dark:bg-gray-700
           disabled:bg-gray-300/50 disabled:dark:bg-gray-500/50

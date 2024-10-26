@@ -11,7 +11,7 @@ import useToken from "@/services/tokenService";
 import { getLocalDateTime } from "@/util/converter";
 import { Action } from "@/util/types";
 import { ChevronDownIcon, PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/20/solid";
-import { Dispatch, FC, useState } from "react";
+import { Dispatch, FC, useEffect, useState } from "react";
 
 export interface CategoriesProps {
   isVisible: boolean;
@@ -39,19 +39,16 @@ export const Categories: FC<CategoriesProps> = (props: CategoriesProps) => {
         }}
       >
         <TD className="pr-0 w-fit">
-          <div className="border rounded bg-gray-400 dark:bg-transparent text-white p-2">
-            {category.name}
-          </div>
+          <div className="p-2">{category.name}</div>
         </TD>
         <TD className="pr-0 w-fit">
-          <div className="border rounded bg-gray-400 dark:bg-transparent text-white p-2">
-            {getLocalDateTime(category.signUpFrom)}
-          </div>
+          <div className="p-2">{getLocalDateTime(category.signUpFrom)}</div>
         </TD>
         <TD className="w-fit">
-          <div className="border rounded bg-gray-400 dark:bg-transparent text-white p-2">
-            {getLocalDateTime(category.signUpTo)}
-          </div>
+          <div className="p-2">{getLocalDateTime(category.signUpTo)}</div>
+        </TD>
+        <TD>
+          <PencilIcon height={25} />
         </TD>
         <TD>
           <ConfirmPopup
@@ -67,9 +64,6 @@ export const Categories: FC<CategoriesProps> = (props: CategoriesProps) => {
             <TrashIcon color="red" height={25} />
           </ConfirmPopup>
         </TD>
-        <TD>
-          <PencilIcon height={25} />
-        </TD>
       </TR>
     );
   };
@@ -80,16 +74,13 @@ export const Categories: FC<CategoriesProps> = (props: CategoriesProps) => {
         <div>
           <Accordion
             opener={
-              <Button color="blue" styletype="secondary" type="button">
-                <div className="flex items-center gap-3">
-                  <div>Kategorien anzeigen</div>
-                  <ChevronDownIcon height={20} />
-                </div>
-              </Button>
+              <>
+                <div>Kategorien</div>
+                <ChevronDownIcon height={20} />
+              </>
             }
           >
-            <div className="flex flex-col gap-3 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-lg mb-5">
-              <label className="text-lg font-bold">Kategorien</label>
+            <div className="flex flex-col gap-3 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-b-lg">
               <CategoryPopup
                 isEdit
                 eventId={props.state.id}
@@ -110,6 +101,7 @@ export const Categories: FC<CategoriesProps> = (props: CategoriesProps) => {
                   type="button"
                   onClick={() => setIsCategoryCreatePopupVisible(true)}
                 >
+                  Kategorie erstellen
                   <PlusIcon height={25} />
                 </Button>
               </CategoryPopup>

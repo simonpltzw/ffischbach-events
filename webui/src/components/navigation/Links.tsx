@@ -36,9 +36,9 @@ export const Links: FC<LinksProps> = (props: LinksProps) => {
   const generateStyle = useCallback(
     (index: number) => {
       if (location != index) {
-        return " hover:bg-gray-600 hover:text-white rounded-md px-3 py-2 font-medium text-center my-auto";
+        return "hover:bg-gray-600 hover:text-white rounded-md px-3 py-2 font-medium text-center my-auto";
       } else {
-        return "bg-gray-600 dark:bg-gray-900 block rounded-md px-3 py-2 text-center my-auto font-medium";
+        return "text-black dark:text-white block rounded-md px-3 py-2 text-center my-auto font-medium";
       }
     },
     [location]

@@ -15,8 +15,6 @@ export const Button: FC<ButtonProps> = (props: ButtonProps) => {
     ...props,
   };
 
-  const p = `bg-${props.color}-600 hover:bg-${props.color}-700 hover:dark:bg-${props.color}-400`;
-
   const getStyleType = () => {
     switch (props.styletype) {
       case "tertiary":
@@ -61,8 +59,8 @@ export const Button: FC<ButtonProps> = (props: ButtonProps) => {
     <button
       type={props.type}
       disabled={props.disabled}
-      className={`rounded-md w-fit 
-        p-3 disabled:cursor-default shadow-md ${getStyleType()} ${getColor()}`}
+      className={`flex items-center gap-3 rounded-md w-fit text-nowrap
+        py-1 px-2 disabled:cursor-default shadow-md ${props.className} ${getStyleType()} ${getColor()}`}
       onClick={props.onClick}
     >
       {props.children}

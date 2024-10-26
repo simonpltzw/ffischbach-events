@@ -19,24 +19,9 @@ export const Accordion: FC<AccordionProps> = (props: AccordionProps) => {
           toggle();
         }}
       >
-        {props.opener}
+        <div className={`flex items-center justify-between select-none gap-3 p-3 w-full bg-gray-200 dark:bg-gray-900 cursor-pointer ${expanded ? "rounded-t-md" : "rounded-md"}`}>{props.opener}</div>
       </div>
-      <div className="mt-3" hidden={!expanded}>
-        {props.children}
-      </div>
+      <div hidden={!expanded}>{props.children}</div>
     </div>
   );
 };
-
-/**
- * <EditCategoriesPopup
-            categories={state.categories}
-            setCategories={() => {}}
-            done={() => {}}
-          >
-            <Button className="md:flex-none flex-1" type="button">
-              Kategorien bearbeiten
-            </Button>
-          </EditCategoriesPopup>
- * 
- */

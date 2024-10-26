@@ -57,8 +57,8 @@ export const Input: FC<InputProps> = (props: InputProps) => {
       <input
         ref={inputRef}
         className={`
-        shadow-md appearance-none border rounded w-full py-2 px-3 dark:text-white leading-tight focus:outline-none
-        text-black dark:text-white dark:border-0 h-10 ${bgStyle()}
+        shadow-md appearance-none border rounded w-full py-0 px-3 dark:text-white leading-tight focus:outline-none
+        text-black dark:text-white dark:border-0 h-8 ${bgStyle()}
         ${props.className ?? ""}`}
         type={props.type}
         autoFocus={props.autoFocus}
