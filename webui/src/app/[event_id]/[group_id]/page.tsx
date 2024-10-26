@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/Button";
 import { CheckBox } from "@/components/CheckBox";
+import { DataList } from "@/components/DataList";
 import { Input } from "@/components/Input";
 import { Lock } from "@/components/Lock";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
-import { Spinner } from "@/components/Spinner";
-import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
+import { TD, TR } from "@/components/table/Table";
 import { useCategories } from "@/context/category";
 import { useEventSettings } from "@/context/eventSettings";
 import { useGroupContext } from "@/context/group";
@@ -19,7 +19,7 @@ import { getEventById } from "@/services/eventsService";
 import { getGroup, updateGroup } from "@/services/groupsService";
 import useToken from "@/services/tokenService";
 import { TrashIcon } from "@heroicons/react/24/solid";
-import React, { useLayoutEffect } from "react";
+import React, { useLayoutEffect, useMemo } from "react";
 import { ChangeEvent, useEffect, useState } from "react";
 
 const GroupPage = ({ params }: { params: { event_id: string; group_id: string } }) => {
@@ -28,10 +28,11 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
   const [eventSettings, setEventSetting] = useEventSettings();
   const [participantFilter, setParticipantFilter] = useState<string>("");
-  const [isPending, setIsPending] = useState<boolean>();
+  const [, setIsPending] = useState<boolean>();
   const { getToken } = useToken();
   const { addToast } = useToast();
   const [categories, setCategories] = useCategories();
+  const tableHeaders = useMemo(() => ["Vorname", "Nachname", "Geburtsdatum", ""], []);
   const empty = "***";
 
   useLayoutEffect(() => {
@@ -63,7 +64,6 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   }, [groupState, eventSettings]);
 
   const onSubmit: any = () => {
-    //todo
     groupState.participants = participants;
 
     getToken().then((token: string) => {
@@ -176,20 +176,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
           </TR>
         );
       });
-
-    if (filteredParticipants.length > 0) {
-      return filteredParticipants;
-    } else {
-      return (
-        <TR disabled>
-          <TD colspan={4}>
-            <div className="flex justify-center">
-              {isPending ? <Spinner /> : "Keine Einträge gefunden"}
-            </div>
-          </TD>
-        </TR>
-      );
-    }
+    return filteredParticipants;
   };
 
   return (
@@ -209,13 +196,13 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
         }
       />
       <div>
-        <div className="block text-sm font-semibold h-fit mb-2">Kategorie</div>
+        <div className="block text-sm font-semibold h-fit mb-1">Kategorie</div>
         <select
           value={groupState.category?.id}
           disabled={isEncrypted}
           className={`shadow-md border rounded w-full py-2 px-3 dark:text-white leading-tight outline-none 
                focus:border-2 focus:border-blue-500 dark:focus:border-2 dark:focus:border-blue-500
-               text-black dark:text-white dark:border-0 h-10
+               text-black dark:text-white dark:border-0 h-8
                block p-2.5 dark:placeholder-gray-400 dark:text-white ${
                  isEncrypted ? "bg-gray-200 dark:bg-gray-700/70" : "bg-white dark:bg-gray-900"
                }`}
@@ -223,7 +210,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
             const c: Category | undefined = categories.find((c) => c.id == e.target.value);
             if (c) {
               dispatchGroup({ type: "category", value: c });
-          }
+            }
           }}
         >
           {categories.map((c) => {
@@ -296,34 +283,16 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
           />
         </div>
       </div>
-      <div className="flex flex-col gap-4 shadow pl-3 rounded-lg">
-        <div className="flex flex-col gap-4 items-start border dark:border-0 p-3 dark:bg-gray-900/30">
-          <label className="text-lg font-semibold">Filter</label>
-          <span className="font-bold">Teilnehmer</span>
-          <div>
-            <Input
-              className="w-44"
-              type="search"
-              title="Teilnehmersuche"
-              disabled={isEncrypted}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setParticipantFilter(e.target.value)}
-            />
-          </div>
-        </div>
 
-        <Table>
-          <THead>
-            <tr>
-              <TH>Vorname</TH>
-              <TH>Nachname</TH>
-              <TH>Geburtsdatum</TH>
-              <TH></TH>
-            </tr>
-          </THead>
-          <TBody>{generateParticipantList()}</TBody>
-        </Table>
-      </div>
-
+      <DataList
+        title="Teilnehmer"
+        filter={participantFilter}
+        dispatchCb={(value) => {
+          setParticipantFilter(value);
+        }}
+        generateList={() => generateParticipantList()}
+        tableHeaders={tableHeaders}
+      />
       {!isEncrypted && (
         <div className="flex flex-row justify-end">
           <Button color="blue" type="button" onClick={onSubmit}>

@@ -3,9 +3,11 @@
 import {
   ChangeEvent,
   Fragment,
+  ReactNode,
   Reducer,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useReducer,
   useState,
 } from "react";
@@ -41,6 +43,7 @@ import { Action } from "@/util/types";
 import { Categories } from "./Categories";
 import { EditEventPopup } from "@/components/popups/EditEventPopup";
 import { EditEvent } from "@/models/EditEvent";
+import { DataList } from "@/components/DataList";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const router = useRouter();
@@ -53,7 +56,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const { parse } = useJsonToCsv();
 
   const [filter, dispatchFilter] = useFilterSettings();
-  const [groupFilter, setGroupFilter] = useState<string>("");
+
+  const tableHeaders = useMemo(
+    () => ["Name", "Kategorie", "Kontakt", "Genehmigt", "Erstellt", ""],
+    []
+  );
 
   const [state, dispatch] = useReducer<Reducer<Event, Action<Partial<Event>>>>(
     (state: Event, action: Action<Partial<Event>>): Event => {
@@ -118,7 +125,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     }
   };
 
-  const generateGroupEntry = (group: Group, index: number) => {
+  const generateGroupEntry = (group: Group, index: number): ReactNode => {
     return (
       <TR
         key={`event-group-${index}`}
@@ -146,33 +153,22 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     );
   };
 
-  const generateFilteredList = () => {
+  const generateFilteredList = (filter: string, isApproved?: boolean): ReactNode[] => {
     const filteredList = state.groups
       ?.filter((group: Group) => {
-        const f = groupFilter ?? "";
+        const f = filter ?? "";
 
         return (
           (group.name?.includes(f) ||
             group.category.name.includes(f) ||
             group.createdAt.includes(f) ||
             f == "") &&
-          filter.eventDetail?.approved == !!group.approved
+          isApproved == !!group.approved
         );
       })
       .map((group: Group, index: number) => generateGroupEntry(group, index));
 
-    if (filteredList?.length != 0) {
-      return filteredList;
-    }
-    return (
-      <TR disabled>
-        <TD colspan={6}>
-          <div className="flex justify-center">
-            {isPending ? <Spinner /> : "Keine Einträge gefunden"}
-          </div>
-        </TD>
-      </TR>
-    );
+    return filteredList ?? [];
   };
 
   const download = async () => {
@@ -251,49 +247,39 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       <div className="flex flex-col gap-3">
         <Categories state={state} dispatch={dispatch} isVisible={isEncrypted} />
 
-        <div className="flex flex-col gap-3 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-lg mb-5">
-          <label className="text-lg font-bold">Filter</label>
-          <div className="flex flex-row-reverse gap-5 items-end">
-            <Input
-              containerClassName="w-full"
-              value={groupFilter ?? ""}
-              placeholder=""
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setGroupFilter(e.target.value)}
-            />
-            <div className="flex flex-col">
-              <label className={`block text-sm font-semibold h-fit mb-2`} htmlFor="username">
-                Genehmigt
-              </label>
-              <CheckBox
-                value={!!filter.eventDetail?.approved}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  dispatchFilter({
-                    eventDetail: {
-                      approved: e.target.checked,
-                      groupFilter: filter.eventDetail?.groupFilter ?? "",
-                    },
-                  })
-                }
-              />
-            </div>
-          </div>
-        </div>
+        <DataList
+          title="Ungenehmigte Gruppen"
+          isPending={isPending}
+          filter={filter.eventDetail?.groupFilter}
+          dispatchCb={(value) => {
+            dispatchFilter({
+              eventDetail: {
+                groupFilter: value,
+                groupFilterApproved: filter.eventDetail?.groupFilterApproved ?? "",
+              },
+            });
+          }}
+          generateList={() => generateFilteredList(filter.eventDetail?.groupFilter ?? "", false)}
+          tableHeaders={tableHeaders}
+        />
 
-        <Table>
-          <THead>
-            <tr>
-              <TH>Name</TH>
-              <TH>Kategorie</TH>
-              <TH>Kontakt</TH>
-              <TH>Genehmigt</TH>
-              <TH>Erstellt</TH>
-              <TH></TH>
-            </tr>
-          </THead>
-          <TBody>
-            <>{generateFilteredList()}</>
-          </TBody>
-        </Table>
+        <DataList
+          title="Genehmigte Gruppen"
+          isPending={isPending}
+          filter={filter.eventDetail?.groupFilterApproved}
+          dispatchCb={(value) => {
+            dispatchFilter({
+              eventDetail: {
+                groupFilter: filter.eventDetail?.groupFilter ?? "",
+                groupFilterApproved: value,
+              },
+            });
+          }}
+          generateList={() =>
+            generateFilteredList(filter.eventDetail?.groupFilterApproved ?? "", true)
+          }
+          tableHeaders={tableHeaders}
+        />
       </div>
     </>
   );

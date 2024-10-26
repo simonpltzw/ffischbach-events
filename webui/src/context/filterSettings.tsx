@@ -17,12 +17,12 @@ export const FilterSettingsProvider = ({ children }: any) => {
 
   const empty: FilterSettings = {
     eventDetail: {
-      approved: false,
-      groupFilter: ""
+      groupFilter: "",
+      groupFilterApproved: ""
     },
     eventList: {
-      finished: false,
-      eventFilter: ""
+      eventFilter: "",
+      eventFilterEnded: ""
     }
   }
 

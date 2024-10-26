@@ -2,12 +2,12 @@ export interface Page {}
 
 export interface EventListPage extends Page {
     eventFilter: string;
-    finished: boolean
+    eventFilterEnded: string;
 }
 
 export interface EventPage extends Page {
     groupFilter: string;
-    approved: boolean
+    groupFilterApproved: string;
 }
 
 export interface FilterSettings {
