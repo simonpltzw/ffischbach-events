@@ -1,8 +1,7 @@
 import React from "react";
 import { FC, HTMLAttributes } from "react";
 
-export interface GeneralProps extends React.HTMLAttributes<any> {
-}
+export interface GeneralProps extends React.HTMLAttributes<any> {}
 
 export interface TRProps extends React.HTMLAttributes<HTMLTableRowElement> {
   click?: any;
@@ -16,7 +15,9 @@ export interface TDProps extends React.HTMLAttributes<HTMLTableCellElement> {
 
 export const Table: FC<GeneralProps> = (props: GeneralProps) => {
   return (
-    <div className={`relative overflow-x-auto border dark:border-0 shadow-md rounded-lg ${props.className}`}>
+    <div
+      className={`relative overflow-x-auto border dark:border-0 shadow-md rounded-lg ${props.className}`}
+    >
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         {props.children}
       </table>
@@ -39,13 +40,18 @@ export const TBody: FC<GeneralProps> = (props: GeneralProps) => {
 export const TR: FC<TRProps> = (props: TRProps) => {
   return (
     <tr
+      id={props.id}
       onClick={(e) => {
         e.stopPropagation();
         if (!!props.onClick) {
           props.onClick(e);
         }
       }}
-      className={`bg-white border-b last:border-0 dark:bg-gray-900/40 dark:border-gray-900 ${props.disabled ? 'cursor-default' : 'cursor-pointer hover:bg-gray-200 hover:dark:bg-gray-700 hover:rounded-md'}`}
+      className={`bg-white border-b last:border-0 dark:bg-gray-900/40 dark:border-gray-900 ${
+        props.disabled
+          ? "cursor-default"
+          : "cursor-pointer hover:bg-gray-200 hover:dark:bg-gray-700 hover:rounded-md"
+      }`}
     >
       {props.children}
     </tr>

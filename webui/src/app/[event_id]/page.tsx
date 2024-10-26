@@ -128,11 +128,12 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const generateGroupEntry = (group: Group, index: number): ReactNode => {
     return (
       <TR
-        key={`event-group-${index}`}
+        id={group.id.toString()}
+        key={`event-group-${group.id}`}
         disabled={isEncrypted}
         onClick={() => {
           if (!isEncrypted) {
-            router.push(`/${state.id}/${state.groups![index].id}`);
+            router.push(`/${state.id}/${group.id}`);
           }
         }}
       >
@@ -157,7 +158,6 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     const filteredList = state.groups
       ?.filter((group: Group) => {
         const f = filter ?? "";
-
         return (
           (group.name?.includes(f) ||
             group.category.name.includes(f) ||
@@ -173,7 +173,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const download = async () => {
     const data = await parse(state);
-    const file = new File([data], "d.csv");
+    const file = new File([data], "export.csv");
     const url = URL.createObjectURL(file);
 
     const a = document.createElement("a");
@@ -193,7 +193,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         <Lock isLocked={isEncrypted} />
       </PasswordPopup>
 
-      <div className="mb-3 font-bold text-xl">Übersicht Gruppe</div>
+      <div className="mb-3 font-bold text-xl">Übersicht Event</div>
       <div className="flex flex-row gap-3">
         <div>Event Name: </div>
         <h3 className="text-base font-semibold">{state?.id}</h3>

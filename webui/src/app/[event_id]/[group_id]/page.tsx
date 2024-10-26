@@ -35,7 +35,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   const tableHeaders = useMemo(() => ["Vorname", "Nachname", "Geburtsdatum", ""], []);
   const empty = "***";
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     params.event_id = decodeURI(params.event_id);
 
     setIsPending(true);
@@ -201,12 +201,15 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
         <select
           value={groupState.category?.id}
           disabled={isEncrypted}
-          className={`shadow-md border rounded w-full py-2 px-3 dark:text-white leading-tight outline-none 
+          className={`
+            shadow-md border rounded w-full py-2 px-3 dark:text-white leading-tight outline-none 
                focus:border-2 focus:border-blue-500 dark:focus:border-2 dark:focus:border-blue-500
-               text-black dark:text-white dark:border-0 h-8
+               text-black dark:text-white dark:border-0 h-10
                block p-2.5 dark:placeholder-gray-400 dark:text-white ${
                  isEncrypted ? "bg-gray-200 dark:bg-gray-700/70" : "bg-white dark:bg-gray-900"
                }`}
+
+               //
           onChange={(e: ChangeEvent<HTMLSelectElement>) => {
             const c: Category | undefined = categories.find((c) => c.id == e.target.value);
             if (c) {
