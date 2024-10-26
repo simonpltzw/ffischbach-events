@@ -15,7 +15,7 @@
         /// <summary>
         /// Completed.
         /// </summary>
-        public bool Completed { get; set; }
+        public required bool Completed { get; set; }
 
         /// <summary>
         /// RSA public key.
@@ -40,6 +40,6 @@
         /// <summary>
         /// Create timestamp.
         /// </summary>
-        public DateTime CreatedAt { get; set; }
+        public required DateTime CreatedAt { get; set; }
     }
 }

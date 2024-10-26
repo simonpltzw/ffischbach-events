@@ -8,7 +8,7 @@
         /// <summary>
         /// Id.
         /// </summary>
-        public int Id { get; set; }
+        public required int Id { get; set; }
 
         /// <summary>
         /// Encrypted name.
@@ -28,7 +28,7 @@
         /// <summary>
         /// Amount of participants.
         /// </summary>
-        public int TotalParticipants { get; set; }
+        public required int TotalParticipants { get; set; }
 
         /// <summary>
         /// Contact participant.
@@ -48,6 +48,6 @@
         /// <summary>
         /// Create timestamp.
         /// </summary>
-        public DateTime CreatedAt { get; set; }
+        public required DateTime CreatedAt { get; set; }
     }
 }

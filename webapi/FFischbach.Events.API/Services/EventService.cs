@@ -118,9 +118,12 @@ namespace FFischbach.Events.API.Services
                     .Select(x => new EventOutputModel                                                           // Select id and counts to join them with the actual data later.
                     {
                         Id = x.Id,
+                        Date = x.Date,
+                        Completed = x.Completed,
                         TotalGroups = x.Groups!.Count,
                         TotalParticipants = x.Groups!.Sum(y => y.Participants!.Count),
-                        CreatedBy = x.CreatedBy // This is only because the output model does not allow empty created by fields. If we don't want this we need a new query model specifically for this case.
+                        CreatedAt = x.CreatedAt,
+                        CreatedBy = x.CreatedBy
                     })
                     .ToListAsync();
 
