@@ -248,6 +248,11 @@ namespace FFischbach.Events.API.Services
                     // Calling user is not an event manager of that group.
                     throw new CustomException("Du hast keine Berechtigungen für dieses Event. Lass dich von einem Manager des Events hinzufügen.", statusCode: StatusCodes.Status403Forbidden);
                 }
+                else if (dbEvent.Completed)
+                {
+                    // Event is already completed.
+                    throw new CustomException("Das Event ist bereits abgeschlossen, es können keine Änderungen mehr daran vorgenommen werden.", statusCode: StatusCodes.Status400BadRequest);
+                }
 
                 // Update the db event value by mapping the update event into it.
                 Mapper.Map(@event, dbEvent);
@@ -331,6 +336,11 @@ namespace FFischbach.Events.API.Services
                 {
                     // Nothing found.
                     throw new CustomException("Das Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status404NotFound);
+                }
+                else if (dbEvent.Completed)
+                {
+                    // Event is already completed.
+                    throw new CustomException("Das Event ist bereits abgeschlossen, es werden keine weiteren Anmeldungen mehr angenommen.", statusCode: StatusCodes.Status400BadRequest);
                 }
 
                 returnValue = string.Empty;

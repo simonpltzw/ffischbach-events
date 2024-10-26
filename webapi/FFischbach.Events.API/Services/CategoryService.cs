@@ -44,6 +44,11 @@ namespace FFischbach.Events.API.Services
                     // Calling user is not an event manager of that group.
                     throw new CustomException("Du hast keine Berechtigungen für dieses Event. Lass dich von einem Manager des Events hinzufügen.", statusCode: StatusCodes.Status403Forbidden);
                 }
+                else if (dbEvent.Completed)
+                {
+                    // Event is already completed.
+                    throw new CustomException("Das Event ist bereits abgeschlossen, es können keine Änderungen mehr daran vorgenommen werden.", statusCode: StatusCodes.Status400BadRequest);
+                }
 
                 // Map the category.
                 Category mappedCategory = Mapper.Map<Category>(category);
@@ -140,6 +145,11 @@ namespace FFischbach.Events.API.Services
                     // Calling user is not an event manager of that group.
                     throw new CustomException("Du hast keine Berechtigungen für dieses Event. Lass dich von einem Manager des Events hinzufügen.", statusCode: StatusCodes.Status403Forbidden);
                 }
+                else if (dbCategory.Event!.Completed)
+                {
+                    // Event is already completed.
+                    throw new CustomException("Das Event ist bereits abgeschlossen, es können keine Änderungen mehr daran vorgenommen werden.", statusCode: StatusCodes.Status400BadRequest);
+                }
 
                 // Map the input into the database model.
                 Mapper.Map(category, dbCategory);
@@ -192,6 +202,11 @@ namespace FFischbach.Events.API.Services
                 {
                     // Calling user is not an event manager of that group.
                     throw new CustomException("Du hast keine Berechtigungen für dieses Event. Lass dich von einem Manager des Events hinzufügen.", statusCode: StatusCodes.Status403Forbidden);
+                }
+                else if (dbCategory.Event!.Completed)
+                {
+                    // Event is already completed.
+                    throw new CustomException("Das Event ist bereits abgeschlossen, es können keine Änderungen mehr daran vorgenommen werden.", statusCode: StatusCodes.Status400BadRequest);
                 }
 
                 // Check if there are any groups assigned to this category at the moment.

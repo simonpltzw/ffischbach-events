@@ -44,6 +44,11 @@ namespace FFischbach.Events.API.Services
                     // Calling user is not an event manager of that group.
                     throw new CustomException("Du hast keine Berechtigungen für Gruppen dieses Events. Lass dich von einem Manager des Events hinzufügen.", statusCode: StatusCodes.Status403Forbidden);
                 }
+                else if (dbGroup.Event!.Completed)
+                {
+                    // Event is already completed.
+                    throw new CustomException("Das Event ist bereits abgeschlossen, es können keine Änderungen mehr daran vorgenommen werden.", statusCode: StatusCodes.Status400BadRequest);
+                }
 
                 // Check if the contact should be changed.
                 if (isContact)
