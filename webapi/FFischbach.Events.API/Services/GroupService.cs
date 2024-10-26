@@ -94,6 +94,7 @@ namespace FFischbach.Events.API.Services
                 // Get group from the database.
                 Group? dbGroup = (await DatabaseContext.Groups
                                         .Include(x => x.Participants!)
+                                        .Include(x => x.Category!)
                                         .Include(x => x.Event!)
                                             .ThenInclude(x => x.EventManagers!)
                                                 .ThenInclude(x => x.Manager)
