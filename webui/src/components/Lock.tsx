@@ -13,8 +13,7 @@ export const Lock: FC<LockProps> = (props: LockProps) => {
       //md:top-0 md:-left-16 md:bottom-full md:right-full
       //-bottom-16 right-0
     >
-      <Button type="button">
-        
+      <Button type="button" disabled={!props.isLocked}>
         {props.isLocked ? (
           <LockClosedIcon className="fill-white " height={20} />
         ) : (
