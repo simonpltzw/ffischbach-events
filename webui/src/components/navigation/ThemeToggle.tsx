@@ -1,6 +1,6 @@
 import { useAppSettings } from "@/context/appSettings";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/solid";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 
 export const ThemeToggle: FC<any> = () => {
   const [appSettings, setAppSettings] = useAppSettings();
@@ -9,19 +9,20 @@ export const ThemeToggle: FC<any> = () => {
     return v ? "dark" : "light";
   };
 
+  useEffect(() => {
+    toggle(!appSettings.isDarkMode);
+  }, []);
 
   const toggle = (value: boolean) => {
     const currentTheme = localStorage.getItem("theme") == "dark" ? "dark" : "light";
-    const theme = getTheme(!value)
+    const theme = getTheme(value);
 
     const root = window.document.documentElement;
 
     root.classList.remove(currentTheme);
     root.classList.add(theme);
 
-    if (typeof window !== "undefined") {
-      localStorage.setItem("theme", theme);
-    }
+    localStorage.setItem("theme", theme);
 
     setAppSettings((state) => {
       return {
@@ -34,9 +35,9 @@ export const ThemeToggle: FC<any> = () => {
   return (
     <div className="cursor-pointer">
       {appSettings.isDarkMode ? (
-        <SunIcon height={20} onClick={() => toggle(false)} />
+        <SunIcon height={22} onClick={() => toggle(false)} />
       ) : (
-        <MoonIcon height={20} onClick={() => toggle(true)} />
+        <MoonIcon height={22} onClick={() => toggle(true)} />
       )}
     </div>
   );
