@@ -42,16 +42,16 @@ export const Button: FC<ButtonProps> = (props: ButtonProps) => {
   const getColor = () => {
     switch (props.color) {
       case "blue":
-        return "bg-blue-600 hover:bg-blue-700 hover:dark:bg-blue-400";
+        return "bg-blue-600 hover:bg-blue-700 hover:dark:bg-blue-400 disabled:hover:bg-blue-600 dark:disabled:hover:bg-blue-600";
       case "red":
-        return "bg-red-600 hover:bg-red-700 hover:dark:bg-red-400";
+        return "bg-red-600 hover:bg-red-700 hover:dark:bg-red-400 disabled:hover:bg-red-600 dark:disabled:hover:bg-red-600";
       case "green":
-        return "bg-green-600 hover:bg-green-700 hover:dark:bg-green-400";
+        return "bg-green-600 hover:bg-green-700 hover:dark:bg-green-400 disabled:hover:bg-green-600 dark:disabled:hover:bg-green-600";
       case "gray":
-        return "bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400";
+        return "bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400 disabled:hover:bg-gray-600 dark:disabled:hover:bg-gray-600";
 
       default:
-        return "bg-blue-600 hover:bg-blue-700 hover:dark:bg-blue-400";
+        return "bg-blue-600 hover:bg-blue-700 hover:dark:bg-blue-400 disabled:hover:bg-blue-600 dark:disabled:hover:bg-blue-600";
     }
   };
 
@@ -60,7 +60,9 @@ export const Button: FC<ButtonProps> = (props: ButtonProps) => {
       type={props.type}
       disabled={props.disabled}
       className={`flex items-center gap-3 rounded-md w-fit text-nowrap
-        py-1 px-2 disabled:cursor-default shadow-md ${props.className} ${getStyleType()} ${getColor()}`}
+        py-1 px-2 disabled:cursor-default shadow-md ${
+          props.className
+        } ${getStyleType()} ${getColor()}`}
       onClick={props.onClick}
     >
       {props.children}

@@ -29,7 +29,7 @@ export const ToastComponent: FC<ToastProps> = (props: ToastProps) => {
 
   return (
     <div
-      className={`opacity-80 flex flex-row gap-3 items-center rounded-md text-white p-4 
+      className={`opacity-90 flex flex-row gap-3 items-center rounded-md text-white p-4 
         ${getToastColor(props.toast.type)}`}
     >
       <div>{props.toast.message}</div>
