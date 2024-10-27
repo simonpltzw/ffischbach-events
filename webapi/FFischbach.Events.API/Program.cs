@@ -33,8 +33,15 @@ namespace FFischbach.Events.API
             {
                 configuration.Enrich.FromLogContext();
                 configuration.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3} ({RequestId} {TraceId})] {Message:lj}{NewLine}{Exception}");
-                if (context.HostingEnvironment.IsDevelopment()) configuration.MinimumLevel.Debug();
-                else configuration.MinimumLevel.Information();
+                if (context.HostingEnvironment.IsDevelopment())
+                {
+                    configuration.MinimumLevel.Debug();
+                }
+                else
+                {
+                    configuration.MinimumLevel.Information();
+                    configuration.WriteTo.Seq("https://ffischbach-events-seq-ingest.palzone.de", apiKey: builder.Configuration["Seq:ApiKey"]);
+                }
             });
             #endregion Logging
 
