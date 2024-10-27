@@ -1,8 +1,14 @@
+//participant + group info
+
 export interface ExportEntry {
-    groupId: number;
+    GruppeID: number;
+    Vorname: string;
+    Nachname: string;
+    Geburtsdatum: string
     Kategorie: string;
-    Anzahl: number;
+    KategorieID: string;
     Gruppe: string;
+    Anzahl: number;
     Ansprechpartner: string;
     internerKontakt: string;
 }
