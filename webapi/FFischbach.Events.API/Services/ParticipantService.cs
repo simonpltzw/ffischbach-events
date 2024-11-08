@@ -10,17 +10,16 @@ using System.Security.Claims;
 
 namespace FFischbach.Events.API.Services
 {
-    public class ParticipantService(ILogger<ParticipantService> logger, IMapper mapper, DatabaseContext databaseContext, IUserService userService, IGroupService groupService) : IParticipantService
+    public class ParticipantService(ILogger<ParticipantService> logger, IMapper mapper, DatabaseContext databaseContext, IUserService userService) : IParticipantService
     {
         private ILogger<ParticipantService> Logger { get; } = logger;
         private IMapper Mapper { get; } = mapper;
         private DatabaseContext DatabaseContext { get; } = databaseContext;
         private IUserService UserService { get; } = userService;
-        private IGroupService GroupService { get; } = groupService;
 
-        public async Task<GroupDetailOutputModel> AddParticipantAsync(ClaimsPrincipal user, int groupId, ParticipantCreateModel participant, bool isContact)
+        public async Task<ParticipantOutputModel> CreateParticipantAsync(ClaimsPrincipal user, ParticipantCreateModel participant, bool isContact)
         {
-            GroupDetailOutputModel returnValue;
+            ParticipantOutputModel returnValue;
             try
             {
                 // Get user display name.
@@ -31,7 +30,7 @@ namespace FFischbach.Events.API.Services
                                         .Include(x => x.Event!)
                                         .ThenInclude(x => x.EventManagers!)
                                             .ThenInclude(x => x.Manager)
-                                    .FirstOrDefaultAsync(x => x.Id == groupId);
+                                    .FirstOrDefaultAsync(x => x.Id == participant.GroupId);
 
                 // Check db response.
                 if (dbGroup == null)
@@ -53,8 +52,14 @@ namespace FFischbach.Events.API.Services
                 // Check if the contact should be changed.
                 if (isContact)
                 {
+                    // Check if the email is given.
+                    if (string.IsNullOrEmpty(participant.Email))
+                    {
+                        throw new CustomException("Beim Erstellen eines neuen Kontakts muss eine Email mitgegeben werden.", statusCode: StatusCodes.Status400BadRequest);
+                    }
+
                     // Get the current contact.
-                    Participant? currentContact = await DatabaseContext.Participants.FirstOrDefaultAsync(x => x.GroupId == groupId && x.IsContact);
+                    Participant? currentContact = await DatabaseContext.Participants.FirstOrDefaultAsync(x => x.GroupId == participant.GroupId && x.IsContact);
 
                     if (currentContact != null)
                     {
@@ -73,17 +78,17 @@ namespace FFischbach.Events.API.Services
                 DatabaseContext.Participants.Add(dbParticipant);
                 await DatabaseContext.SaveChangesAsync();
 
-                // Get the new state of the group.
-                returnValue = await GroupService.GetGroupAsync(user, groupId);
+                // Map the participant.
+                returnValue = Mapper.Map<ParticipantOutputModel>(dbParticipant);
             }
             catch (CustomException ex)
             {
-                Logger.LogWarning(ex, "Failed to add participant to the group '{id}'.", groupId);
+                Logger.LogWarning(ex, "Failed to add participant to the group '{id}'.", participant.GroupId);
                 throw;
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to add participant to the group '{id}'.", groupId);
+                Logger.LogError(ex, "Failed to add participant to the group '{id}'.", participant.GroupId);
                 throw new CustomException("Unerwarteter Fehler beim Hinzufügen eines Teilnehmers.", ex);
             }
             return returnValue;

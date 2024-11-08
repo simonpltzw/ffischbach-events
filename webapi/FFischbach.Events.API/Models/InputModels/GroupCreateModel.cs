@@ -29,12 +29,12 @@ namespace FFischbach.Events.API.Models.InputModels
         /// Contact participant.
         /// </summary>
         [Required]
-        public ParticipantCreateModel? Contact { get; set; }
+        public ParticipantGroupCreateModel? Contact { get; set; }
 
         /// <summary>
         /// List of other participants. Do not include the contact here.
         /// </summary>
         [Required, MinLength(0)]
-        public List<ParticipantCreateModel>? Participants { get; set; }
+        public List<ParticipantGroupCreateModel>? Participants { get; set; }
     }
 }

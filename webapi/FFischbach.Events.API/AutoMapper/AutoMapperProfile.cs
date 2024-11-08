@@ -48,9 +48,15 @@ namespace FFischbach.Events.API.AutoMapper
                 .ForMember(x => x.Participants, o => o.MapFrom(x => x.Participants!.Where(y => !y.IsContact).ToList()));
 
             // Participant.
-            CreateMap<ParticipantCreateModel, Participant>()
+            CreateMap<ParticipantInputModel, Participant>()
                 .ForMember(x => x.CreatedAt, o => o.MapFrom(x => DateTime.UtcNow))
                 .ForMember(x => x.EncryptedData, o => o.MapFrom<ParticipantEncryptedDataResolver>()); // Requires "PublicKey" as passed in Items dict.
+
+            CreateMap<ParticipantCreateModel, Participant>()
+                .IncludeBase<ParticipantInputModel, Participant>();
+
+            CreateMap<ParticipantGroupCreateModel, Participant>()
+                .IncludeBase<ParticipantInputModel, Participant>();
 
             CreateMap<ParticipantUpdateModel, Participant>();
 

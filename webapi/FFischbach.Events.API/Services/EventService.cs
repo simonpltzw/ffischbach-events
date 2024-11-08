@@ -235,7 +235,7 @@ namespace FFischbach.Events.API.Services
 
                 // Get event from the database.
                 Event? dbEvent = await DatabaseContext.Events
-                                        .Include (x => x.Groups!)
+                                        .Include(x => x.Groups!)
                                             .ThenInclude(x => x.Participants)
                                         .Include(x => x.EventManagers!)
                                             .ThenInclude(x => x.Manager)

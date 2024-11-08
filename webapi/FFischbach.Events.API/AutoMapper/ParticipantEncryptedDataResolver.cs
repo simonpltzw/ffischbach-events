@@ -7,9 +7,9 @@ using System.Text;
 
 namespace FFischbach.Events.API.AutoMapper
 {
-    public class ParticipantEncryptedDataResolver : IValueResolver<ParticipantCreateModel, Participant, byte[]>
+    public class ParticipantEncryptedDataResolver : IValueResolver<ParticipantInputModel, Participant, byte[]>
     {
-        public byte[] Resolve(ParticipantCreateModel source, Participant destination, byte[] destMember, ResolutionContext context)
+        public byte[] Resolve(ParticipantInputModel source, Participant destination, byte[] destMember, ResolutionContext context)
         {
             // Get public key from context.
             string publicKey = context.Items["PublicKey"] as string ?? throw new Exception("Missing public key on participant encryption.");
