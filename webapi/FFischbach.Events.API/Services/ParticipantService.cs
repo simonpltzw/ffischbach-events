@@ -52,6 +52,12 @@ namespace FFischbach.Events.API.Services
                 // Check if the contact should be changed.
                 if (isContact)
                 {
+                    // Check if the email is given.
+                    if (string.IsNullOrEmpty(participant.Email))
+                    {
+                        throw new CustomException("Beim Erstellen eines neuen Kontakts muss eine Email mitgegeben werden.", statusCode: StatusCodes.Status400BadRequest);
+                    }
+
                     // Get the current contact.
                     Participant? currentContact = await DatabaseContext.Participants.FirstOrDefaultAsync(x => x.GroupId == participant.GroupId && x.IsContact);
 
