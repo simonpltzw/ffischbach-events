@@ -169,7 +169,7 @@ namespace FFischbach.Events.API.Data
                 c.Property(x => x.CreatedAt)
                     .IsRequired();
             });
-            
+
             base.OnModelCreating(modelBuilder);
         }
     }

@@ -12,7 +12,7 @@ namespace FFischbach.Events.API.Models.InputModels
         /// </summary>
         [Required, StringLength(255)]
         public string? Name { get; set; }
-        
+
         /// <summary>
         /// Date from where sign up is possible. Leave empty if you don't want to restrict this.
         /// </summary>

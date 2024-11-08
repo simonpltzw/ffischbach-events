@@ -16,10 +16,9 @@ namespace FFischbach.Events.API.Controllers
     [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public class GroupsController(IGroupService groupService, IParticipantService participantService) : ControllerBase
+    public class GroupsController(IGroupService groupService) : ControllerBase
     {
         private IGroupService GroupService { get; set; } = groupService;
-        private IParticipantService ParticipantService { get; set; } = participantService;
 
         /// <summary>
         /// Creates a group.
@@ -133,36 +132,6 @@ namespace FFischbach.Events.API.Controllers
                 return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
             }
             return NoContent();
-        }
-
-        /// <summary>
-        /// Adds a participant to an event.
-        /// </summary>
-        /// <param name="id">Id of the group</param>
-        /// <param name="participant">The participant to be created</param>
-        /// <param name="isContact">Value indicating if new participant should replace the current contact</param>
-        /// 
-        [HttpPost("{id}/Participant")]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(typeof(GroupDetailOutputModel), StatusCodes.Status200OK)]
-        public async Task<ActionResult<GroupDetailOutputModel>> AddParticipant([Required] int? id, [FromBody, Required] ParticipantCreateModel? participant, [FromQuery] bool isContact = false)
-        {
-            GroupDetailOutputModel returnValue;
-            try
-            {
-                // Validate.
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                returnValue = await ParticipantService.AddParticipantAsync(User, (int)id!, participant!, isContact);
-            }
-            catch (CustomException ex)
-            {
-                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
-            }
-            return Ok(returnValue);
         }
     }
 }

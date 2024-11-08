@@ -8,14 +8,13 @@ namespace FFischbach.Events.API.Services.Interfaces
     public interface IParticipantService
     {
         /// <summary>
-        /// Adds the given <paramref name="participant"/> to the group with id <paramref name="groupId"/>.
+        /// Adds the given <paramref name="participant"/>.
         /// </summary>
         /// <param name="user"></param>
-        /// <param name="groupId"></param>
         /// <param name="participant"></param>
         /// <param name="isContact">Indicates whether participant should be the groups contact.</param>
-        /// <returns>The updated state of the group.</returns>
+        /// <returns>The created participant.</returns>
         /// <exception cref="CustomException"></exception>
-        Task<GroupDetailOutputModel> AddParticipantAsync(ClaimsPrincipal user, int groupId, ParticipantCreateModel participant, bool isContact);
+        Task<ParticipantOutputModel> CreateParticipantAsync(ClaimsPrincipal user, ParticipantCreateModel participant, bool isContact);
     }
 }
