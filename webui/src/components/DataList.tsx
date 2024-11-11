@@ -16,7 +16,7 @@ export interface DataListProps {
 
   createComponent?: ReactNode;
   colSpan: number;
-  disabled: boolean;
+  disabled?: boolean;
 }
 
 export const DataList: FC<DataListProps> = (props: DataListProps) => {

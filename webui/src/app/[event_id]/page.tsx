@@ -241,6 +241,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
         <DataList
           colSpan={6}
+          disabled={isEncrypted}
           title="Ungenehmigte Gruppen"
           isPending={isPending}
           filter={filter.eventDetail?.groupFilter}
@@ -258,6 +259,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
         <DataList
           colSpan={6}
+          disabled={isEncrypted}
           title="Genehmigte Gruppen"
           isPending={isPending}
           filter={filter.eventDetail?.groupFilterApproved}

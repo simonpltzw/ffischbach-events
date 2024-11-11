@@ -23,23 +23,23 @@ const Root: FC = () => {
 
   const [isPending, setIsPending] = useState<boolean>();
   const [filter, dispatchFilter] = useFilterSettings();
-  const errorHandler = useErrorHandler()
+  const errorHandler = useErrorHandler();
 
   const router = useRouter();
-  const {getEvents} = useEventService()
+  const { getEvents } = useEventService();
 
   const generateEventsList = async (): Promise<Event[]> => {
     try {
       const eventIds: Event[] = await getEvents();
       return eventIds;
-    } catch(e: any) {
-      errorHandler(e)
-      return []
+    } catch (e: any) {
+      errorHandler(e);
+      return [];
     }
   };
 
   const generateList = (f: string, isEnded?: boolean): ReactNode[] => {
-   return eventList
+    return eventList
       .filter((event: Event) => {
         return (
           (event.id.includes(f) || event.description.includes(f) || f == "") &&
@@ -87,7 +87,7 @@ const Root: FC = () => {
       </div>
       <div className="flex flex-col gap-6">
         <DataList
-        colSpan={6}
+          colSpan={6}
           title="Aktive Events"
           filter={filter.eventList?.eventFilter}
           isPending={isPending}
@@ -116,7 +116,7 @@ const Root: FC = () => {
         />
 
         <DataList
-        colSpan={6}
+          colSpan={6}
           title="Abgeschlossene Events"
           filter={filter.eventList?.eventFilterEnded}
           isPending={isPending}
