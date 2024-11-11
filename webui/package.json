@@ -6,6 +6,7 @@
     "dev": "next dev --turbo",
     "prebuild": "next telemetry disable",
     "build": "next build",
+    "build:analyze": "cross-env ANALYZE=true npm run build",
     "build:docker": "docker build -t ffischbacheventsui .",
     "start": "next start",
     "lint": "next lint"
@@ -22,6 +23,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^15.0.3",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
