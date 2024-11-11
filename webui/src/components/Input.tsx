@@ -1,14 +1,14 @@
 import {
   ChangeEvent,
   FC,
-  HTMLAttributes,
   HTMLInputAutoCompleteAttribute,
   HTMLInputTypeAttribute,
+  InputHTMLAttributes,
   useEffect,
   useRef,
 } from "react";
 
-export interface InputProps extends HTMLAttributes<HTMLElement>, JSX.IntrinsicAttributes {
+export interface InputProps extends InputHTMLAttributes<HTMLElement>, JSX.IntrinsicAttributes {
   title?: string;
   placeholder?: string;
   type?: HTMLInputTypeAttribute;
@@ -38,7 +38,7 @@ export const Input: FC<InputProps> = (props: InputProps) => {
 
   const bgStyle = () => {
     if (props.disabled) {
-      return "disabled:bg-gray-300/50 disabled:dark:bg-gray-500/50";
+      return "disabled:bg-gray-300/50 disabled:dark:bg-gray-500/50 disabled:dark:border-gray-500/50";
     } else {
       return "bg-white dark:bg-gray-900 focus:border-2 focus:border-blue-500 dark:focus:border-2 dark:focus:border-blue-500";
     }
@@ -48,17 +48,18 @@ export const Input: FC<InputProps> = (props: InputProps) => {
     <div className={`w-full ${props.containerClassName}`}>
       {props.title && (
         <label
-          className={`block text-sm font-semibold h-fit mb-1 ${props.labelClassName}`}
+          className={`flex gap-1 block text-sm font-semibold h-fit mb-1 ${props.labelClassName}`}
           htmlFor="username"
         >
           {props.title}
+          {props.required && <div className="text-red-500">*</div>}
         </label>
       )}
       <input
         ref={inputRef}
         className={`
         shadow-md appearance-none border rounded w-full py-0 px-3 dark:text-white leading-tight focus:outline-none
-        text-black dark:text-white dark:border-0 h-8 ${bgStyle()}
+        text-black dark:text-white dark:border-gray-900 h-8 ${bgStyle()}
         ${props.className ?? ""}`}
         type={props.type}
         autoFocus={props.autoFocus}

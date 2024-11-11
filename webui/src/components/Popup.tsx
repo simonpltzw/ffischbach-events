@@ -1,5 +1,5 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
-import { Dispatch, FC, HTMLAttributes, ReactNode, SetStateAction } from "react";
+import { Dispatch, FC, HTMLAttributes, SetStateAction } from "react";
 
 export interface PopupPanelProps extends HTMLAttributes<HTMLDivElement> {}
 

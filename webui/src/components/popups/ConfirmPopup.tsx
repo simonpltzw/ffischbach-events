@@ -1,7 +1,7 @@
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
-import { Dispatch, FC, HTMLAttributes, SetStateAction, useEffect, useState } from "react";
+import { FC, HTMLAttributes, useEffect, useState } from "react";
 import { Button } from "../Button";
 import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
+import useErrorHandler from "@/services/errorHandler";
 
 export interface ConfirmPopupProps extends HTMLAttributes<HTMLElement> {
   title?: string;
@@ -11,6 +11,8 @@ export interface ConfirmPopupProps extends HTMLAttributes<HTMLElement> {
 export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) => {
   const [errors, setErrors] = useState<string[]>([]);
   const [visible, setVisible] = useState<boolean>(false);
+
+  const errorHandler = useErrorHandler()
 
   useEffect(() => {
     if (!visible) {
@@ -23,9 +25,7 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) =>
       await props.done();
       setVisible(false);
     } catch (e: any) {
-      if (e.response?.data) {
-        setErrors([e.response.data.detail]);
-      }
+      errorHandler(e, setErrors)
     }
   };
 

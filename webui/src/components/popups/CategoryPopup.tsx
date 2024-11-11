@@ -1,4 +1,3 @@
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import {
   ChangeEvent,
   Dispatch,
@@ -13,9 +12,10 @@ import {
 import { Input } from "../Input";
 import { Button } from "../Button";
 import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
-import { Action, Error } from "@/util/types";
+import { Action, ResponseError } from "@/util/types";
 import { getDateTime } from "@/util/converter";
 import { Category } from "@/models/Category";
+import useErrorHandler from "@/services/errorHandler";
 
 export interface EditCategoriesPopupProps extends HTMLAttributes<HTMLElement> {
   eventId: string;
@@ -36,6 +36,7 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (props: EditCategorie
     signUpTo: "0",
   };
 
+  const errorHandler = useErrorHandler()
   const [errors, setErrors] = useState<string[]>([]);
   const [category, setCategory] = useReducer<Reducer<Category, Action<Category>>>(
     (state: Category, action: Action<Category>) => {
@@ -60,8 +61,7 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (props: EditCategorie
       props.setVisible(false);
       props.setCategoryToEdit(null);
     } catch (e: any) {
-      const error = e.response.data as Error;
-      setErrors([error.title]);
+      errorHandler(e, setErrors)
     }
   };
 

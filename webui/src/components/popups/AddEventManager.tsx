@@ -1,18 +1,14 @@
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import {
   ChangeEvent,
-  Dispatch,
   FC,
   HTMLAttributes,
-  SetStateAction,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
 import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
-import { AxiosError, AxiosResponse } from "axios";
+import useErrorHandler from "@/services/errorHandler";
 
 export interface AddEventManagerPopupProps extends HTMLAttributes<HTMLElement> {
   done(email: string): void;
@@ -24,6 +20,7 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
   const [email, setEmail] = useState<string>("");
   const [errors, setErrors] = useState<string[]>([]);
   const [visible, setVisible] = useState<boolean>(false);
+  const errorHandler = useErrorHandler()
 
   useEffect(() => {
     if (!visible) {
@@ -37,9 +34,7 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
       await props.done(email);
       setVisible(false);
     } catch (e: any) {
-      if (e.response?.data) {
-        setErrors(Object.entries(e.response.data.errors).map((error: any) => error[1]));
-      }
+      errorHandler(e, setErrors)
     }
   };
 

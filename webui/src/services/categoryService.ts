@@ -1,64 +1,40 @@
 import { Category } from "@/models/Category";
-import axios, { AxiosResponse } from "axios";
+import useClientFetch from "./fetch";
 
-export const getCategories = async (token: string, categoryId: string) => {
-  const response: AxiosResponse<Category> = await axios.get(
-    `${process.env.NEXT_PUBLIC_WEB_API}/Categories/${categoryId}`,
-    {
-      headers: {
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  return response.data;
-};
+export const useCategoriesService = () => {
+  const {get, getOne, post, put, _delete} = useClientFetch()
 
-export const createCategory = async (token: string, category: Category) => {
-  const response: AxiosResponse<Category> = await axios.post(
-    `${process.env.NEXT_PUBLIC_WEB_API}/Categories`,
-    category,
-    {
-      headers: {
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  return response.data;
-};
-
-export const putCategory = async (token: string, category: Category) => {
-  const copyCategory: Category = {
-    id: category.id,
-    name: category.name,
-    signUpFrom: category.signUpFrom,
-    signUpTo: category.signUpTo
+  const getCategories = (categoryId: string) => {
+      return get(`/Categories/${categoryId}`)
   }
 
-  const response: AxiosResponse<Category> = await axios.put(
-    `${process.env.NEXT_PUBLIC_WEB_API}/Categories/${category.id}`,
-    copyCategory,
-    {
-      headers: {
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  return response.data
-};
+  const createCategory = async (category: Category) => {
+    return post (`/Categories`, category)
+  };
 
-export const deleteCategory = async (token: string, categoryId: string) => {
-  const response: AxiosResponse<Category> = await axios.delete(
-    `${process.env.NEXT_PUBLIC_WEB_API}/Categories/${categoryId}`,
-    {
-      headers: {
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-      },
+  const putCategory = async (category: Category) => {
+    const copyCategory: Category = {
+      id: category.id+100,
+      name: category.name,
+      signUpFrom: category.signUpFrom,
+      signUpTo: category.signUpTo
     }
-  );
+  
+    return put(`/Categories/${category.id}`, copyCategory)
+  };
 
-  return response.data
-};
+  const deleteCategory = async (categoryId: string) => {
+    return _delete(`/Categories/${categoryId}`,)
+  };
+
+  return {
+    getCategories,
+    createCategory,
+    putCategory,
+    deleteCategory
+  }
+}
+
+
+
+

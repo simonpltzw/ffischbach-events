@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FC, ReactNode, useEffect, useState } from "react";
-import { getEvents } from "@/services/eventsService";
 import { Event } from "@/models/in/Event";
 import useToken from "@/services/tokenService";
 import { Input } from "@/components/Input";
@@ -15,6 +14,8 @@ import React from "react";
 import { useFilterSettings } from "@/context/filterSettings";
 import { Spinner } from "@/components/Spinner";
 import { DataList } from "@/components/DataList";
+import { useEventService } from "@/services/eventsService";
+import useErrorHandler from "@/services/errorHandler";
 
 const Root: FC = () => {
   const { addToast } = useToast();
@@ -22,19 +23,23 @@ const Root: FC = () => {
 
   const [isPending, setIsPending] = useState<boolean>();
   const [filter, dispatchFilter] = useFilterSettings();
+  const errorHandler = useErrorHandler()
 
   const router = useRouter();
-  const { getToken } = useToken();
+  const {getEvents} = useEventService()
 
   const generateEventsList = async (): Promise<Event[]> => {
-    return getToken().then(async (token: string) => {
-      const eventIds: Event[] = await getEvents(token);
+    try {
+      const eventIds: Event[] = await getEvents();
       return eventIds;
-    });
+    } catch(e: any) {
+      errorHandler(e)
+      return []
+    }
   };
 
   const generateList = (f: string, isEnded?: boolean): ReactNode[] => {
-    const list = eventList
+   return eventList
       .filter((event: Event) => {
         return (
           (event.id.includes(f) || event.description.includes(f) || f == "") &&
@@ -64,8 +69,6 @@ const Root: FC = () => {
           </TR>
         );
       });
-
-      return list
   };
 
   useEffect(() => {
@@ -84,6 +87,7 @@ const Root: FC = () => {
       </div>
       <div className="flex flex-col gap-6">
         <DataList
+        colSpan={6}
           title="Aktive Events"
           filter={filter.eventList?.eventFilter}
           isPending={isPending}
@@ -112,6 +116,7 @@ const Root: FC = () => {
         />
 
         <DataList
+        colSpan={6}
           title="Abgeschlossene Events"
           filter={filter.eventList?.eventFilterEnded}
           isPending={isPending}

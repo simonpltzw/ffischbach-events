@@ -60,7 +60,7 @@ export const TR: FC<TRProps> = (props: TRProps) => {
 
 export const TH: FC<GeneralProps> = (props: GeneralProps) => {
   return (
-    <th scope="col" className="px-6 py-3">
+    <th scope="col" className={`px-6 py-3  ${props.className}`}>
       {props.children}
     </th>
   );
