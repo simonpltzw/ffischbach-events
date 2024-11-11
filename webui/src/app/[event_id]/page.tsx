@@ -1,28 +1,11 @@
 "use client";
 
-import {
-  ChangeEvent,
-  Fragment,
-  ReactNode,
-  Reducer,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useReducer,
-  useState,
-} from "react";
+import { ReactNode, Reducer, useLayoutEffect, useMemo, useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
-import {
-  addEventManager,
-  getEventById,
-  putEvent,
-  setEventCompleted,
-} from "@/services/eventsService";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { AddEventManagerPopup } from "@/components/popups/AddEventManager";
-import useToken from "@/services/tokenService";
 import { PencilIcon } from "@heroicons/react/24/solid";
 import { useToast } from "@/context/toast";
 import { Lock } from "@/components/Lock";
@@ -34,26 +17,29 @@ import { getLocalDateTime } from "@/util/converter";
 import { useEventSettings } from "@/context/eventSettings";
 import { decryptEvent } from "@/services/decryptService";
 import { useJsonToCsv } from "@/services/dataPreparationService";
-import { Input } from "@/components/Input";
-import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
+import { TD, TR } from "@/components/table/Table";
 import React from "react";
 import { useFilterSettings } from "@/context/filterSettings";
-import { Spinner } from "@/components/Spinner";
 import { Action } from "@/util/types";
 import { Categories } from "./Categories";
 import { EditEventPopup } from "@/components/popups/EditEventPopup";
 import { EditEvent } from "@/models/EditEvent";
 import { DataList } from "@/components/DataList";
+import { useEventService } from "@/services/eventsService";
+import useErrorHandler from "@/services/errorHandler";
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const router = useRouter();
   const { addToast } = useToast();
-  const { getToken } = useToken();
 
   const [isPending, setIsPending] = useState<boolean>();
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
   const [eventSettings, setEventSetting] = useEventSettings();
   const { parse } = useJsonToCsv();
+  const errorHandler = useErrorHandler();
+
+  const { getEventById, setEventCompleted, addEventManager, putEvent } =
+    useEventService();
 
   const [filter, dispatchFilter] = useFilterSettings();
 
@@ -76,25 +62,23 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     params.event_id = decodeURI(params.event_id);
 
     setIsPending(true);
-    getToken().then((token: string) => {
-      if (token) {
-        getEventById(token, params.event_id).then((event) => {
-          dispatch(event);
-          setIsPending(false);
-          if (eventSettings && eventSettings.password && eventSettings.eventId == params.event_id) {
-            onDecryptEvent(eventSettings.password, false, event);
-          }
-        });
-      }
-    });
+    getEventById(params.event_id)
+      .then((event: Event) => {
+        dispatch(event);
+        setIsPending(false);
+        if (eventSettings && eventSettings.password && eventSettings.eventId == params.event_id) {
+          onDecryptEvent(eventSettings.password, false, event);
+        }
+      })
+      .catch((e) => errorHandler(e));
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onCompleteEvent = () => {
-    getToken().then((token: string) => {
-      setEventCompleted(token, params.event_id);
-      addToast({ message: "Event beendet", type: "info" });
-    });
+    setEventCompleted(params.event_id)
+      .then(() => addToast({ message: "Event beendet", type: "info" }))
+      .catch((e) => errorHandler(e));
   };
 
   const onDecryptEvent = async (password: string, isManual?: boolean, localState?: Event) => {
@@ -117,11 +101,13 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   };
 
   const onAddEventManager = async (email: string) => {
-    const token = await getToken();
-
-    const response = await addEventManager(token, params.event_id, email);
-    if (response) {
-      addToast({ message: "Manager hinzugefügt", type: "info" });
+    try {
+      const response = await addEventManager(params.event_id, email);
+      if (response) {
+        addToast({ message: "Manager hinzugefügt", type: "info" });
+      }
+    } catch (e: any) {
+      errorHandler(e);
     }
   };
 
@@ -211,9 +197,15 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           <EditEventPopup
             event={state}
             done={async (editedEvent: EditEvent) => {
-              const token = await getToken();
-              await putEvent(token, state.id, editedEvent);
-              dispatch(editedEvent);
+              putEvent(state.id, editedEvent)
+                .then(() => {
+                  dispatch(editedEvent);
+                  addToast({
+                    message: "Event aktualisiert",
+                    type: "info",
+                  });
+                })
+                .catch((e) => errorHandler(e));
             }}
           >
             <Button color="blue" className="md:flex-none flex-1 text-white" type="button">
@@ -248,6 +240,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         <Categories state={state} dispatch={dispatch} isVisible={isEncrypted} />
 
         <DataList
+          colSpan={6}
           title="Ungenehmigte Gruppen"
           isPending={isPending}
           filter={filter.eventDetail?.groupFilter}
@@ -264,6 +257,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         />
 
         <DataList
+          colSpan={6}
           title="Genehmigte Gruppen"
           isPending={isPending}
           filter={filter.eventDetail?.groupFilterApproved}

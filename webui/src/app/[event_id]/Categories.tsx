@@ -6,7 +6,8 @@ import { Table, TBody, TD, TH, THead, TR } from "@/components/table/Table";
 import { useToast } from "@/context/toast";
 import { Category } from "@/models/Category";
 import { Event } from "@/models/in/Event";
-import { createCategory, deleteCategory, putCategory } from "@/services/categoryService";
+import { useCategoriesService } from "@/services/categoryService";
+import useErrorHandler from "@/services/errorHandler";
 import useToken from "@/services/tokenService";
 import { getLocalDateTime } from "@/util/converter";
 import { Action } from "@/util/types";
@@ -21,7 +22,9 @@ export interface CategoriesProps {
 
 export const Categories: FC<CategoriesProps> = (props: CategoriesProps) => {
   const { addToast } = useToast();
-  const { getToken } = useToken();
+  const errorHandler = useErrorHandler();
+
+  const { createCategory, deleteCategory, putCategory } = useCategoriesService();
 
   const [isCategoryEditPopupVisible, setIsCategoryEditPopupVisible] = useState<boolean>(false);
   const [isCategoryCreatePopupVisible, setIsCategoryCreatePopupVisible] = useState<boolean>(false);
@@ -54,11 +57,13 @@ export const Categories: FC<CategoriesProps> = (props: CategoriesProps) => {
           <ConfirmPopup
             title={`Kategorie "${category.name}" löschen?`}
             done={async () => {
-              const token = await getToken();
-              await deleteCategory(token, category.id);
-              const updatedList = props.state.categories.filter((c) => c.id != category.id);
-              props.dispatch({ categories: updatedList });
-              addToast({ message: "Kategorie gelöscht", type: "info" });
+              deleteCategory(category.id)
+                .then(() => {
+                  const updatedList = props.state.categories.filter((c) => c.id != category.id);
+                  props.dispatch({ categories: updatedList });
+                  addToast({ message: "Kategorie gelöscht", type: "info" });
+                })
+                .catch((e) => errorHandler(e));
             }}
           >
             <TrashIcon color="red" height={25} />
@@ -89,10 +94,12 @@ export const Categories: FC<CategoriesProps> = (props: CategoriesProps) => {
                 visible={isCategoryCreatePopupVisible}
                 setVisible={setIsCategoryCreatePopupVisible}
                 done={async (category: Category) => {
-                  const token = await getToken();
-                  const newCategory = await createCategory(token, category);
-                  props.dispatch({ categories: [...props.state.categories, newCategory] });
-                  addToast({ message: "Kategorie erstellt", type: "info" });
+                  createCategory(category)
+                    .then((newCategory) => {
+                      props.dispatch({ categories: [...props.state.categories, newCategory] });
+                      addToast({ message: "Kategorie erstellt", type: "info" });
+                    })
+                    .catch((e) => errorHandler(e));
                 }}
               >
                 <Button
@@ -130,17 +137,19 @@ export const Categories: FC<CategoriesProps> = (props: CategoriesProps) => {
         visible={isCategoryEditPopupVisible}
         setVisible={setIsCategoryEditPopupVisible}
         done={async (category: Category) => {
-          const token = await getToken();
           const id = category.id;
 
-          const updatedCategory: Category = await putCategory(token, category);
-          const index = props.state.categories.findIndex((c) => c.id == id);
+          putCategory(category)
+            .then((updatedCategory) => {
+              const index = props.state.categories.findIndex((c) => c.id == id);
 
-          if (index) {
-            props.state.categories[index] = updatedCategory;
-            props.dispatch({ categories: props.state.categories });
-            addToast({ message: "Kategorie geändert", type: "info" });
-          }
+              if (index) {
+                props.state.categories[index] = updatedCategory;
+                props.dispatch({ categories: props.state.categories });
+                addToast({ message: "Kategorie geändert", type: "info" });
+              }
+            })
+            .catch((e) => errorHandler(e));
         }}
       />
     </>

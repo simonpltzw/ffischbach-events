@@ -1,14 +1,10 @@
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import {
   ChangeEvent,
-  Dispatch,
   FC,
   HTMLAttributes,
   Reducer,
-  SetStateAction,
   useEffect,
   useReducer,
-  useRef,
   useState,
 } from "react";
 import { Input } from "../Input";
@@ -19,6 +15,7 @@ import { Action } from "@/util/types";
 import { EditEvent } from "@/models/EditEvent";
 import { CheckBox } from "../CheckBox";
 import { getDateTime } from "@/util/converter";
+import useErrorHandler from "@/services/errorHandler";
 
 export interface EditEventPopupProps extends HTMLAttributes<HTMLElement> {
   event: Event;
@@ -28,6 +25,7 @@ export interface EditEventPopupProps extends HTMLAttributes<HTMLElement> {
 export const EditEventPopup: FC<EditEventPopupProps> = (props: EditEventPopupProps) => {
   const [errors, setErrors] = useState<string[]>([]);
   const [visible, setVisible] = useState<boolean>(false);
+  const errorHandler = useErrorHandler()
 
   const getEditEvent = (event: Event): EditEvent => {
     return {
@@ -58,9 +56,7 @@ export const EditEventPopup: FC<EditEventPopupProps> = (props: EditEventPopupPro
       await props.done(event);
       setVisible(false);
     } catch (e: any) {
-      if (e.response?.data) {
-        setErrors(Object.entries(e.response.data.errors).map((error: any) => error[1]));
-      }
+      errorHandler(e, setErrors)
     }
   };
 
