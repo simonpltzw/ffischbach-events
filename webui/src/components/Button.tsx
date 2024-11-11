@@ -23,14 +23,15 @@ export const Button: FC<ButtonProps> = (props: ButtonProps) => {
         let res = "bg-transparent border";
 
         switch (props.color) {
-          case "blue":
-            return `${res} text-blue-500 hover:text-white border-blue-500`;
           case "red":
-            return `${res} text-red-500 hover:text-white border-red-500`;
+            return `${res} text-red-500 disabled:text-red-500 hover:text-white border-red-500 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent`;
           case "green":
-            return `${res} text-green-500 hover:text-white border-green-500`;
+            return `${res} text-green-500 disabled:text-green-500 hover:text-white border-green-500 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent`;
           case "gray":
-            return `${res} text-gray-500 hover:text-white border-gray-500`;
+            return `${res} text-gray-500 disabled:text-gray-500 hover:text-white border-gray-500 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent`;
+          case "blue":
+          default:
+            return `${res} text-blue-500 disabled:text-blue-500 hover:text-white border-blue-500 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent`;
         }
       case "primary":
         return "text-white";
@@ -41,15 +42,13 @@ export const Button: FC<ButtonProps> = (props: ButtonProps) => {
 
   const getColor = () => {
     switch (props.color) {
-      case "blue":
-        return "bg-blue-600 hover:bg-blue-700 hover:dark:bg-blue-400 disabled:hover:bg-blue-600 dark:disabled:hover:bg-blue-600";
       case "red":
         return "bg-red-600 hover:bg-red-700 hover:dark:bg-red-400 disabled:hover:bg-red-600 dark:disabled:hover:bg-red-600";
       case "green":
         return "bg-green-600 hover:bg-green-700 hover:dark:bg-green-400 disabled:hover:bg-green-600 dark:disabled:hover:bg-green-600";
       case "gray":
         return "bg-gray-600 hover:bg-gray-700 hover:dark:bg-gray-400 disabled:hover:bg-gray-600 dark:disabled:hover:bg-gray-600";
-
+      case "blue":
       default:
         return "bg-blue-600 hover:bg-blue-700 hover:dark:bg-blue-400 disabled:hover:bg-blue-600 dark:disabled:hover:bg-blue-600";
     }
