@@ -3,6 +3,7 @@ import { decryptKeyWithPassword } from "./passwordService";
 import { PrivateKeyService } from "./privateKeyService";
 import { Participant } from "@/models/in/Participant";
 import { Event } from "@/models/in/Event";
+import { ParticipantOut } from "@/models/out/ParticipantOut";
 
 export const decryptEvent = async (state: Event, password: string): Promise<Group[]> => {
   const privateKey = decryptKeyWithPassword(state.encryptedPrivateKey, password);
@@ -90,4 +91,30 @@ export const decryptGroup = async (
   };
 
   return updatedGroup;
+};
+
+export const decryptParticipant = async (
+  participant: ParticipantOut,
+  password: string,
+  encPrivateKey: string
+): Promise<Participant> => {
+  const privateKey = decryptKeyWithPassword(encPrivateKey, password);
+
+  const key: CryptoKey = await PrivateKeyService.importPrivateKey(privateKey);
+
+  const decryptedParticipants = JSON.parse(
+    await PrivateKeyService.decryptData(key, participant.encryptedData ?? "")
+  ) as Participant;
+
+  const adaptedParticipant: Participant = new Participant(
+    decryptedParticipants.id,
+    decryptedParticipants.Email,
+    decryptedParticipants.FirstName,
+    decryptedParticipants.LastName,
+    decryptedParticipants.BirthDate,
+    decryptedParticipants.vip,
+    decryptedParticipants.createdAt
+  );
+
+  return adaptedParticipant;
 };
