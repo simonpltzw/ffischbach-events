@@ -1,23 +1,12 @@
 import { Event } from "@/models/in/Event";
 import { EventOut } from "@/models/out/EventOut";
-import { createEvent } from "@/services/eventsService";
 import { encryptWithPassword } from "@/services/passwordService";
-import useToken from "@/services/tokenService";
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
-import { AxiosResponse } from "axios";
-import {
-  ChangeEvent,
-  Dispatch,
-  FC,
-  HTMLAttributes,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { ChangeEvent, FC, HTMLAttributes, useEffect, useState } from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
 import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
+import { useEventService } from "@/services/eventsService";
+import useErrorHandler from "@/services/errorHandler";
 
 export interface CreateEventPopupProps extends HTMLAttributes<HTMLElement> {
   done(event: Event): void;
@@ -30,8 +19,9 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
   const [date, setDate] = useState<string>("");
   const [visible, setVisible] = useState<boolean>(false);
 
+  const errorHandler = useErrorHandler();
+  const { createEvent } = useEventService();
   const [errors, setErrors] = useState<string[]>([]);
-  const { getToken } = useToken();
 
   useEffect(() => {
     if (!visible) {
@@ -43,27 +33,21 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
   }, [visible]);
 
   const onSubmit = async () => {
-    getToken().then((token: string) => {
-      encryptWithPassword(password).then(({ encryptedPrivateKey, publicKey }) => {
-        const newEvent: EventOut = {
-          id: `${name}`,
-          description,
-          date,
-          encryptedPrivateKey,
-          publicKey,
-        };
+    encryptWithPassword(password).then(({ encryptedPrivateKey, publicKey }) => {
+      const newEvent: EventOut = {
+        id: `${name}`,
+        description,
+        date,
+        encryptedPrivateKey,
+        publicKey,
+      };
 
-        createEvent(token, newEvent)
-          .then((r: AxiosResponse) => {
-            props.done(r.data);
-            setVisible(false);
-          })
-          .catch((e: any) => {
-            if (e.response?.data) {
-              setErrors([e.response.data.detail]);
-            }
-          });
-      });
+      createEvent(newEvent)
+        .then((r: Event) => {
+          props.done(r);
+          setVisible(false);
+        })
+        .catch((e: any) => errorHandler(e, setErrors));
     });
   };
 
@@ -132,7 +116,12 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
               <Button color="green" type="submit">
                 Bestätigen
               </Button>
-              <Button color="gray" styletype="secondary" type="button" onClick={() => setVisible(false)}>
+              <Button
+                color="gray"
+                styletype="secondary"
+                type="button"
+                onClick={() => setVisible(false)}
+              >
                 Abbrechen
               </Button>
             </div>

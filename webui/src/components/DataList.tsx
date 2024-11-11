@@ -13,6 +13,10 @@ export interface DataListProps {
   filter?: string;
   dispatchCb(value: string): void;
   isPending?: boolean;
+
+  createComponent?: ReactNode;
+  colSpan: number;
+  disabled: boolean;
 }
 
 export const DataList: FC<DataListProps> = (props: DataListProps) => {
@@ -24,7 +28,7 @@ export const DataList: FC<DataListProps> = (props: DataListProps) => {
     } else {
       return (
         <TR disabled>
-          <TD colspan={5}>
+          <TD colspan={props.colSpan}>
             <div className="flex w-full justify-center">
               {props.isPending ? <Spinner /> : "Keine Einträge gefunden"}
             </div>
@@ -35,11 +39,13 @@ export const DataList: FC<DataListProps> = (props: DataListProps) => {
   };
 
   return (
-    <div className="flex flex-col gap-3 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-lg">
+    <div className="flex flex-col gap-2 border dark:border-0 dark:bg-gray-900/40 shadow p-3 rounded-lg">
       <label className="text-base font-bold">{props.title}</label>
-      <div className="flex flex-row-reverse gap-5 items-end">
+      <div className="flex flex-col gap-5 items-end">
         {props.actions}
+        {props.createComponent}
         <Input
+          disabled={props.disabled}
           containerClassName="w-full"
           value={props.filter ?? ""}
           title="Suche"
