@@ -4,14 +4,13 @@ import { Event } from "@/models/in/Event";
 import { decryptGroup } from "./decryptService";
 import { Group } from "@/models/in/Group";
 import { decryptKeyWithPassword } from "./passwordService";
-import useToken from "./tokenService";
 import { Participant } from "@/models/in/Participant";
 import { useGroupService } from "./groupsService";
+import { getLocalDate } from "@/util/converter";
 
 export const useJsonToCsv = () => {
   const [eventSettings] = useEventSettings();
-  const { getToken } = useToken();
-  const {getGroup} = useGroupService()
+  const { getGroup } = useGroupService();
 
   //https://www.geeksforgeeks.org/how-to-convert-json-object-to-csv-in-javascript/
   const jsonToCsv = (jsonDataList: any[]) => {
@@ -43,7 +42,7 @@ export const useJsonToCsv = () => {
       event
         .groups!.filter((g: Group) => g.approved)
         .map(async (g: Group) => {
-          const group = await getGroup( g.id);
+          const group = await getGroup(g.id);
           const decGroup: Group = await decryptGroup(group, { privateKey });
           delete decGroup.contact.encryptedData;
 
@@ -52,6 +51,8 @@ export const useJsonToCsv = () => {
           const contactExport: ExportEntry = {
             Vorname: contact.FirstName,
             Nachname: contact.LastName,
+            Geburtsdatum: getLocalDate(contact.BirthDate),
+            VIP: contact.vip ? 1 : 0,
             Gruppe: decGroup.name,
             Gr: decGroup.id,
             Nr: contact.id,
@@ -65,6 +66,8 @@ export const useJsonToCsv = () => {
             const exportData: ExportEntry = {
               Vorname: p.FirstName,
               Nachname: p.LastName,
+              Geburtsdatum: getLocalDate(p.BirthDate),
+              VIP: p.vip ? 1 : 0,
               Gruppe: decGroup.name,
               Gr: decGroup.id,
               Nr: p.id,
