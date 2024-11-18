@@ -37,7 +37,7 @@ export const useGroupService = () => {
         };
 
         const encryptedParticipantData: string = await encryptData(JSON.stringify(data), publicKey);
-        return new ParticipantOut(encryptedParticipantData, p.id);
+        return new ParticipantOut(encryptedParticipantData, p.id, p.vip);
       })
     );
 

@@ -52,6 +52,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
       "Nachname",
       "Geburtsdatum",
       // "Kontakt Tauschen",
+      "VIP",
       "Löschen",
     ],
     []
@@ -88,6 +89,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   }, [groupState, eventSettings]);
 
   const onSubmit: any = () => {
+    console.log(participants)
     groupState.participants = participants;
 
     updateGroup(groupState)
@@ -246,6 +248,15 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
                 </Button>
               </div>
             </TD> */}
+            <TD>
+              <CheckBox
+                value={p.vip}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  p.vip = e.target.checked;
+                  updateParticipants(i, p);
+                }}
+              />
+            </TD>
             <TD>
               <div>
                 <Button
