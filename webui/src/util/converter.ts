@@ -23,13 +23,28 @@ export const base64ToArrayBuffer = (base64: string) => {
 
 export const getLocalDateTime = (dateStr: string): string => {
   const date: Date = new Date(dateStr);
-  const result = `${date.toLocaleDateString([], {
+  const result = `${date.toLocaleDateString(["de"], {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   })} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 
   return !isNaN(date.getTime()) ? result : "";
+};
+
+export const getLocalDate = (dateStr: string): string => {
+  const date: Date = new Date(dateStr);
+  // const result = date.toLocaleDateString(["de"], {
+  //   day: "2-digit",
+  //   month: "2-digit",
+  //   year: "numeric",
+  // });
+
+  const year = date.getFullYear().toString().padStart(4, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${day}.${month}.${year}`;
 };
 
 export const parseJwt = (token: string) => {
@@ -50,5 +65,11 @@ export const parseJwt = (token: string) => {
 
 export const getDateTime = (str: string) => {
   const result = new Date(str);
-  return !isNaN(result.getTime()) ? result.toISOString().slice(0, 16) : "";
+
+  const timeStr = result.toLocaleTimeString(["de"], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return !isNaN(result.getTime()) ? result.toISOString().slice(0, 11) + timeStr : "";
 };
