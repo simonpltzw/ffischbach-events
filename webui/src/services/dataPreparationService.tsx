@@ -51,6 +51,7 @@ export const useJsonToCsv = () => {
           const contactExport: ExportEntry = {
             Vorname: contact.FirstName,
             Nachname: contact.LastName,
+            Email: contact.Email,
             Geburtsdatum: getLocalDate(contact.BirthDate),
             VIP: contact.vip ? 1 : 0,
             Gruppe: decGroup.name,
@@ -66,6 +67,7 @@ export const useJsonToCsv = () => {
             const exportData: ExportEntry = {
               Vorname: p.FirstName,
               Nachname: p.LastName,
+              Email: "",
               Geburtsdatum: getLocalDate(p.BirthDate),
               VIP: p.vip ? 1 : 0,
               Gruppe: decGroup.name,

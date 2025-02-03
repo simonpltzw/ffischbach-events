@@ -5,6 +5,7 @@ export interface ExportEntry {
     Nr: number;
     Vorname: string;
     Nachname: string;
+    Email: string;
     Geburtsdatum: string;
     Kategorie: string;
     KategorieNr: string;
