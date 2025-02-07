@@ -50,7 +50,7 @@ export const TR: FC<TRProps> = (props: TRProps) => {
       className={`bg-white border-b last:border-0 dark:bg-gray-900/40 dark:border-gray-900 ${
         props.disabled
           ? "cursor-default"
-          : "cursor-pointer hover:bg-gray-200 hover:dark:bg-gray-700 hover:rounded-md"
+          : "cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 hover:rounded-md"
       }`}
     >
       {props.children}

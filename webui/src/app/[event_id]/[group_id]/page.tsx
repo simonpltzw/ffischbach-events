@@ -15,8 +15,8 @@ import { useToast } from "@/context/toast";
 import { Category } from "@/models/Category";
 import { Group } from "@/models/in/Group";
 import { Participant } from "@/models/in/Participant";
-import { decryptGroup, decryptParticipant } from "@/services/decryptService";
-import { ArrowsRightLeftIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { decryptGroup } from "@/services/decryptService";
+import { TrashIcon } from "@heroicons/react/24/solid";
 import React, { useMemo } from "react";
 import { ChangeEvent, useEffect, useState } from "react";
 import { NewParticipant } from "./NewParticipant";
@@ -25,10 +25,10 @@ import { useEventService } from "@/services/eventsService";
 import { useGroupService } from "@/services/groupsService";
 import useErrorHandler from "@/services/errorHandler";
 import { useParticipantService } from "@/services/participantService";
-import { ParticipantEdit } from "@/models/out/ParticipantEdit";
-import { SwapContactPopup } from "@/components/popups/SwapContactPopup";
+import { useParams } from "next/navigation";
 
-const GroupPage = ({ params }: { params: { event_id: string; group_id: string } }) => {
+const GroupPage = () => {
+  const params = useParams<{ event_id: string; group_id: string }>();
   const [groupState, dispatchGroup] = useGroupContext();
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
@@ -89,7 +89,7 @@ const GroupPage = ({ params }: { params: { event_id: string; group_id: string } 
   }, [groupState, eventSettings]);
 
   const onSubmit: any = () => {
-    console.log(participants)
+    console.log(participants);
     groupState.participants = participants;
 
     updateGroup(groupState)

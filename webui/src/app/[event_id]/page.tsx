@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, Reducer, useLayoutEffect, useMemo, useReducer, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
@@ -28,9 +28,10 @@ import { DataList } from "@/components/DataList";
 import { useEventService } from "@/services/eventsService";
 import useErrorHandler from "@/services/errorHandler";
 
-const EventPage = ({ params }: { params: { event_id: string } }) => {
+const EventPage = () => {
   const router = useRouter();
   const { addToast } = useToast();
+  const params = useParams<{ event_id: string }>();
 
   const [isPending, setIsPending] = useState<boolean>();
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
@@ -38,8 +39,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const { parse } = useJsonToCsv();
   const errorHandler = useErrorHandler();
 
-  const { getEventById, setEventCompleted, addEventManager, putEvent } =
-    useEventService();
+  const { getEventById, setEventCompleted, addEventManager, putEvent } = useEventService();
 
   const [filter, dispatchFilter] = useFilterSettings();
 

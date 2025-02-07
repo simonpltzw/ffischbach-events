@@ -14,7 +14,6 @@ export interface AppProviderProps extends HTMLAttributes<HTMLElement> {}
 export const AppProvider: FC<AppProviderProps> = ({ children }) => {
   return (
     <ToastProvider>
-      {/*<Callback />*/}
       <AuthenticatedTemplate>
         <AppSettingsProvider>
           <Navigation />

@@ -27,7 +27,6 @@ export const ToastProvider = ({ children }: any) => {
 
   return (
     <Context.Provider value={{ state: [toastList, setToastList], addToast, removeToast }}>
-      <div className="h-screen">
         <div className="fixed h-full bottom-0 z-50">
           <div
             style={{
@@ -43,8 +42,8 @@ export const ToastProvider = ({ children }: any) => {
             })}
           </div>
         </div>
-      </div>
-      {children}
+        {children}
+
     </Context.Provider>
   );
 };

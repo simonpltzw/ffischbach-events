@@ -1,12 +1,4 @@
-import {
-  ChangeEvent,
-  FC,
-  HTMLAttributes,
-  Reducer,
-  useEffect,
-  useReducer,
-  useState,
-} from "react";
+import { ChangeEvent, FC, HTMLAttributes, Reducer, useEffect, useReducer, useState } from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
 import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
@@ -20,7 +12,7 @@ export interface SwapContactPopupProps extends HTMLAttributes<HTMLElement> {
   setParticipant?: React.Dispatch<React.SetStateAction<ParticipantEdit | undefined>>;
   visible?: boolean;
   isSwap?: boolean;
-  disabled?: boolean
+  disabled?: boolean;
 }
 
 export const SwapContactPopup: FC<SwapContactPopupProps> = (props: SwapContactPopupProps) => {
@@ -48,6 +40,7 @@ export const SwapContactPopup: FC<SwapContactPopupProps> = (props: SwapContactPo
     if (props.isSwap) {
       setVisible(!!props.participant);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.participant]);
 
   useEffect(() => {
@@ -60,6 +53,7 @@ export const SwapContactPopup: FC<SwapContactPopupProps> = (props: SwapContactPo
     } else {
       setEditParticipant(props.participant);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const onSubmit = async () => {

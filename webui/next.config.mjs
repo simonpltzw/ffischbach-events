@@ -2,7 +2,10 @@ import analyzer from '@next/bundle-analyzer'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone"
+  output: "standalone",
+  experimental: {
+    turbo: {}
+  }
 };
 
 const withBundleAnalyzer = analyzer({

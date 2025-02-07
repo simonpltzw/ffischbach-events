@@ -38,7 +38,7 @@ export const Input: FC<InputProps> = (props: InputProps) => {
 
   const bgStyle = () => {
     if (props.disabled) {
-      return "disabled:bg-gray-300/50 disabled:dark:bg-gray-500/50 disabled:dark:border-gray-500/50";
+      return "disabled:bg-gray-300/50 dark:disabled:bg-gray-500/50 dark:disabled:border-gray-500/50";
     } else {
       return "bg-white dark:bg-gray-900 focus:border-2 focus:border-blue-500 dark:focus:border-2 dark:focus:border-blue-500";
     }
