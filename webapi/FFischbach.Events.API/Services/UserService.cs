@@ -1,6 +1,5 @@
 ﻿using FFischbach.Events.API.Helpers;
 using FFischbach.Events.API.Services.Interfaces;
-using Microsoft.Identity.Web;
 using System.Security.Claims;
 
 namespace FFischbach.Events.API.Services
@@ -10,7 +9,7 @@ namespace FFischbach.Events.API.Services
         public string GetDisplayName(ClaimsPrincipal user)
         {
             // Get the display name using microsofts built-in method.
-            string? displayName = user.GetDisplayName();
+            string? displayName = user.Identity?.Name;
 
             // Check if it could be found.
             if (string.IsNullOrEmpty(displayName))
