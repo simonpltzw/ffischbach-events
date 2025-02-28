@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Serilog;
 using System.Reflection;
+using System.Security.Claims;
 
 namespace FFischbach.Events.API
 {
@@ -48,7 +50,15 @@ namespace FFischbach.Events.API
             #region Authentication
             // Add services to the container.
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = $"https://{builder.Configuration["Auth0:Domain"]}/";
+                    options.Audience = builder.Configuration["Auth0:Audience"];
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        NameClaimType = ClaimTypes.NameIdentifier
+                    };
+                });
             #endregion Authentication
 
             #region Routing
@@ -81,30 +91,34 @@ namespace FFischbach.Events.API
                     Version = "v1"
                 });
 
-                c.AddSecurityDefinition("msid", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.OAuth2,
-                    Flows = new Microsoft.OpenApi.Models.OpenApiOAuthFlows
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows
                     {
-                        Implicit = new Microsoft.OpenApi.Models.OpenApiOAuthFlow
+                        Implicit = new OpenApiOAuthFlow
                         {
-                            AuthorizationUrl = new Uri("https://login.microsoftonline.com/a21b658e-30c5-4bc5-8409-1729b686c215/oauth2/v2.0/authorize"),
+                            AuthorizationUrl = new Uri($"https://{builder.Configuration["Auth0:Domain"]}/authorize?audience={builder.Configuration["Auth0:Identifier"]}"),
                             Scopes = new Dictionary<string, string>
                             {
-                                { "api://ee995dcc-a9ec-4203-93ea-81b5f8621033/access_as_user", "access_as_user" }
+                                { "access", "Zugriffsrechte für die API" },
                             }
                         }
                     }
                 });
 
-                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
-                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        new OpenApiSecurityScheme
                         {
-                            Reference = new Microsoft.OpenApi.Models.OpenApiReference { Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme, Id = "msid" }
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "oauth2"
+                            }
                         },
-                        new [] { "api://ee995dcc-a9ec-4203-93ea-81b5f8621033/access_as_user" }
+                        new[] { "access" }
                     }
                 });
 
@@ -162,7 +176,7 @@ namespace FFischbach.Events.API
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "FFischbach.Events.API");
-                c.OAuthClientId("979c1c0e-193c-4bb7-8024-c24c493b2e41");
+                c.OAuthClientId(builder.Configuration["Auth0:TestClientId"]);
             });
             #endregion Swagger
 
