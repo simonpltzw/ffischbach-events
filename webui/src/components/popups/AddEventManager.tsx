@@ -3,11 +3,18 @@ import {
   FC,
   HTMLAttributes,
   useEffect,
+  useEffectEvent,
   useState,
 } from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
-import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
+import {
+  PopupBackdrop,
+  PopupDialogPanel,
+  PopupTitle,
+  Popup,
+  PopupOpener,
+} from "../Popup";
 import useErrorHandler from "@/services/errorHandler";
 
 export interface AddEventManagerPopupProps extends HTMLAttributes<HTMLElement> {
@@ -15,17 +22,21 @@ export interface AddEventManagerPopupProps extends HTMLAttributes<HTMLElement> {
 }
 
 export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
-  props: AddEventManagerPopupProps
+  props: AddEventManagerPopupProps,
 ) => {
   const [email, setEmail] = useState<string>("");
   const [errors, setErrors] = useState<string[]>([]);
   const [visible, setVisible] = useState<boolean>(false);
-  const errorHandler = useErrorHandler()
+  const errorHandler = useErrorHandler();
+
+  const onIsHidden = useEffectEvent(() => {
+    setEmail("");
+    setErrors([]);
+  });
 
   useEffect(() => {
     if (!visible) {
-      setEmail("");
-      setErrors([]);
+      onIsHidden();
     }
   }, [visible]);
 
@@ -34,13 +45,17 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
       await props.done(email);
       setVisible(false);
     } catch (e: any) {
-      errorHandler(e, setErrors)
+      errorHandler(e, setErrors);
     }
   };
 
   const generateErrorMessage = (error: string, index: number) => {
     return (
-      <label key={`create-error-${index}`} htmlFor="form" className="text-red-500">
+      <label
+        key={`create-error-${index}`}
+        htmlFor="form"
+        className="text-red-500"
+      >
         {error}
       </label>
     );
@@ -70,7 +85,9 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
                 placeholder="Email"
                 labelClassName="text-white"
                 value={email}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setEmail(e.target.value)
+                }
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -95,7 +112,9 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
           </form>
         </PopupDialogPanel>
       </Popup>
-      <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>
+      <PopupOpener onClick={() => setVisible(true)}>
+        {props.children}
+      </PopupOpener>
     </>
   );
 };

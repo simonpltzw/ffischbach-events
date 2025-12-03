@@ -4,12 +4,19 @@ import {
   HTMLAttributes,
   Reducer,
   useEffect,
+  useEffectEvent,
   useReducer,
   useState,
 } from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
-import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
+import {
+  PopupBackdrop,
+  PopupDialogPanel,
+  PopupTitle,
+  Popup,
+  PopupOpener,
+} from "../Popup";
 import { Event } from "@/models/in/Event";
 import { Action } from "@/util/types";
 import { EditEvent } from "@/models/EditEvent";
@@ -22,10 +29,12 @@ export interface EditEventPopupProps extends HTMLAttributes<HTMLElement> {
   done(event: EditEvent): void;
 }
 
-export const EditEventPopup: FC<EditEventPopupProps> = (props: EditEventPopupProps) => {
+export const EditEventPopup: FC<EditEventPopupProps> = (
+  props: EditEventPopupProps,
+) => {
   const [errors, setErrors] = useState<string[]>([]);
   const [visible, setVisible] = useState<boolean>(false);
-  const errorHandler = useErrorHandler()
+  const errorHandler = useErrorHandler();
 
   const getEditEvent = (event: Event): EditEvent => {
     return {
@@ -35,19 +44,23 @@ export const EditEventPopup: FC<EditEventPopupProps> = (props: EditEventPopupPro
     };
   };
 
-  const [event, setEvent] = useReducer<Reducer<EditEvent, Action<Partial<EditEvent>>>>(
+  const [event, setEvent] = useReducer<EditEvent, [Action<Partial<EditEvent>>]>(
     (state: EditEvent, action: Action<Partial<EditEvent>>) => {
       return {
         ...state,
         ...action,
       };
     },
-    getEditEvent(props.event)
+    getEditEvent(props.event),
   );
+
+  const onIsHidden = useEffectEvent(() => {
+    setErrors([]);
+  });
 
   useEffect(() => {
     if (!visible) {
-      setErrors([]);
+      onIsHidden();
     }
   }, [visible]);
 
@@ -56,13 +69,17 @@ export const EditEventPopup: FC<EditEventPopupProps> = (props: EditEventPopupPro
       await props.done(event);
       setVisible(false);
     } catch (e: any) {
-      errorHandler(e, setErrors)
+      errorHandler(e, setErrors);
     }
   };
 
   const generateErrorMessage = (error: string, index: number) => {
     return (
-      <label key={`create-error-${index}`} htmlFor="form" className="text-red-500">
+      <label
+        key={`create-error-${index}`}
+        htmlFor="form"
+        className="text-red-500"
+      >
         {error}
       </label>
     );
@@ -109,7 +126,9 @@ export const EditEventPopup: FC<EditEventPopupProps> = (props: EditEventPopupPro
                 labelClassName="text-white"
                 placeholder="Veranstaltungsdatum"
                 value={getDateTime(event.date)}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setEvent({ date: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setEvent({ date: e.target.value })
+                }
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -134,7 +153,9 @@ export const EditEventPopup: FC<EditEventPopupProps> = (props: EditEventPopupPro
           </form>
         </PopupDialogPanel>
       </Popup>
-      <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>
+      <PopupOpener onClick={() => setVisible(true)}>
+        {props.children}
+      </PopupOpener>
     </>
   );
 };

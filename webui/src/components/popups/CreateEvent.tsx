@@ -1,10 +1,23 @@
 import { Event } from "@/models/in/Event";
 import { EventOut } from "@/models/out/EventOut";
 import { encryptWithPassword } from "@/services/passwordService";
-import { ChangeEvent, FC, HTMLAttributes, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  FC,
+  HTMLAttributes,
+  useEffect,
+  useEffectEvent,
+  useState,
+} from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
-import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
+import {
+  PopupBackdrop,
+  PopupDialogPanel,
+  PopupTitle,
+  Popup,
+  PopupOpener,
+} from "../Popup";
 import { useEventService } from "@/services/eventsService";
 import useErrorHandler from "@/services/errorHandler";
 
@@ -12,7 +25,9 @@ export interface CreateEventPopupProps extends HTMLAttributes<HTMLElement> {
   done(event: Event): void;
 }
 
-export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPopupProps) => {
+export const CreateEventPopup: FC<CreateEventPopupProps> = (
+  props: CreateEventPopupProps,
+) => {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -23,12 +38,16 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
   const { createEvent } = useEventService();
   const [errors, setErrors] = useState<string[]>([]);
 
+  const onIsHidden = useEffectEvent(() => {
+    setName("");
+    setDescription("");
+    setPassword("");
+    setErrors([]);
+  });
+
   useEffect(() => {
     if (!visible) {
-      setName("");
-      setDescription("");
-      setPassword("");
-      setErrors([]);
+      onIsHidden;
     }
   }, [visible]);
 
@@ -53,7 +72,11 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
 
   const generateErrorMessage = (error: string, index: number) => {
     return (
-      <label key={`create-error-${index}`} htmlFor="form" className="text-red-500">
+      <label
+        key={`create-error-${index}`}
+        htmlFor="form"
+        className="text-red-500"
+      >
         {error}
       </label>
     );
@@ -79,7 +102,9 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
                 placeholder="Name"
                 value={name}
                 labelClassName="text-white"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setName(e.target.value)
+                }
               />
               <Input
                 title="Beschreibung"
@@ -87,7 +112,9 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
                 placeholder="Beschreibung"
                 value={description}
                 labelClassName="text-white"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setDescription(e.target.value)
+                }
               />
               <Input
                 title="Veranstaltungsdatum"
@@ -95,7 +122,9 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
                 placeholder="Veranstaltungsdatum"
                 value={date}
                 labelClassName="text-white"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setDate(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setDate(e.target.value)
+                }
               />
               <Input
                 title="Passwort"
@@ -104,7 +133,9 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
                 autoComplete="new-password"
                 value={password}
                 labelClassName="text-white"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setPassword(e.target.value)
+                }
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -128,7 +159,9 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (props: CreateEventPo
           </form>
         </PopupDialogPanel>
       </Popup>
-      <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>
+      <PopupOpener onClick={() => setVisible(true)}>
+        {props.children}
+      </PopupOpener>
     </>
   );
 };

@@ -21,7 +21,9 @@ export interface NewParticipantProps {
   disabled?: boolean;
 }
 
-export const NewParticipant: FC<NewParticipantProps> = (props: NewParticipantProps) => {
+export const NewParticipant: FC<NewParticipantProps> = (
+  props: NewParticipantProps,
+) => {
   const { addToast } = useToast();
   const [eventSettings] = useEventSettings();
 
@@ -38,7 +40,8 @@ export const NewParticipant: FC<NewParticipantProps> = (props: NewParticipantPro
   };
 
   const [participant, setParticipant] = useReducer<
-    Reducer<ParticipantEdit, Action<ParticipantEdit>>
+    ParticipantEdit,
+    [Action<ParticipantEdit>]
   >((state, action) => {
     return {
       ...state,
@@ -47,12 +50,19 @@ export const NewParticipant: FC<NewParticipantProps> = (props: NewParticipantPro
   }, empty);
 
   const onAddParticipant = () => {
-    participant.groupId = props.groupId;
+    const updatedParticipant: ParticipantEdit = {
+      ...participant,
+      groupId: props.groupId,
+    };
 
-    addParticipant(participant)
+    addParticipant(updatedParticipant)
       .then((p) => {
         if (eventSettings.password && props.encPrivateKey) {
-          decryptParticipant(p, eventSettings.password, props.encPrivateKey).then((newP) => {
+          decryptParticipant(
+            p,
+            eventSettings.password,
+            props.encPrivateKey,
+          ).then((newP) => {
             props.setParticipants((list) => [...list, newP]);
             setParticipant({ ...empty });
             addToast({ message: "Teilnehmer hinzugefügt", type: "info" });
@@ -68,7 +78,11 @@ export const NewParticipant: FC<NewParticipantProps> = (props: NewParticipantPro
     addContact(p)
       .then((p) => {
         if (eventSettings.password && props.encPrivateKey) {
-          decryptParticipant(p, eventSettings.password, props.encPrivateKey).then((newP) => {
+          decryptParticipant(
+            p,
+            eventSettings.password,
+            props.encPrivateKey,
+          ).then((newP) => {
             props.setParticipants((list) => [...list, props.contact]);
             props.dispatchGroup({ type: "contact_new", value: newP });
 
@@ -109,10 +123,19 @@ export const NewParticipant: FC<NewParticipantProps> = (props: NewParticipantPro
           setParticipant({ birthDate: e.target.value })
         }
       />
-      <Button disabled={props.disabled} className="h-fit" type="button" styletype="primary" onClick={onAddParticipant}>
+      <Button
+        disabled={props.disabled}
+        className="h-fit"
+        type="button"
+        styletype="primary"
+        onClick={onAddParticipant}
+      >
         Hinzufügen
       </Button>
-      <SwapContactPopup participant={participant} done={(p) => onReplaceWithContact(p)}>
+      <SwapContactPopup
+        participant={participant}
+        done={(p) => onReplaceWithContact(p)}
+      >
         <Button disabled={props.disabled} type="button" styletype="secondary">
           Ersetzen mit Kontakt
         </Button>

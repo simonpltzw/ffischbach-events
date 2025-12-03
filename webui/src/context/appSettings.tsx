@@ -1,15 +1,24 @@
 import { AppSettings } from "@/models/appSettings";
-import { createContext, Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useEffectEvent,
+  useState,
+} from "react";
 
-const Context = createContext<[AppSettings, Dispatch<SetStateAction<AppSettings>>]>([
-  { isDarkMode: false },
-  () => {},
-]);
+const Context = createContext<
+  [AppSettings, Dispatch<SetStateAction<AppSettings>>]
+>([{ isDarkMode: false }, () => {}]);
 
 export const AppSettingsProvider = ({ children }: any) => {
-  const [appSettings, setAppSettings] = useState<AppSettings>({ isDarkMode: false });
+  const [appSettings, setAppSettings] = useState<AppSettings>({
+    isDarkMode: false,
+  });
 
-  useEffect(() => {
+  const onInit = useEffectEvent(() => {
     setAppSettings((state: AppSettings) => {
       const isDarkMode = localStorage.getItem("theme") == "dark" ? true : false;
       return {
@@ -17,12 +26,23 @@ export const AppSettingsProvider = ({ children }: any) => {
         isDarkMode,
       };
     });
+  });
+
+  useEffect(() => {
+    onInit();
   }, []);
 
-  return <Context.Provider value={[appSettings, setAppSettings]}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={[appSettings, setAppSettings]}>
+      {children}
+    </Context.Provider>
+  );
 };
 
-export const useAppSettings = (): [AppSettings, Dispatch<SetStateAction<AppSettings>>] => {
+export const useAppSettings = (): [
+  AppSettings,
+  Dispatch<SetStateAction<AppSettings>>,
+] => {
   const ctx = useContext(Context);
   if (!ctx) {
     throw new Error("useAppSettings must be used within a AppSettingsProvider");

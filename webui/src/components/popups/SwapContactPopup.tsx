@@ -1,7 +1,21 @@
-import { ChangeEvent, FC, HTMLAttributes, Reducer, useEffect, useReducer, useState } from "react";
+import {
+  ChangeEvent,
+  FC,
+  HTMLAttributes,
+  Reducer,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
-import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
+import {
+  PopupBackdrop,
+  PopupDialogPanel,
+  PopupTitle,
+  Popup,
+  PopupOpener,
+} from "../Popup";
 import useErrorHandler from "@/services/errorHandler";
 import { ParticipantEdit } from "@/models/out/ParticipantEdit";
 import { Action } from "@/util/types";
@@ -9,26 +23,31 @@ import { Action } from "@/util/types";
 export interface SwapContactPopupProps extends HTMLAttributes<HTMLElement> {
   done(participant: ParticipantEdit): void;
   participant?: ParticipantEdit | undefined;
-  setParticipant?: React.Dispatch<React.SetStateAction<ParticipantEdit | undefined>>;
+  setParticipant?: React.Dispatch<
+    React.SetStateAction<ParticipantEdit | undefined>
+  >;
   visible?: boolean;
   isSwap?: boolean;
   disabled?: boolean;
 }
 
-export const SwapContactPopup: FC<SwapContactPopupProps> = (props: SwapContactPopupProps) => {
+export const SwapContactPopup: FC<SwapContactPopupProps> = (
+  props: SwapContactPopupProps,
+) => {
   const [editParticipant, setEditParticipant] = useReducer<
-    Reducer<Partial<ParticipantEdit> | undefined, Partial<Action<ParticipantEdit>> | undefined>
+    Partial<ParticipantEdit> | undefined,
+    [Partial<Action<ParticipantEdit>> | undefined]
   >(
     (
       state: Partial<ParticipantEdit> | undefined,
-      action: Partial<Action<ParticipantEdit>> | undefined
+      action: Partial<Action<ParticipantEdit>> | undefined,
     ) => {
       return {
         ...state,
         ...action,
       };
     },
-    undefined
+    undefined,
   );
 
   const errorHandler = useErrorHandler();
@@ -72,7 +91,11 @@ export const SwapContactPopup: FC<SwapContactPopupProps> = (props: SwapContactPo
 
   const generateErrorMessage = (error: string, index: number) => {
     return (
-      <label key={`create-error-${index}`} htmlFor="form" className="text-red-500">
+      <label
+        key={`create-error-${index}`}
+        htmlFor="form"
+        className="text-red-500"
+      >
         {error}
       </label>
     );
@@ -165,7 +188,9 @@ export const SwapContactPopup: FC<SwapContactPopupProps> = (props: SwapContactPo
           </form>
         </PopupDialogPanel>
       </Popup>
-      <PopupOpener onClick={() => setVisible(true)}>{props.children}</PopupOpener>
+      <PopupOpener onClick={() => setVisible(true)}>
+        {props.children}
+      </PopupOpener>
     </>
   );
 };

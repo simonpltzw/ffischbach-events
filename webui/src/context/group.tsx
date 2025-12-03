@@ -1,4 +1,10 @@
-import { createContext, Dispatch, Reducer, useContext, useReducer } from "react";
+import {
+  createContext,
+  Dispatch,
+  Reducer,
+  useContext,
+  useReducer,
+} from "react";
 import { Group } from "../models/in/Group";
 import { Participant } from "../models/in/Participant";
 
@@ -62,7 +68,7 @@ export const GroupProvider = ({ children }: any) => {
     return newState;
   };
 
-  const [groupState, dispatchGroup] = useReducer<Reducer<Group, GroupAction>>(
+  const [groupState, dispatchGroup] = useReducer<Group, [GroupAction]>(
     groupReducer,
     new Group(
       -1,
@@ -78,11 +84,15 @@ export const GroupProvider = ({ children }: any) => {
       new Participant(-1, "", "", "", "", false, ""),
       [],
       "",
-      ""
-    )
+      "",
+    ),
   );
 
-  return <Context.Provider value={[groupState, dispatchGroup]}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={[groupState, dispatchGroup]}>
+      {children}
+    </Context.Provider>
+  );
 };
 
 export const useGroupContext = (): [Group, Dispatch<GroupAction>] => {

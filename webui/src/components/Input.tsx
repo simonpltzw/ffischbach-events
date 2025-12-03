@@ -8,7 +8,7 @@ import {
   useRef,
 } from "react";
 
-export interface InputProps extends InputHTMLAttributes<HTMLElement>, JSX.IntrinsicAttributes {
+export interface InputProps extends InputHTMLAttributes<HTMLElement> {
   title?: string;
   placeholder?: string;
   type?: HTMLInputTypeAttribute;
@@ -20,21 +20,21 @@ export interface InputProps extends InputHTMLAttributes<HTMLElement>, JSX.Intrin
   containerClassName?: string;
 }
 
-export const Input: FC<InputProps> = (props: InputProps) => {
+export const Input: FC<InputProps> = (p: InputProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const props = {
+    type: "text",
+    labelClassName: "",
+    containerClassName: "",
+    ...p,
+  };
 
   useEffect(() => {
     if (props.isFocus) {
       inputRef.current?.focus();
     }
   }, [props.isFocus]);
-
-  props = {
-    type: "text",
-    labelClassName: "",
-    containerClassName: "",
-    ...props,
-  };
 
   const bgStyle = () => {
     if (props.disabled) {
@@ -48,7 +48,7 @@ export const Input: FC<InputProps> = (props: InputProps) => {
     <div className={`w-full ${props.containerClassName}`}>
       {props.title && (
         <label
-          className={`flex gap-1 block text-sm font-semibold h-fit mb-1 ${props.labelClassName}`}
+          className={`gap-1 block text-sm font-semibold h-fit mb-1 ${props.labelClassName}`}
           htmlFor="username"
         >
           {props.title}

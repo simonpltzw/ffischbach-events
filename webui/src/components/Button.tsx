@@ -11,10 +11,6 @@ export interface ButtonProps extends HTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button: FC<ButtonProps> = (props: ButtonProps) => {
-  props = {
-    ...props,
-  };
-
   const getStyleType = () => {
     switch (props.styletype) {
       case "tertiary":

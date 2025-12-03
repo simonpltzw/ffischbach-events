@@ -11,7 +11,13 @@ import {
 } from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
-import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
+import {
+  PopupBackdrop,
+  PopupDialogPanel,
+  PopupTitle,
+  Popup,
+  PopupOpener,
+} from "../Popup";
 import { Action, ResponseError } from "@/util/types";
 import { getDateTime } from "@/util/converter";
 import { Category } from "@/models/Category";
@@ -27,7 +33,9 @@ export interface EditCategoriesPopupProps extends HTMLAttributes<HTMLElement> {
   setCategoryToEdit: Dispatch<SetStateAction<Category | null>>;
 }
 
-export const CategoryPopup: FC<EditCategoriesPopupProps> = (props: EditCategoriesPopupProps) => {
+export const CategoryPopup: FC<EditCategoriesPopupProps> = (
+  props: EditCategoriesPopupProps,
+) => {
   const empty: Category = {
     id: "",
     eventId: props.eventId,
@@ -36,9 +44,9 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (props: EditCategorie
     signUpTo: "0",
   };
 
-  const errorHandler = useErrorHandler()
+  const errorHandler = useErrorHandler();
   const [errors, setErrors] = useState<string[]>([]);
-  const [category, setCategory] = useReducer<Reducer<Category, Action<Category>>>(
+  const [category, setCategory] = useReducer<Category, [Action<Category>]>(
     (state: Category, action: Action<Category>) => {
       const a = {
         ...state,
@@ -46,7 +54,7 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (props: EditCategorie
       };
       return a;
     },
-    empty
+    empty,
   );
 
   useEffect(() => {
@@ -61,13 +69,17 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (props: EditCategorie
       props.setVisible(false);
       props.setCategoryToEdit(null);
     } catch (e: any) {
-      errorHandler(e, setErrors)
+      errorHandler(e, setErrors);
     }
   };
 
   const generateErrorMessage = (error: string, index: number) => {
     return (
-      <label key={`create-error-${index}`} htmlFor="form" className="text-red-500">
+      <label
+        key={`create-error-${index}`}
+        htmlFor="form"
+        className="text-red-500"
+      >
         {error}
       </label>
     );

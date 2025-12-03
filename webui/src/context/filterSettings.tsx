@@ -1,40 +1,60 @@
-import { createContext, Dispatch, Reducer, useContext, useReducer } from "react";
+import {
+  createContext,
+  Dispatch,
+  Reducer,
+  useContext,
+  useReducer,
+} from "react";
 import { FilterSettings } from "@/models/FilterSettings";
 import { Action } from "@/util/types";
 
 const Context = createContext<any | undefined>(null);
 
-export type FilterSettingsAction = Action<FilterSettings>
-
+export type FilterSettingsAction = Action<FilterSettings>;
 
 export const FilterSettingsProvider = ({ children }: any) => {
-  const filterSettingsReducer = (state: FilterSettings, action: FilterSettingsAction): FilterSettings => {
+  const filterSettingsReducer = (
+    state: FilterSettings,
+    action: FilterSettingsAction,
+  ): FilterSettings => {
     return {
       ...state,
-      ...action
-    }
+      ...action,
+    };
   };
 
   const empty: FilterSettings = {
     eventDetail: {
       groupFilter: "",
-      groupFilterApproved: ""
+      groupFilterApproved: "",
     },
     eventList: {
       eventFilter: "",
-      eventFilterEnded: ""
-    }
-  }
+      eventFilterEnded: "",
+    },
+  };
 
-  const [filterSettings, dispatchFilterSettings] = useReducer<Reducer<FilterSettings, FilterSettingsAction>>(filterSettingsReducer, empty)
+  const [filterSettings, dispatchFilterSettings] = useReducer<
+    FilterSettings,
+    [FilterSettingsAction]
+  >(filterSettingsReducer, empty);
 
-  return <Context.Provider value={[filterSettings, dispatchFilterSettings]}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={[filterSettings, dispatchFilterSettings]}>
+      {children}
+    </Context.Provider>
+  );
 };
 
-export const useFilterSettings = (): [FilterSettings, Dispatch<FilterSettingsAction>] => {
+export const useFilterSettings = (): [
+  FilterSettings,
+  Dispatch<FilterSettingsAction>,
+] => {
   const ctx = useContext(Context);
   if (!ctx) {
-    throw new Error("useFilterSettings must be used within a FilterSettingsProvider");
+    throw new Error(
+      "useFilterSettings must be used within a FilterSettingsProvider",
+    );
   }
   return useContext(Context);
 };

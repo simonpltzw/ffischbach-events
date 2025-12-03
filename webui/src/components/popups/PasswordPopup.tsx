@@ -3,11 +3,18 @@ import {
   FC,
   HTMLAttributes,
   useEffect,
+  useEffectEvent,
   useState,
 } from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
-import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
+import {
+  PopupBackdrop,
+  PopupDialogPanel,
+  PopupTitle,
+  Popup,
+  PopupOpener,
+} from "../Popup";
 
 export interface PasswordPopupProps extends HTMLAttributes<HTMLElement> {
   title: string;
@@ -15,15 +22,21 @@ export interface PasswordPopupProps extends HTMLAttributes<HTMLElement> {
   done(password: string, isManual?: boolean): Promise<void>;
 }
 
-export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps) => {
+export const PasswordPopup: FC<PasswordPopupProps> = (
+  props: PasswordPopupProps,
+) => {
   const [visible, setVisible] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [errors, setErrors] = useState<string[]>([]);
 
+  const onIsHidden = useEffectEvent(() => {
+    setPassword("");
+    setErrors([]);
+  });
+
   useEffect(() => {
     if (!visible) {
-      setPassword("");
-      setErrors([]);
+      onIsHidden();
     } else {
     }
   }, [visible]);
@@ -40,7 +53,11 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
 
   const generateErrorMessage = (error: string, index: number) => {
     return (
-      <label key={`create-error-${index}`} htmlFor="form" className="text-red-500">
+      <label
+        key={`create-error-${index}`}
+        htmlFor="form"
+        className="text-red-500"
+      >
         {error}
       </label>
     );
@@ -71,7 +88,9 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
                 autoComplete="current-password"
                 value={password}
                 isFocus={visible}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setPassword(e.target.value)
+                }
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -80,10 +99,7 @@ export const PasswordPopup: FC<PasswordPopupProps> = (props: PasswordPopupProps)
               })}
             </div>
             <div className="flex flex-row py-3 gap-3 justify-end">
-              <Button
-                color="green"
-                type="submit"
-              >
+              <Button color="green" type="submit">
                 Bestätigen
               </Button>
               <Button

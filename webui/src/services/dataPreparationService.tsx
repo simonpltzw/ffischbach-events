@@ -36,7 +36,10 @@ export const useJsonToCsv = () => {
   };
 
   const parse = async (event: Event) => {
-    const privateKey = decryptKeyWithPassword(event.encryptedPrivateKey, eventSettings.password!);
+    const privateKey = await decryptKeyWithPassword(
+      event.encryptedPrivateKey,
+      eventSettings.password!,
+    );
 
     const result = await Promise.all(
       event
@@ -61,28 +64,30 @@ export const useJsonToCsv = () => {
             Kategorie: decGroup.category?.name ?? "",
           };
 
-          const participantsExport = decGroup.participants.map((p: Participant) => {
-            delete p.encryptedData;
+          const participantsExport = decGroup.participants.map(
+            (p: Participant) => {
+              delete p.encryptedData;
 
-            const exportData: ExportEntry = {
-              Vorname: p.FirstName,
-              Nachname: p.LastName,
-              Email: "",
-              Geburtsdatum: getLocalDate(p.BirthDate),
-              VIP: p.vip ? 1 : 0,
-              Gruppe: decGroup.name,
-              Gr: decGroup.id,
-              Nr: p.id,
-              KategorieNr: decGroup.category.id,
-              Kategorie: decGroup.category?.name ?? "",
-            };
+              const exportData: ExportEntry = {
+                Vorname: p.FirstName,
+                Nachname: p.LastName,
+                Email: "",
+                Geburtsdatum: getLocalDate(p.BirthDate),
+                VIP: p.vip ? 1 : 0,
+                Gruppe: decGroup.name,
+                Gr: decGroup.id,
+                Nr: p.id,
+                KategorieNr: decGroup.category.id,
+                Kategorie: decGroup.category?.name ?? "",
+              };
 
-            return exportData;
-          });
+              return exportData;
+            },
+          );
 
           participantsExport.push(contactExport);
           return participantsExport;
-        })
+        }),
     );
     return jsonToCsv(result);
   };

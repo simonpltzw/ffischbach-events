@@ -1,15 +1,12 @@
-import analyzer from '@next/bundle-analyzer'
+import analyzer from "@next/bundle-analyzer";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
-  experimental: {
-    turbo: {}
-  }
 };
 
 const withBundleAnalyzer = analyzer({
-  enabled: process.env.ANALYZE === 'true',
-})
+  enabled: process.env.ANALYZE === "true",
+});
 
 export default withBundleAnalyzer(nextConfig);

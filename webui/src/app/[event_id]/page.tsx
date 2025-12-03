@@ -1,6 +1,13 @@
 "use client";
 
-import { ReactNode, Reducer, useLayoutEffect, useMemo, useReducer, useState } from "react";
+import {
+  ReactNode,
+  Reducer,
+  useLayoutEffect,
+  useMemo,
+  useReducer,
+  useState,
+} from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
@@ -39,23 +46,24 @@ const EventPage = () => {
   const { parse } = useJsonToCsv();
   const errorHandler = useErrorHandler();
 
-  const { getEventById, setEventCompleted, addEventManager, putEvent } = useEventService();
+  const { getEventById, setEventCompleted, addEventManager, putEvent } =
+    useEventService();
 
   const [filter, dispatchFilter] = useFilterSettings();
 
   const tableHeaders = useMemo(
     () => ["Name", "Kategorie", "Kontakt", "Genehmigt", "Erstellt", ""],
-    []
+    [],
   );
 
-  const [state, dispatch] = useReducer<Reducer<Event, Action<Partial<Event>>>>(
+  const [state, dispatch] = useReducer<Event, [Action<Partial<Event>>]>(
     (state: Event, action: Action<Partial<Event>>): Event => {
       return {
         ...state,
         ...action,
       };
     },
-    new Event("", "", "", 1, 1, false, "", [], "", "", "", [])
+    new Event("", "", "", 1, 1, false, "", [], "", "", "", []),
   );
 
   useLayoutEffect(() => {
@@ -66,7 +74,11 @@ const EventPage = () => {
       .then((event: Event) => {
         dispatch(event);
         setIsPending(false);
-        if (eventSettings && eventSettings.password && eventSettings.eventId == params.event_id) {
+        if (
+          eventSettings &&
+          eventSettings.password &&
+          eventSettings.eventId == params.event_id
+        ) {
           onDecryptEvent(eventSettings.password, false, event);
         }
       })
@@ -81,7 +93,11 @@ const EventPage = () => {
       .catch((e) => errorHandler(e));
   };
 
-  const onDecryptEvent = async (password: string, isManual?: boolean, localState?: Event) => {
+  const onDecryptEvent = async (
+    password: string,
+    isManual?: boolean,
+    localState?: Event,
+  ) => {
     try {
       if (!localState) {
         localState = state;
@@ -140,7 +156,10 @@ const EventPage = () => {
     );
   };
 
-  const generateFilteredList = (filter: string, isApproved?: boolean): ReactNode[] => {
+  const generateFilteredList = (
+    filter: string,
+    isApproved?: boolean,
+  ): ReactNode[] => {
     const filteredList = state.groups
       ?.filter((group: Group) => {
         const f = filter ?? "";
@@ -175,7 +194,11 @@ const EventPage = () => {
   return (
     <>
       {state.completed && <InfoBadge text="Event ist beendet" />}
-      <PasswordPopup title="Event entschlüsseln" disabled={!isEncrypted} done={onDecryptEvent}>
+      <PasswordPopup
+        title="Event entschlüsseln"
+        disabled={!isEncrypted}
+        done={onDecryptEvent}
+      >
         <Lock isLocked={isEncrypted} />
       </PasswordPopup>
 
@@ -190,7 +213,9 @@ const EventPage = () => {
       </div>
       <div className="flex flex-row gap-3">
         <div>Veranstaltungsdatum:</div>
-        <div className="text-base font-semibold">{getLocalDateTime(state?.date)}</div>
+        <div className="text-base font-semibold">
+          {getLocalDateTime(state?.date)}
+        </div>
       </div>
       {!state.completed && !isEncrypted && (
         <div className="flex flex-row gap-3 flex-wrap">
@@ -208,13 +233,21 @@ const EventPage = () => {
                 .catch((e) => errorHandler(e));
             }}
           >
-            <Button color="blue" className="md:flex-none flex-1 text-white" type="button">
+            <Button
+              color="blue"
+              className="md:flex-none flex-1 text-white"
+              type="button"
+            >
               Event bearbeiten
             </Button>
           </EditEventPopup>
 
           <AddEventManagerPopup done={onAddEventManager}>
-            <Button color="blue" className="md:flex-none flex-1 text-white" type="button">
+            <Button
+              color="blue"
+              className="md:flex-none flex-1 text-white"
+              type="button"
+            >
               Manager hinzufügen
             </Button>
           </AddEventManagerPopup>
@@ -249,11 +282,14 @@ const EventPage = () => {
             dispatchFilter({
               eventDetail: {
                 groupFilter: value,
-                groupFilterApproved: filter.eventDetail?.groupFilterApproved ?? "",
+                groupFilterApproved:
+                  filter.eventDetail?.groupFilterApproved ?? "",
               },
             });
           }}
-          generateList={() => generateFilteredList(filter.eventDetail?.groupFilter ?? "", false)}
+          generateList={() =>
+            generateFilteredList(filter.eventDetail?.groupFilter ?? "", false)
+          }
           tableHeaders={tableHeaders}
         />
 
@@ -272,7 +308,10 @@ const EventPage = () => {
             });
           }}
           generateList={() =>
-            generateFilteredList(filter.eventDetail?.groupFilterApproved ?? "", true)
+            generateFilteredList(
+              filter.eventDetail?.groupFilterApproved ?? "",
+              true,
+            )
           }
           tableHeaders={tableHeaders}
         />

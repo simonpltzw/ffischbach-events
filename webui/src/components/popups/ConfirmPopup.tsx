@@ -1,6 +1,12 @@
-import { FC, HTMLAttributes, useEffect, useState } from "react";
+import { FC, HTMLAttributes, useEffect, useEffectEvent, useState } from "react";
 import { Button } from "../Button";
-import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
+import {
+  PopupBackdrop,
+  PopupDialogPanel,
+  PopupTitle,
+  Popup,
+  PopupOpener,
+} from "../Popup";
 import useErrorHandler from "@/services/errorHandler";
 
 export interface ConfirmPopupProps extends HTMLAttributes<HTMLElement> {
@@ -8,15 +14,21 @@ export interface ConfirmPopupProps extends HTMLAttributes<HTMLElement> {
   done(): void;
 }
 
-export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) => {
+export const ConfirmPopup: FC<ConfirmPopupProps> = (
+  props: ConfirmPopupProps,
+) => {
   const [errors, setErrors] = useState<string[]>([]);
   const [visible, setVisible] = useState<boolean>(false);
 
-  const errorHandler = useErrorHandler()
+  const errorHandler = useErrorHandler();
+
+  const onIsHidden = useEffectEvent(() => {
+    setErrors([]);
+  });
 
   useEffect(() => {
     if (!visible) {
-      setErrors([]);
+      onIsHidden();
     }
   }, [visible]);
 
@@ -25,13 +37,17 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) =>
       await props.done();
       setVisible(false);
     } catch (e: any) {
-      errorHandler(e, setErrors)
+      errorHandler(e, setErrors);
     }
   };
 
   const generateErrorMessage = (error: string, index: number) => {
     return (
-      <label key={`create-error-${index}`} htmlFor="form" className="text-red-500">
+      <label
+        key={`create-error-${index}`}
+        htmlFor="form"
+        className="text-red-500"
+      >
         {error}
       </label>
     );
@@ -56,15 +72,12 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) =>
             </div>
 
             <div className="flex flex-row gap-3 py-3 justify-end">
-              <Button
-              color="green"
-                type="submit"
-              >
+              <Button color="green" type="submit">
                 Bestätigen
               </Button>
               <Button
-              color="gray"
-              styletype="secondary"
+                color="gray"
+                styletype="secondary"
                 autoFocus={true}
                 type="button"
                 onClick={() => setVisible(false)}
