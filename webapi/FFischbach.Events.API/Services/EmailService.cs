@@ -16,8 +16,10 @@ namespace FFischbach.Events.API.Services
             MimeMessage message = new MimeMessage();
             message.From.Add(new MailboxAddress("Freiwillige Feuerwehr Fischbach Events", Configuration["Email:FromAddress"])); // Send from a configured mail address.
             message.To.Add(new MailboxAddress("", group.Contact!.Email));                                                       // Send to the group contact mail.
+            string[]? ccAddresses = Configuration.GetSection("Email:CcAddresses").Get<string[]>();
+            ccAddresses?.ToList().ForEach(cc => message.Cc.Add(new MailboxAddress("", cc)));                                    // Add cc mail addresses.
             message.ReplyTo.Add(new MailboxAddress("", Configuration["Email:ReplyToAddress"]));                                 // Make receivers reply to a configured mail address.
-            message.Subject = $"Gruppenanmeldung {@event.Id} eingegangen";                                                  // Set subject.
+            message.Subject = $"Gruppenanmeldung {@event.Id} eingegangen";                                                      // Set subject.
 
             // Join participants with contact to gain a complete participants list.
             List<ParticipantGroupCreateModel> allParticipants = [group.Contact, .. group.Participants!];
@@ -81,8 +83,10 @@ namespace FFischbach.Events.API.Services
             MimeMessage message = new MimeMessage();
             message.From.Add(new MailboxAddress("Freiwillige Feuerwehr Fischbach RAUP", Configuration["Email:FromAddress"]));   // Send from a configured mail address.
             message.To.Add(new MailboxAddress("", group.Contact!.Email));                                                       // Send to the group contact mail.
+            string[]? ccAddresses = Configuration.GetSection("Email:CcAddresses").Get<string[]>();
+            ccAddresses?.ToList().ForEach(cc => message.Cc.Add(new MailboxAddress("", cc)));                                    // Add cc mail addresses.
             message.ReplyTo.Add(new MailboxAddress("", Configuration["Email:ReplyToAddress"]));                                 // Make receivers reply to a configured mail address.
-            message.Subject = $"Gruppenanmeldung {@event.Id} genehmigt";                                                  // Set subject.
+            message.Subject = $"Gruppenanmeldung {@event.Id} genehmigt";                                                        // Set subject.
 
             // Join participants with contact to gain a complete participants list.
             List<ParticipantGroupApprovalModel> allParticipants = [group.Contact, .. group.Participants!];
