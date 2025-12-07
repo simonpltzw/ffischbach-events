@@ -1,22 +1,15 @@
 import { FC, HTMLAttributes, useEffect, useEffectEvent, useState } from "react";
 import { Button } from "../Button";
-import {
-  PopupBackdrop,
-  PopupDialogPanel,
-  PopupTitle,
-  Popup,
-  PopupOpener,
-} from "../Popup";
+import { PopupBackdrop, PopupDialogPanel, PopupTitle, Popup, PopupOpener } from "../Popup";
 import useErrorHandler from "@/services/errorHandler";
 
 export interface ConfirmPopupProps extends HTMLAttributes<HTMLElement> {
   title?: string;
-  done(): void;
+  done?(isConfirmed: boolean): void;
+  open?: boolean;
 }
 
-export const ConfirmPopup: FC<ConfirmPopupProps> = (
-  props: ConfirmPopupProps,
-) => {
+export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) => {
   const [errors, setErrors] = useState<string[]>([]);
   const [visible, setVisible] = useState<boolean>(false);
 
@@ -32,9 +25,17 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (
     }
   }, [visible]);
 
+  useEffect(() => {
+    if (props.open != undefined) {
+      setVisible(props.open);
+    }
+  }, [props.open]);
+
   const onSubmit = async () => {
     try {
-      await props.done();
+      if (props.done) {
+        await props.done(true);
+      }
       setVisible(false);
     } catch (e: any) {
       errorHandler(e, setErrors);
@@ -43,11 +44,7 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (
 
   const generateErrorMessage = (error: string, index: number) => {
     return (
-      <label
-        key={`create-error-${index}`}
-        htmlFor="form"
-        className="text-red-500"
-      >
+      <label key={`create-error-${index}`} htmlFor="form" className="text-red-500">
         {error}
       </label>
     );
@@ -80,7 +77,12 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (
                 styletype="secondary"
                 autoFocus={true}
                 type="button"
-                onClick={() => setVisible(false)}
+                onClick={() => {
+                  setVisible(false);
+                  if (props.done) {
+                    props.done(false);
+                  }
+                }}
               >
                 Abbrechen
               </Button>

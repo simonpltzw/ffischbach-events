@@ -8,6 +8,7 @@ export interface PopupTitleProps extends HTMLAttributes<HTMLDivElement> {}
 export interface PopupOpenerProps extends HTMLAttributes<HTMLDivElement> {}
 export interface PopupProps extends HTMLAttributes<HTMLDivElement> {
   onClose?(): void;
+  preventClose?: boolean;
   state: {
     open: boolean;
     setOpen: Dispatch<SetStateAction<boolean>>;
@@ -22,7 +23,7 @@ export const PopupDialogPanel: FC<PopupPanelProps> = (props: PopupPanelProps) =>
   return (
     <DialogPanel
       transition
-      className="z-50 w-fit max-w-md rounded-xl border-2 border-gray-500 dark:border-0 bg-gray-400 dark:bg-gray-800 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0 shadow-lg"
+      className={`z-50 w-fit max-w-md rounded-xl border-2 border-gray-500 dark:border-0 bg-gray-400 dark:bg-gray-800 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0 shadow-lg ${props.className}`}
     >
       {props.children}
     </DialogPanel>
@@ -50,7 +51,9 @@ export const Popup: FC<PopupProps> = (props: PopupProps) => {
           if (!!props.onClose) {
             props.onClose();
           }
-          props.state.setOpen(false);
+          if (!props.preventClose) {
+            props.state.setOpen(false);
+          }
         }}
         className="relative z-10 focus:outline-none"
       >
