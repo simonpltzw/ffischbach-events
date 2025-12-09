@@ -76,17 +76,12 @@ const GroupPage = () => {
         }
       })
       .catch((e) => errorHandler(e));
+
+    getEventById(params.event_id)
+      .then((event: Event) => setCategories(event.categories))
+      .catch((e) => errorHandler(e));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (params.event_id != eventSettings.eventId && categories.length == 0) {
-      getEventById(params.event_id)
-        .then((event: Event) => setCategories(event.categories))
-        .catch((e) => errorHandler(e));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groupState, eventSettings]);
 
   const onSubmit: any = () => {
     console.log(participants);
