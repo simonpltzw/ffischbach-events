@@ -55,8 +55,13 @@ export const useGroupService = () => {
     return put(`/Groups/${group.id}`, groupOut)
   };
 
+  const deleteGroup = (groupId: number) => {
+    return _delete(`/Groups/${groupId}`);
+  }
+
   return {
     getGroup,
-    updateGroup
+    updateGroup,
+    deleteGroup
   }
 };
