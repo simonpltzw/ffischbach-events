@@ -122,7 +122,7 @@ export const decryptParticipant = async (
   ) as Participant;
 
   const adaptedParticipant: Participant = new Participant(
-    decryptedParticipants.id,
+    participant.id,
     decryptedParticipants.Email,
     decryptedParticipants.FirstName,
     decryptedParticipants.LastName,
