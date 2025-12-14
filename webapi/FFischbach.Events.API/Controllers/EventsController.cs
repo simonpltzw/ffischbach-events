@@ -1,6 +1,7 @@
 ﻿using FFischbach.Events.API.Helpers;
 using FFischbach.Events.API.Models.InputModels;
 using FFischbach.Events.API.Models.OutputModels;
+using FFischbach.Events.API.Services;
 using FFischbach.Events.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,6 +49,62 @@ namespace FFischbach.Events.API.Controllers
                 return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
             }
             return CreatedAtAction(nameof(Get), new { id = returnValue.Id }, returnValue);
+        }
+
+        /// <summary>
+        /// Sends a test registration mail for the event to the current user.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost("{id}/SendTestRegistrationMail")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> SendTestRegistrationMail([Required] string? id)
+        {
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await EventService.SendTestRegistrationMail(User, id!);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Sends a test approval mail for the event to the current user.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost("{id}/SendTestApprovalMail")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> SendTestApprovalMail([Required] string? id)
+        {
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await EventService.SendTestApprovalMail(User, id!);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return NoContent();
         }
 
         /// <summary>
