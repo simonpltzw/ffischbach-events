@@ -49,7 +49,6 @@ const EventPage = () => {
     sendRegistrationEmail,
     sendTestRegistrationEmail,
   } = useEmail();
-  const { getEventById, setEventCompleted, addEventManager, putEvent } = useEventService();
   const { deleteGroup } = useGroupService();
 
   const [filter, dispatchFilter] = useFilterSettings();
