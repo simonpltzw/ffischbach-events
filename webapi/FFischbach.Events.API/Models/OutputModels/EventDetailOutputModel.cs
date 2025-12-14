@@ -46,6 +46,18 @@
         public required string EncryptedPrivateKey { get; set; }
 
         /// <summary>
+        /// The contents of the registration mail.
+        /// The following placeholders can be used: [[ContactFirstName]] [[GroupName]] [[ParticipantsTable]].
+        /// </summary>
+        public string? RegistrationEmailContent { get; set; }
+
+        /// <summary>
+        /// The contents of the approval mail.
+        /// The following placeholders can be used: [[ContactFirstName]] [[GroupName]] [[ParticipantsTable]].
+        /// </summary>
+        public string? ApprovalEmailContent { get; set; }
+
+        /// <summary>
         /// List of groups.
         /// </summary>
         public required List<GroupOutputModel> Groups { get; set; }

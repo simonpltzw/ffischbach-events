@@ -52,13 +52,15 @@ const useClientFetch = () => {
       body: data ? JSON.stringify(data) : undefined,
     });
 
-    const result = await response.json();
+    if (response.status != 204) {
+      const result = await response.json();
 
-    if (!response.ok) {
-      throw new ResponseException(result as ResponseError);
+      if (!response.ok) {
+        throw new ResponseException(result as ResponseError);
+      }
+
+      return result;
     }
-
-    return result;
   };
 
   const put = async (path: string, data: T): Promise<T> => {
@@ -82,6 +84,7 @@ const useClientFetch = () => {
   };
 
   const _delete = async (path: string): Promise<T> => {
+    let result = null;
     const token = await getToken();
     const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_API}${path}`, {
       method: "DELETE",
@@ -90,7 +93,9 @@ const useClientFetch = () => {
       },
     });
 
-    const result = await response.json();
+    if (response.status != 204) {
+      result = await response.json();
+    }
 
     if (!response.ok) {
       throw new ResponseException(result as ResponseError);

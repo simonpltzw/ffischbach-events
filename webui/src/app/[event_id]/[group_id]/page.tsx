@@ -26,6 +26,7 @@ import { useGroupService } from "@/services/groupsService";
 import useErrorHandler from "@/services/errorHandler";
 import { useParticipantService } from "@/services/participantService";
 import { useParams } from "next/navigation";
+import { useEmail as useEmail } from "@/services/emailService";
 
 const GroupPage = () => {
   const params = useParams<{ event_id: string; group_id: string }>();
@@ -37,10 +38,11 @@ const GroupPage = () => {
   const { getGroup, updateGroup } = useGroupService();
   const [, setIsPending] = useState<boolean>();
   const { addToast } = useToast();
+  const { sendApprovalEmail } = useEmail();
   const { getEventById } = useEventService();
   const errorHandler = useErrorHandler();
   const [categories, setCategories] = useCategories();
-  const { addContact } = useParticipantService();
+  const { putEvent } = useEventService();
 
   /*const [participantToSwap, setParticipantToSwap] = useState<ParticipantEdit | undefined>(
     undefined
@@ -76,20 +78,14 @@ const GroupPage = () => {
         }
       })
       .catch((e) => errorHandler(e));
+
+    getEventById(params.event_id)
+      .then((event: Event) => setCategories(event.categories))
+      .catch((e) => errorHandler(e));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (params.event_id != eventSettings.eventId && categories.length == 0) {
-      getEventById(params.event_id)
-        .then((event: Event) => setCategories(event.categories))
-        .catch((e) => errorHandler(e));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groupState, eventSettings]);
-
   const onSubmit: any = () => {
-    console.log(participants);
     groupState.participants = participants;
 
     updateGroup(groupState)
@@ -97,6 +93,16 @@ const GroupPage = () => {
         addToast({ message: "Gruppe aktualisiert", type: "info" });
 
         dispatchGroup({ type: "new", value: groupState });
+      })
+      .then(() => {
+        if (groupState.approved) {
+          sendApprovalEmail(groupState).then(() =>
+            addToast({
+              message: "Genehmigungsbestätigung gesendet",
+              type: "info",
+            })
+          );
+        }
       })
       .catch((e) => errorHandler(e));
   };
@@ -314,7 +320,7 @@ const GroupPage = () => {
         disabled={isEncrypted}
         value={!!groupState.approved}
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          groupState.approved = e.target.checked;
+          dispatchGroup({ type: "approved", value: e.target.checked });
         }}
       />
 
@@ -364,7 +370,7 @@ const GroupPage = () => {
             disabled={isEncrypted}
             value={!!groupState.contact.vip}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              groupState.contact.vip = e.target.checked;
+              dispatchGroup({ type: "contact_vip", value: e.target.checked });
             }}
           />
         </div>
@@ -392,7 +398,7 @@ const GroupPage = () => {
         }
       />
       {!isEncrypted && (
-        <div className="flex flex-row justify-end">
+        <div className="flex flex-row justify-end gap-3">
           <Button color="blue" type="button" onClick={onSubmit}>
             Gruppe updaten
           </Button>
