@@ -135,6 +135,7 @@ namespace FFischbach.Events.API
             #region Services
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IEventService, EventService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IEventManagerService, EventManagerService>();
             builder.Services.AddScoped<IGroupService, GroupService>();
             builder.Services.AddScoped<IParticipantService, ParticipantService>();

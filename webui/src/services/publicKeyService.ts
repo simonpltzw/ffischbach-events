@@ -1,10 +1,5 @@
 import { ab2str, str2ab } from "@/util/converter";
 
-const getMessageEncoding = (string: string) => {
-  let enc = new TextEncoder();
-  return enc.encode(string);
-};
-
 export const importPublicKey = async (pem: string) => {
   const pemHeader = "-----BEGIN PUBLIC KEY-----";
   const pemFooter = "-----END PUBLIC KEY-----";
@@ -28,7 +23,7 @@ export const encryptData = async (data: string, publicKey: CryptoKey) => {
         name: "RSA-OAEP",
       },
       publicKey,
-      getMessageEncoding(data)
+      str2ab(data)
     )
   );
 
