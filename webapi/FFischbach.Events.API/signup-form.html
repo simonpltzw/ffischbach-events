@@ -137,8 +137,8 @@
 - Wir halten uns an das Gesetz zum Schutz der Jugend in der Öffentlichkeit.
 - Wir übernehmen keine Haftung für Garderobe, Sachschäden oder Körperschäden.</textarea>
 
-                <!-- AGB checkbox-->
-                <input class="form-check-input" type="checkbox" id="termsAndConditionsCheck" required>
+                <!-- AGB checkbox (disabled by default -> read first (scroll down))-->
+                <input class="form-check-input" type="checkbox" id="termsAndConditionsCheck" required disabled>
                 <label class="form-check-label prevent-select" for="termsAndConditionsCheck">Ich habe die AGB gelesen und bin damit einverstanden</label>
             </div>
 
@@ -190,6 +190,26 @@
             })
         })();
 
+        const enableCheckBoxListener = (e) => {
+            const scrollPercentage = e.target.scrollTop / (e.target.scrollHeight- e.target.clientHeight)
+            if(scrollPercentage > 0.94) {
+                //enable checkbox (AGB)
+                document.getElementById("termsAndConditionsCheck").disabled = false
+            }
+        }
+
+        const applyScrollListener = () => {
+            const agbTextArea = document.getElementById("termsAndConditions")
+
+            //check if "scrollend" compatible (safari...)
+            if("onscrollend" in window) {
+                agbTextArea.addEventListener("scrollend", enableCheckBoxListener)
+            } else  {
+                //setup scroll listener (scrollend currently not supported on safari (╯°□°)╯︵ ┻━┻)
+                agbTextArea.addEventListener("scroll", enableCheckBoxListener)
+            }
+        }
+
         // Listen to input changes
         (() => {
             document.getElementById("groupName").addEventListener("change", (e) => data.name = e.target.value);
@@ -198,6 +218,8 @@
             document.getElementById("contactLastName").addEventListener("change", (e) => data.contact.lastName = e.target.value);
             document.getElementById("contactBirthDate").addEventListener("change", (e) => data.contact.birthDate = e.target.value);
             document.getElementById("contactEmail").addEventListener("change", (e) => data.contact.email = e.target.value);
+
+            applyScrollListener()
         })();
 
         // Dynamic Participant behavior
