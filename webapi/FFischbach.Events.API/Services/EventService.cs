@@ -11,13 +11,13 @@ using System.Text;
 
 namespace FFischbach.Events.API.Services
 {
-#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-    internal class EventService(ILogger<EventService> logger, IMapper mapper, DatabaseContext databaseContext, IUserService userService) : IEventService
+    internal class EventService(ILogger<EventService> logger, IMapper mapper, DatabaseContext databaseContext, IUserService userService, IEmailService emailService) : IEventService
     {
         private ILogger<EventService> Logger { get; } = logger;
         private IMapper Mapper { get; } = mapper;
         private DatabaseContext DatabaseContext { get; } = databaseContext;
         private IUserService UserService { get; } = userService;
+        private IEmailService EmailService { get; } = emailService;
 
         public async Task<EventDetailOutputModel> CreateEventAsync(ClaimsPrincipal user, EventCreateModel @event)
         {
@@ -416,6 +416,158 @@ namespace FFischbach.Events.API.Services
             }
             return returnValue;
         }
+
+        public async Task SendTestRegistrationMail(ClaimsPrincipal user, string id)
+        {
+            try
+            {
+                // Get user display name.
+                string displayName = UserService.GetDisplayName(user);
+
+                // Get event from the database.
+                Event? dbEvent = await DatabaseContext.Events
+                                        .Include(x => x.Groups!)
+                                            .ThenInclude(x => x.Participants)
+                                        .Include(x => x.EventManagers!)
+                                            .ThenInclude(x => x.Manager)
+                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower());
+
+                // Check db response.
+                if (dbEvent == null)
+                {
+                    // Nothing found.
+                    throw new CustomException("Das Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status404NotFound);
+                }
+                else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
+                {
+                    // Calling user is not an event manager of that group.
+                    throw new CustomException("Du hast keine Berechtigungen für dieses Event. Lass dich von einem Manager des Events hinzufügen.", statusCode: StatusCodes.Status403Forbidden);
+                }
+                else if (dbEvent.Completed)
+                {
+                    // Event is already completed.
+                    throw new CustomException("Das Event ist bereits abgeschlossen, es können keine Änderungen mehr daran vorgenommen werden.", statusCode: StatusCodes.Status400BadRequest);
+                }
+
+                // Create a dummy group.
+                GroupCreateModel dummyGroup = new GroupCreateModel
+                {
+                    Name = "Testgruppe",
+                    EventId = dbEvent.Id,
+                    Contact = new ParticipantGroupCreateModel
+                    {
+                        FirstName = "Max",
+                        LastName = "Mustermann",
+                        BirthDate = DateOnly.FromDateTime(DateTime.Now.AddYears(-22)),
+                        Email = displayName
+                    },
+                    Participants = new List<ParticipantGroupCreateModel>
+                    {
+                        new ParticipantGroupCreateModel
+                        {
+                            FirstName = "Robert",
+                            LastName = "Mustermann",
+                            BirthDate = DateOnly.FromDateTime(DateTime.Now.AddYears(-25))
+                        },
+                        new ParticipantGroupCreateModel
+                        {
+                            FirstName = "Erika",
+                            LastName = "Musterfrau",
+                            BirthDate = DateOnly.FromDateTime(DateTime.Now.AddYears(-30))
+                        }
+                    }
+                };
+
+                // Send the registration mail.
+                await EmailService.SendRegistrationMailAsync(dummyGroup, dbEvent);
+            }
+            catch (CustomException ex)
+            {
+                Logger.LogWarning(ex, "Failed to send test registration mail for event '{id}'.", id);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to send test registration mail for event '{id}'.", id);
+                throw new CustomException("Unerwarteter Fehler beim Senden der Test-Mail.", ex);
+            }
+        }
+
+        public async Task SendTestApprovalMail(ClaimsPrincipal user, string id)
+        {
+            try
+            {
+                // Get user display name.
+                string displayName = UserService.GetDisplayName(user);
+
+                // Get event from the database.
+                Event? dbEvent = await DatabaseContext.Events
+                                        .Include(x => x.Groups!)
+                                            .ThenInclude(x => x.Participants)
+                                        .Include(x => x.EventManagers!)
+                                            .ThenInclude(x => x.Manager)
+                                        .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower());
+
+                // Check db response.
+                if (dbEvent == null)
+                {
+                    // Nothing found.
+                    throw new CustomException("Das Event konnte nicht gefunden werden.", statusCode: StatusCodes.Status404NotFound);
+                }
+                else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
+                {
+                    // Calling user is not an event manager of that group.
+                    throw new CustomException("Du hast keine Berechtigungen für dieses Event. Lass dich von einem Manager des Events hinzufügen.", statusCode: StatusCodes.Status403Forbidden);
+                }
+                else if (dbEvent.Completed)
+                {
+                    // Event is already completed.
+                    throw new CustomException("Das Event ist bereits abgeschlossen, es können keine Änderungen mehr daran vorgenommen werden.", statusCode: StatusCodes.Status400BadRequest);
+                }
+
+                // Create a dummy group.
+                GroupApprovalModel dummyGroup = new GroupApprovalModel
+                {
+                    Name = "Testgruppe",
+                    Contact = new ParticipantGroupApprovalModel
+                    {
+                        FirstName = "Max",
+                        LastName = "Mustermann",
+                        BirthDate = DateOnly.FromDateTime(DateTime.Now.AddYears(-22)),
+                        VIP = true,
+                        Email = displayName
+                    },
+                    Participants = new List<ParticipantGroupApprovalModel>
+                    {
+                        new ParticipantGroupApprovalModel
+                        {
+                            FirstName = "Robert",
+                            LastName = "Mustermann",
+                            BirthDate = DateOnly.FromDateTime(DateTime.Now.AddYears(-25))
+                        },
+                        new ParticipantGroupApprovalModel
+                        {
+                            FirstName = "Erika",
+                            LastName = "Musterfrau",
+                            BirthDate = DateOnly.FromDateTime(DateTime.Now.AddYears(-30)),
+                            VIP = true
+                        }
+                    }
+                };
+
+                // Send the registration mail.
+                await EmailService.SendApprovalMailAsync(dummyGroup, dbEvent);
+            }
+            catch (CustomException ex)
+            {
+                Logger.LogWarning(ex, "Failed to send test approval mail for event '{id}'.", id);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to send test approval mail for event '{id}'.", id);
+                throw new CustomException("Unerwarteter Fehler beim Senden der Test-Mail.", ex);
+            }
+        }
     }
-#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
 }

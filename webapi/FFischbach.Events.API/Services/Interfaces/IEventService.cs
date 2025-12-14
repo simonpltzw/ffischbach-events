@@ -54,5 +54,21 @@ namespace FFischbach.Events.API.Services.Interfaces
         /// <returns>The html document as string.</returns>
         /// <exception cref="CustomException"></exception>
         Task<string> GetSignUpFormAsync(string id);
+
+        /// <summary>
+        /// Sends a test registration mail for the event to the current user.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task SendTestRegistrationMail(ClaimsPrincipal user, string id);
+
+        /// <summary>
+        /// Sends a test approval mail for the event to the current user.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task SendTestApprovalMail(ClaimsPrincipal user, string id);
     }
 }

@@ -19,7 +19,7 @@ export const useEventService = () => {
   };
 
   const putEvent = async (id: string, event: EditEvent) => {
-    put(`/Events/${id}`, event);
+    return put(`/Events/${id}`, event);
   };
 
   const setEventCompleted = async (eventId: string) => {

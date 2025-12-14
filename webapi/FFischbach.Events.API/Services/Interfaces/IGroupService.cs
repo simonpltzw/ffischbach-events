@@ -38,5 +38,14 @@ namespace FFischbach.Events.API.Services.Interfaces
         /// <param name="id"></param>
         /// <exception cref="CustomException"></exception>
         Task DeleteGroupAsync(ClaimsPrincipal user, int id);
+
+        /// <summary>
+        /// Sends the approval email to the group's contact person.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="id"></param>
+        /// <param name="group"></param>
+        /// <returns></returns>
+        Task SendApprovalMailAsync(ClaimsPrincipal user, int id, GroupApprovalModel group);
     }
 }
