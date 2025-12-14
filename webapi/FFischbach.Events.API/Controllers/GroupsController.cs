@@ -48,6 +48,35 @@ namespace FFischbach.Events.API.Controllers
         }
 
         /// <summary>
+        /// Sends the approval email to the group's contact person.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="group">The group to be created</param>
+        /// <returns></returns>
+        [HttpPost("{id}/SendApproval")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> SendApproval([Required] int? id, [FromBody, Required] GroupApprovalModel? group)
+        {
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await GroupService.SendApprovalMailAsync(User, (int)id!, group!);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return NoContent();
+        }
+
+        /// <summary>
         /// Gets a single group.
         /// </summary>
         /// <param name="id">Id of the group</param>

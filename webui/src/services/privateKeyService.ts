@@ -1,9 +1,9 @@
-import { ab2str, base64ToArrayBuffer, str2ab } from "@/util/converter";
+import { ab2str, str2ab } from "@/util/converter";
 import { AES } from "crypto-js";
 
 export class PrivateKeyService {
   static decryptData = async (key: CryptoKey, encryptedData: string) => {
-    const r = await crypto.subtle.decrypt({ name: "RSA-OAEP" }, key, base64ToArrayBuffer(encryptedData));
+    const r = await crypto.subtle.decrypt({ name: "RSA-OAEP" }, key, str2ab(encryptedData));
     return ab2str(r);
   };
 

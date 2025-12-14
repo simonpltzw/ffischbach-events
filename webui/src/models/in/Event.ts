@@ -12,10 +12,10 @@ export class Event {
     public encryptedPrivateKey: string,
     public categories: Category[],
     public date: string,
+    public approvalEmailContent: string,
+    public registrationEmailContent: string,
     public privateKey?: string,
     public publicKey?: string,
-    public groups?: Group[],
-    
-  ) {
-  }
+    public groups?: Group[]
+  ) {}
 }

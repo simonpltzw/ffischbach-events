@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  ReactNode,
-  Reducer,
-  useLayoutEffect,
-  useMemo,
-  useReducer,
-  useState,
-} from "react";
+import { ReactNode, Reducer, useLayoutEffect, useMemo, useReducer, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
@@ -35,6 +28,8 @@ import { DataList } from "@/components/DataList";
 import { useEventService } from "@/services/eventsService";
 import useErrorHandler from "@/services/errorHandler";
 import { useGroupService } from "@/services/groupsService";
+import { EmailEditorPopup } from "@/components/popups/EmailEditorPopup";
+import { useEmail } from "@/services/emailService";
 
 const EventPage = () => {
   const router = useRouter();
@@ -47,6 +42,13 @@ const EventPage = () => {
   const { parse } = useJsonToCsv();
   const errorHandler = useErrorHandler();
 
+  const { getEventById, setEventCompleted, addEventManager, putEvent } = useEventService();
+  const {
+    sendTestApprovalEmail,
+    sendApprovalEmail,
+    sendRegistrationEmail,
+    sendTestRegistrationEmail,
+  } = useEmail();
   const { getEventById, setEventCompleted, addEventManager, putEvent } = useEventService();
   const { deleteGroup } = useGroupService();
 
@@ -64,7 +66,7 @@ const EventPage = () => {
         ...action,
       };
     },
-    new Event("", "", "", 1, 1, false, "", [], "", "", "", []),
+    new Event("", "", "", 1, 1, false, "", [], "", "", "", "", "", [])
   );
 
   useLayoutEffect(() => {
@@ -75,11 +77,7 @@ const EventPage = () => {
       .then((event: Event) => {
         dispatch(event);
         setIsPending(false);
-        if (
-          eventSettings &&
-          eventSettings.password &&
-          eventSettings.eventId == params.event_id
-        ) {
+        if (eventSettings && eventSettings.password && eventSettings.eventId == params.event_id) {
           onDecryptEvent(eventSettings.password, false, event);
         }
       })
@@ -88,17 +86,15 @@ const EventPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onCompleteEvent = () => {
-    setEventCompleted(params.event_id)
-      .then(() => addToast({ message: "Event beendet", type: "info" }))
-      .catch((e) => errorHandler(e));
+  const onCompleteEvent = (isConfirmed: boolean) => {
+    if (isConfirmed) {
+      setEventCompleted(params.event_id)
+        .then(() => addToast({ message: "Event beendet", type: "info" }))
+        .catch((e) => errorHandler(e));
+    }
   };
 
-  const onDecryptEvent = async (
-    password: string,
-    isManual?: boolean,
-    localState?: Event,
-  ) => {
+  const onDecryptEvent = async (password: string, isManual?: boolean, localState?: Event) => {
     try {
       if (!localState) {
         localState = state;
@@ -112,6 +108,8 @@ const EventPage = () => {
       if (isManual) {
         addToast({ message: "Entschlüsselt", type: "info" });
       }
+
+      console.log(state);
     } catch (e) {
       throw new Error("Falsches Passwort");
     }
@@ -183,10 +181,7 @@ const EventPage = () => {
     );
   };
 
-  const generateFilteredList = (
-    filter: string,
-    isApproved?: boolean,
-  ): ReactNode[] => {
+  const generateFilteredList = (filter: string, isApproved?: boolean): ReactNode[] => {
     const filteredList = state.groups
       ?.filter((group: Group) => {
         const f = filter ?? "";
@@ -221,11 +216,7 @@ const EventPage = () => {
   return (
     <>
       {state.completed && <InfoBadge text="Event ist beendet" />}
-      <PasswordPopup
-        title="Event entschlüsseln"
-        disabled={!isEncrypted}
-        done={onDecryptEvent}
-      >
+      <PasswordPopup title="Event entschlüsseln" disabled={!isEncrypted} done={onDecryptEvent}>
         <Lock isLocked={isEncrypted} />
       </PasswordPopup>
 
@@ -240,60 +231,86 @@ const EventPage = () => {
       </div>
       <div className="flex flex-row gap-3">
         <div>Veranstaltungsdatum:</div>
-        <div className="text-base font-semibold">
-          {getLocalDateTime(state?.date)}
-        </div>
+        <div className="text-base font-semibold">{getLocalDateTime(state?.date)}</div>
       </div>
       {!state.completed && !isEncrypted && (
-        <div className="flex flex-row gap-3 flex-wrap">
-          <EditEventPopup
-            event={state}
-            done={async (editedEvent: EditEvent) => {
-              putEvent(state.id, editedEvent)
-                .then(() => {
-                  dispatch(editedEvent);
-                  addToast({
-                    message: "Event aktualisiert",
-                    type: "info",
-                  });
-                })
-                .catch((e) => errorHandler(e));
-            }}
-          >
-            <Button
-              color="blue"
-              className="md:flex-none flex-1 text-white"
-              type="button"
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-row gap-3 flex-wrap">
+            <EditEventPopup
+              event={state}
+              done={async (editedEvent: EditEvent) => {
+                putEvent(state.id, editedEvent)
+                  .then(() => {
+                    dispatch(editedEvent);
+                    addToast({
+                      message: "Event aktualisiert",
+                      type: "info",
+                    });
+                  })
+                  .catch((e) => errorHandler(e));
+              }}
             >
-              Event bearbeiten
-            </Button>
-          </EditEventPopup>
+              <Button color="blue" className="md:flex-none flex-1 text-white" type="button">
+                Event bearbeiten
+              </Button>
+            </EditEventPopup>
 
-          <AddEventManagerPopup done={onAddEventManager}>
+            <AddEventManagerPopup done={onAddEventManager}>
+              <Button color="blue" className="md:flex-none flex-1 text-white" type="button">
+                Manager hinzufügen
+              </Button>
+            </AddEventManagerPopup>
             <Button
               color="blue"
               className="md:flex-none flex-1 text-white"
               type="button"
+              onClick={async () => { 
+                await download();
+                addToast({ message: "Event exportiert", type: "info" });
+              }}
             >
-              Manager hinzufügen
+              Event exportieren
             </Button>
-          </AddEventManagerPopup>
-          <Button
-            color="blue"
-            className="md:flex-none flex-1 text-white"
-            type="button"
-            onClick={async () => {
-              await download();
-              addToast({ message: "Event exportiert", type: "info" });
-            }}
-          >
-            Event exportieren
-          </Button>
-          <ConfirmPopup title="Event beenden" done={onCompleteEvent}>
-            <Button className="md:flex-none flex-1" type="button">
-              Event beenden
-            </Button>
-          </ConfirmPopup>
+            <ConfirmPopup title="Event beenden" done={onCompleteEvent}>
+              <Button className="md:flex-none flex-1" type="button">
+                Event beenden
+              </Button>
+            </ConfirmPopup>
+          </div>
+          <div className="flex flex-row gap-3">
+            <EmailEditorPopup
+              title="Email Bestätigung bearbeiten (HTML)"
+              sendTestAction={sendTestApprovalEmail}
+              eventId={params.event_id}
+              emailContent={state.approvalEmailContent}
+              done={async (approvalEmailContent) => {
+                dispatch({ approvalEmailContent });
+                const tempEvent: Event = { ...state, approvalEmailContent };
+
+                await putEvent(params.event_id, tempEvent);
+              }}
+            >
+              <Button color="blue" className="md:flex-none flex-1 text-white" type="button">
+                Genehmigungsmail bearbeiten
+              </Button>
+            </EmailEditorPopup>
+            <EmailEditorPopup
+              title="Eingangsbestätigung bearbeiten (HTML)"
+              sendTestAction={sendTestRegistrationEmail}
+              eventId={params.event_id}
+              emailContent={state.registrationEmailContent}
+              done={async (registrationEmailContent) => {
+                dispatch({ registrationEmailContent });
+                const tempEvent: Event = { ...state, registrationEmailContent };
+
+                await putEvent(params.event_id, tempEvent);
+              }}
+            >
+              <Button color="blue" className="md:flex-none flex-1 text-white" type="button">
+                Registrierungsmail bearbeiten
+              </Button>
+            </EmailEditorPopup>
+          </div>
         </div>
       )}
       <div className="flex flex-col gap-3">
@@ -309,14 +326,11 @@ const EventPage = () => {
             dispatchFilter({
               eventDetail: {
                 groupFilter: value,
-                groupFilterApproved:
-                  filter.eventDetail?.groupFilterApproved ?? "",
+                groupFilterApproved: filter.eventDetail?.groupFilterApproved ?? "",
               },
             });
           }}
-          generateList={() =>
-            generateFilteredList(filter.eventDetail?.groupFilter ?? "", false)
-          }
+          generateList={() => generateFilteredList(filter.eventDetail?.groupFilter ?? "", false)}
           tableHeaders={tableHeaders}
         />
 
@@ -335,10 +349,7 @@ const EventPage = () => {
             });
           }}
           generateList={() =>
-            generateFilteredList(
-              filter.eventDetail?.groupFilterApproved ?? "",
-              true,
-            )
+            generateFilteredList(filter.eventDetail?.groupFilterApproved ?? "", true)
           }
           tableHeaders={tableHeaders}
         />

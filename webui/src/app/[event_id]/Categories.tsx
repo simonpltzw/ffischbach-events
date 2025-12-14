@@ -56,14 +56,16 @@ export const Categories: FC<CategoriesProps> = (props: CategoriesProps) => {
         <TD>
           <ConfirmPopup
             title={`Kategorie "${category.name}" löschen?`}
-            done={async () => {
-              deleteCategory(category.id)
-                .then(() => {
-                  const updatedList = props.state.categories.filter((c) => c.id != category.id);
-                  props.dispatch({ categories: updatedList });
-                  addToast({ message: "Kategorie gelöscht", type: "info" });
-                })
-                .catch((e) => errorHandler(e));
+            done={async (isConfirmed) => {
+              if (isConfirmed) {
+                deleteCategory(category.id)
+                  .then(() => {
+                    const updatedList = props.state.categories.filter((c) => c.id != category.id);
+                    props.dispatch({ categories: updatedList });
+                    addToast({ message: "Kategorie gelöscht", type: "info" });
+                  })
+                  .catch((e) => errorHandler(e));
+              }
             }}
           >
             <TrashIcon color="red" height={25} />
