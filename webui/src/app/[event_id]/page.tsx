@@ -6,7 +6,7 @@ import { Group } from "@/models/in/Group";
 import { Event } from "@/models/in/Event";
 import { PasswordPopup } from "@/components/popups/PasswordPopup";
 import { AddEventManagerPopup } from "@/components/popups/AddEventManager";
-import { PencilIcon } from "@heroicons/react/24/solid";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { useToast } from "@/context/toast";
 import { Lock } from "@/components/Lock";
 import { Button } from "@/components/Button";
@@ -27,6 +27,7 @@ import { EditEvent } from "@/models/EditEvent";
 import { DataList } from "@/components/DataList";
 import { useEventService } from "@/services/eventsService";
 import useErrorHandler from "@/services/errorHandler";
+import { useGroupService } from "@/services/groupsService";
 import { EmailEditorPopup } from "@/components/popups/EmailEditorPopup";
 import { useEmail } from "@/services/emailService";
 
@@ -48,11 +49,13 @@ const EventPage = () => {
     sendRegistrationEmail,
     sendTestRegistrationEmail,
   } = useEmail();
+  const { getEventById, setEventCompleted, addEventManager, putEvent } = useEventService();
+  const { deleteGroup } = useGroupService();
 
   const [filter, dispatchFilter] = useFilterSettings();
 
   const tableHeaders = useMemo(
-    () => ["Name", "Kategorie", "Kontakt", "Genehmigt", "Erstellt", ""],
+    () => ["Name", "Kategorie", "Kontakt", "Genehmigt", "Erstellt", "", ""],
     []
   );
 
@@ -145,8 +148,34 @@ const EventPage = () => {
           <CheckBox disabled value={!!group.approved} />
         </TD>
         <TD>{getLocalDateTime(group.createdAt)}</TD>
+        <TD>
+          {!isEncrypted && (
+            <div className="flex justify-center items-center">
+              <PencilIcon height={25} />
+            </div>
+          )}
+        </TD>
         <TD className="h-fit w-fit rounded-md cursor-pointer">
-          {!isEncrypted && <PencilIcon height={20} />}
+          {!isEncrypted && (
+            <div className="flex justify-center items-center">
+              <ConfirmPopup
+                title={`Gruppe "${group.name}" löschen`}
+                done={(/*isConfirmed: boolean*/) => {
+                  //todo: isConfirmed true -->
+                  //if(isConfirmed) {
+                  deleteGroup(group.id).then(() => {
+                    const updatedGroup = state.groups?.filter((g: Group) => g.id != group.id)
+                    dispatch({groups: updatedGroup})
+                  }).catch((e) => errorHandler(e));
+                  //}
+                }}
+              >
+                <div title="Gruppe unwiderruflich löschen" className="group p-1 hover:bg-red-500 rounded">
+                  <TrashIcon className="text-red-500 group-hover:text-white" height={25} />
+                </div>
+              </ConfirmPopup>
+            </div>
+          )}
         </TD>
       </TR>
     );
@@ -288,7 +317,7 @@ const EventPage = () => {
         <Categories state={state} dispatch={dispatch} isVisible={isEncrypted} />
 
         <DataList
-          colSpan={6}
+          colSpan={7}
           disabled={isEncrypted}
           title="Ungenehmigte Gruppen"
           isPending={isPending}
@@ -306,7 +335,7 @@ const EventPage = () => {
         />
 
         <DataList
-          colSpan={6}
+          colSpan={7}
           disabled={isEncrypted}
           title="Genehmigte Gruppen"
           isPending={isPending}

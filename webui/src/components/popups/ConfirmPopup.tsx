@@ -55,7 +55,9 @@ export const ConfirmPopup: FC<ConfirmPopupProps> = (props: ConfirmPopupProps) =>
       <Popup state={{ open: visible, setOpen: setVisible }}>
         <PopupBackdrop />
         <PopupDialogPanel>
-          <PopupTitle>{props.title}</PopupTitle>
+          <PopupTitle>
+            <div className="break-all">{props.title}</div>
+          </PopupTitle>
           <form
             onSubmit={(e) => {
               e.preventDefault();
