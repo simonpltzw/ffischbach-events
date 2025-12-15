@@ -3,7 +3,7 @@ import { AES } from "crypto-js";
 
 export class PrivateKeyService {
   static decryptData = async (key: CryptoKey, encryptedData: string) => {
-    const r = await crypto.subtle.decrypt({ name: "RSA-OAEP" }, key, str2ab(encryptedData));
+    const r = await crypto.subtle.decrypt({ name: "RSA-OAEP" }, key, str2ab(atob(encryptedData)));
     return ab2str(r);
   };
 

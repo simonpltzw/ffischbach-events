@@ -9,7 +9,7 @@ export const decryptEvent = async (
   state: Event,
   password: string,
 ): Promise<Group[]> => {
-  const privateKey = await decryptKeyWithPassword(
+  const privateKey = decryptKeyWithPassword(
     state.encryptedPrivateKey,
     password,
   );
