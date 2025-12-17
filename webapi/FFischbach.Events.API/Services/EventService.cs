@@ -25,7 +25,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Check if the event already exists.
-                if (await DatabaseContext.Events.AnyAsync(x => x.Id == @event.Id))
+                if (await DatabaseContext.Events.AnyAsync(x => x.Id.ToLower() == @event.Id!.ToLower()))
                 {
                     // Event already exists.
                     throw new CustomException($"Das Event '{@event.Id}' existiert bereits.", statusCode: StatusCodes.Status400BadRequest);
