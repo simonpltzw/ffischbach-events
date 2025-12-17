@@ -12,29 +12,36 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="Services\Interfaces\**" />
-		<Content Remove="Services\Interfaces\**" />
-		<EmbeddedResource Remove="Services\Interfaces\**" />
-		<None Remove="Services\Interfaces\**" />
+	  <None Remove="signup-form.html" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AutoMapper" Version="13.0.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.3" NoWarn="NU1605" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.3" NoWarn="NU1605" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.3">
+		<PackageReference Include="AutoMapper" Version="14.0.0" />
+		<PackageReference Include="MailKit" Version="4.14.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.*" NoWarn="NU1605" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.*" NoWarn="NU1605" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.*" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.*">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.3" />
-		<PackageReference Include="Microsoft.Identity.Web" Version="2.16.0" />
-		<PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="2.15.2" />
-		<PackageReference Include="Microsoft.Identity.Web.UI" Version="2.16.0" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
-		<PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.*" />
+		<PackageReference Include="Microsoft.Identity.Web" Version="4.1.1" />
+		<PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="4.1.1" />
+		<PackageReference Include="Microsoft.Identity.Web.UI" Version="4.1.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.*" />
+		<PackageReference Include="Serilog.AspNetCore" Version="8.0.*" />
+		<PackageReference Include="Serilog.Sinks.Seq" Version="8.0.*" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.7.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="signup-form.html">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </EmbeddedResource>
 	</ItemGroup>
 
 </Project>

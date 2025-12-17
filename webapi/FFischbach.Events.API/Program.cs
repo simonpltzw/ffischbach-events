@@ -1,10 +1,13 @@
+using FFischbach.Events.API.AutoMapper;
 using FFischbach.Events.API.Data;
 using FFischbach.Events.API.Services;
+using FFischbach.Events.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
+using Newtonsoft.Json.Converters;
 using Serilog;
 using System.Reflection;
 
@@ -28,9 +31,17 @@ namespace FFischbach.Events.API
             #region Logging
             builder.Host.UseSerilog((context, configuration) =>
             {
-                configuration.WriteTo.Console();
-                if (context.HostingEnvironment.IsDevelopment()) configuration.MinimumLevel.Debug();
-                else configuration.MinimumLevel.Information();
+                configuration.Enrich.FromLogContext();
+                configuration.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3} ({RequestId} {TraceId})] {Message:lj}{NewLine}{Exception}");
+                if (context.HostingEnvironment.IsDevelopment())
+                {
+                    configuration.MinimumLevel.Debug();
+                }
+                else
+                {
+                    configuration.MinimumLevel.Information();
+                    configuration.WriteTo.Seq("https://ffischbach-events-seq-ingest.palzone.de", apiKey: builder.Configuration["Seq:ApiKey"]);
+                }
             });
             #endregion Logging
 
@@ -41,12 +52,18 @@ namespace FFischbach.Events.API
             #endregion Authentication
 
             #region Routing
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.Converters.Add(new StringEnumConverter());
+                        options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
+                    });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             #endregion Routing
 
             #region Swagger
+            builder.Services.AddSwaggerGenNewtonsoftSupport();
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SupportNonNullableReferenceTypes();
@@ -115,6 +132,16 @@ namespace FFischbach.Events.API
             builder.Services.AddCors();
             #endregion Cors
 
+            #region Services
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IEventService, EventService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IEventManagerService, EventManagerService>();
+            builder.Services.AddScoped<IGroupService, GroupService>();
+            builder.Services.AddScoped<IParticipantService, ParticipantService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            #endregion Services
+
             #endregion Add Services
 
             var app = builder.Build();
@@ -146,10 +173,11 @@ namespace FFischbach.Events.API
                 var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
                 var exception = exceptionHandlerPathFeature?.Error;
 
-                var problem = new ProblemDetails { 
-                    Title = "Ein unerwarteter Fehler ist aufgetreten.", 
-                    Detail = exception?.Message, 
-                    Status = 500 
+                var problem = new ProblemDetails
+                {
+                    Title = "Ein unerwarteter Fehler ist aufgetreten.",
+                    Detail = exception?.Message,
+                    Status = 500
                 };
 
                 await context.Response.WriteAsJsonAsync(problem);

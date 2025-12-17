@@ -16,19 +16,24 @@
         public string? Description { get; set; }
 
         /// <summary>
+        /// Date of the event.
+        /// </summary>
+        public required DateTime Date { get; set; }
+
+        /// <summary>
         /// Completed.
         /// </summary>
-        public bool Completed { get; set; }
+        public required bool Completed { get; set; }
 
         /// <summary>
         /// Amount of groups.
         /// </summary>
-        public int TotalGroups { get; set; }
+        public required int TotalGroups { get; set; }
 
         /// <summary>
         /// Amount of participants.
         /// </summary>
-        public int TotalParticipants { get; set; }
+        public required int TotalParticipants { get; set; }
 
         /// <summary>
         /// RSA public key.
@@ -41,13 +46,45 @@
         public required string EncryptedPrivateKey { get; set; }
 
         /// <summary>
+        /// The contents of the registration mail.
+        /// The following placeholders can be used: [[ContactFirstName]] [[GroupName]] [[ParticipantsTable]].
+        /// </summary>
+        public string? RegistrationEmailContent { get; set; }
+
+        /// <summary>
+        /// The contents of the approval mail.
+        /// The following placeholders can be used: [[ContactFirstName]] [[GroupName]] [[ParticipantsTable]].
+        /// </summary>
+        public string? ApprovalEmailContent { get; set; }
+
+        /// <summary>
         /// List of groups.
         /// </summary>
         public required List<GroupOutputModel> Groups { get; set; }
 
         /// <summary>
+        /// List of categories.
+        /// </summary>
+        public required List<CategoryOutputModel> Categories { get; set; }
+
+        /// <summary>
+        /// Last updated identifier.
+        /// </summary>
+        public string? UpdatedBy { get; set; }
+
+        /// <summary>
+        /// Last updated timestamp.
+        /// </summary>
+        public DateTime? UpdatedAt { get; set; }
+
+        /// <summary>
+        /// Create identifier.
+        /// </summary>
+        public required string CreatedBy { get; set; }
+
+        /// <summary>
         /// Create timestamp.
         /// </summary>
-        public DateTime CreatedAt { get; set; }
+        public required DateTime CreatedAt { get; set; }
     }
 }

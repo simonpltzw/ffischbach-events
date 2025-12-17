@@ -8,7 +8,7 @@
         /// <summary>
         /// Id.
         /// </summary>
-        public int Id { get; set; }
+        public required int Id { get; set; }
 
         /// <summary>
         /// Encrypted name.
@@ -18,7 +18,7 @@
         /// <summary>
         /// Category.
         /// </summary>
-        public required string Category { get; set; }
+        public required CategoryOutputModel Category { get; set; }
 
         /// <summary>
         /// Approved.
@@ -28,7 +28,7 @@
         /// <summary>
         /// Amount of participants.
         /// </summary>
-        public int TotalParticipants { get; set; }
+        public required int TotalParticipants { get; set; }
 
         /// <summary>
         /// Contact participant.
@@ -36,8 +36,18 @@
         public required ParticipantOutputModel Contact { get; set; }
 
         /// <summary>
+        /// Last updated identifier.
+        /// </summary>
+        public string? UpdatedBy { get; set; }
+
+        /// <summary>
+        /// Last updated timestamp.
+        /// </summary>
+        public DateTime? UpdatedAt { get; set; }
+
+        /// <summary>
         /// Create timestamp.
         /// </summary>
-        public DateTime CreatedAt { get; set; }
+        public required DateTime CreatedAt { get; set; }
     }
 }

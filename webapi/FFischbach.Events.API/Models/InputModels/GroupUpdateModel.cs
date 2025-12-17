@@ -22,8 +22,8 @@ namespace FFischbach.Events.API.Models.InputModels
         /// <summary>
         /// Category.
         /// </summary>
-        [StringLength(50)]
-        public string? Category { get; set; }
+        [Required]
+        public int? CategoryId { get; set; }
 
         /// <summary>
         /// Approved.

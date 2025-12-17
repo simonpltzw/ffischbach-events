@@ -1,43 +1,61 @@
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
-import { ChangeEvent, FC, HTMLAttributes, useEffect, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  FC,
+  HTMLAttributes,
+  useEffect,
+  useEffectEvent,
+  useState,
+} from "react";
 import { Input } from "../Input";
 import { Button } from "../Button";
+import {
+  PopupBackdrop,
+  PopupDialogPanel,
+  PopupTitle,
+  Popup,
+  PopupOpener,
+} from "../Popup";
+import useErrorHandler from "@/services/errorHandler";
 
 export interface AddEventManagerPopupProps extends HTMLAttributes<HTMLElement> {
-  state: {
-    open: boolean;
-    setOpen(b: boolean): void;
-  };
   done(email: string): void;
 }
 
 export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
-  props: AddEventManagerPopupProps
+  props: AddEventManagerPopupProps,
 ) => {
-  const cancelButtonRef = useRef(null);
-
   const [email, setEmail] = useState<string>("");
   const [errors, setErrors] = useState<string[]>([]);
+  const [visible, setVisible] = useState<boolean>(false);
+  const errorHandler = useErrorHandler();
+
+  const onIsHidden = useEffectEvent(() => {
+    setEmail("");
+    setErrors([]);
+  });
 
   useEffect(() => {
-    if (!props.state.open) {
-      setEmail("");
-      setErrors([]);
+    if (!visible) {
+      onIsHidden();
     }
-  }, [props.state.open]);
+  }, [visible]);
 
   const onSubmit = async () => {
     try {
       await props.done(email);
-      props.state.setOpen(false);
-    } catch (e) {
-      setErrors(["Invalid email"]);
+      setVisible(false);
+    } catch (e: any) {
+      errorHandler(e, setErrors);
     }
   };
 
   const generateErrorMessage = (error: string, index: number) => {
     return (
-      <label key={`create-error-${index}`} htmlFor="form" className="text-red-500">
+      <label
+        key={`create-error-${index}`}
+        htmlFor="form"
+        className="text-red-500"
+      >
         {error}
       </label>
     );
@@ -45,29 +63,31 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
 
   return (
     <>
-      <Dialog
-        open={props.state.open}
+      <Popup
+        state={{ open: visible, setOpen: setVisible }}
         onClose={() => {
           setEmail("");
-          props.state.setOpen(false);
         }}
-        className="relative z-10 focus:outline-none"
       >
-        <DialogBackdrop className="fixed inset-0 bg-gray-400/30 blur-lg" />
-        <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-          <DialogPanel
-            transition
-            className="w-full max-w-md rounded-xl border border-2 dark:border-0 dark:bg-gray-800 bg-gray-400 p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
+        <PopupBackdrop />
+        <PopupDialogPanel>
+          <PopupTitle>Event Manager hinzufügen</PopupTitle>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSubmit();
+            }}
           >
-            <DialogTitle className="text-base font-semibold leading-6">
-              Event Manager hinzufügen
-            </DialogTitle>
-            <div id="form" className="mt-2 flex flex-col gap-3">
+            <div id="form" className="mt-2 flex flex-col gap-3 w-80">
               <Input
+                isFocus={visible}
                 type="text"
                 placeholder="Email"
+                labelClassName="text-white"
                 value={email}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setEmail(e.target.value)
+                }
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -75,22 +95,26 @@ export const AddEventManagerPopup: FC<AddEventManagerPopupProps> = (
                 return generateErrorMessage(error, index);
               })}
             </div>
-            <div className="flex flex-row py-3 gap-3">
-              <Button type="button" className="bg-green-600" onClick={onSubmit}>
+            <div className="flex flex-row py-3 gap-3 justify-end">
+              <Button color="green" type="submit">
                 Bestätigen
               </Button>
 
               <Button
+                color="gray"
+                styletype="secondary"
                 type="button"
-                className="bg-gray-500 dark:bg-gray-900"
-                onClick={() => props.state.setOpen(false)}
+                onClick={() => setVisible(false)}
               >
                 Abbrechen
               </Button>
             </div>
-          </DialogPanel>
-        </div>
-      </Dialog>
+          </form>
+        </PopupDialogPanel>
+      </Popup>
+      <PopupOpener onClick={() => setVisible(true)}>
+        {props.children}
+      </PopupOpener>
     </>
   );
 };

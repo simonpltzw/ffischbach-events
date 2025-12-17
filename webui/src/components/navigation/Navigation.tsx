@@ -12,7 +12,7 @@ const Navigation = () => {
     setIsOpen(!isOpen);
   };
   return (
-    <nav className="bg-gray-300 dark:bg-gray-800">
+    <nav className="bg-gray-300 dark:bg-gray-800 mb-4">
       <NavigationProvider>
         <Navbar setVisible={toggle} active={activeRoute} setActive={setActiveRoute} />
         <Sidebar

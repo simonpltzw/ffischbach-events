@@ -1,9 +1,10 @@
-﻿using AutoMapper;
-using FFischbach.Events.API.Data;
+﻿using FFischbach.Events.API.Helpers;
+using FFischbach.Events.API.Models.InputModels;
+using FFischbach.Events.API.Models.OutputModels;
+using FFischbach.Events.API.Services;
+using FFischbach.Events.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using System.ComponentModel.DataAnnotations;
 
@@ -14,220 +15,239 @@ namespace FFischbach.Events.API.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    [Produces("application/json")]
     [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public class EventsController(ILogger<EventsController> logger, IMapper mapper, DatabaseContext databaseContext) : ControllerBase
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest, "application/json")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized, "application/json")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, "application/json")]
+    public class EventsController(IEventService eventService, IEventManagerService eventManagerService) : ControllerBase
     {
-        private ILogger<EventsController> Logger { get; } = logger;
-        private IMapper Mapper { get; } = mapper;
-        private DatabaseContext DatabaseContext { get; } = databaseContext;
+        private IEventService EventService { get; } = eventService;
+        private IEventManagerService EventManagerService { get; } = eventManagerService;
 
-        // GET: <EventsController>
-        /// <summary>
-        /// Gets all events.
-        /// </summary>
-        /// <remarks>Events are filtered on behalf of the calling user's permissions.</remarks>
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(typeof(List<Models.OutputModels.EventOutputModel>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<Models.OutputModels.EventOutputModel>>> Get()
-        {
-            // Get display name.
-            string? displayName = User.GetDisplayName();
-
-            if (string.IsNullOrEmpty(displayName))
-            {
-                Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            // Get group and participant counts.
-            List<Models.OutputModels.EventOutputModel> counts = await DatabaseContext.Events
-                .Where(x => x.EventManagers!.Any(x => x.Manager!.Email.ToLower() == displayName.ToLower()))
-                .Select(x => new Models.OutputModels.EventOutputModel { 
-                    Id = x.Id, 
-                    TotalGroups = x.Groups!.Count, 
-                    TotalParticipants = x.Groups!.Sum(y => y.Participants!.Count), 
-                    CreatedAt = x.CreatedAt })
-                .OrderByDescending(x => x.CreatedAt)
-                .ToListAsync();
-
-            // Get events.
-            List<Models.OutputModels.EventOutputModel> returnValue = 
-                Mapper.Map<List<Models.OutputModels.EventOutputModel>>(
-                    await DatabaseContext.Events
-                    .Where(x => x.EventManagers!.Any(x => x.Manager!.Email.ToLower() == displayName.ToLower()))
-                    .OrderByDescending(x => x.CreatedAt)
-                    .ToListAsync());
-#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-
-            // Merge lists.
-            foreach(Models.OutputModels.EventOutputModel item in returnValue)
-            {
-                // Get corresponding count.
-                Models.OutputModels.EventOutputModel? count = counts.FirstOrDefault(x => x.Id == item.Id);
-
-                if (count != null)
-                {
-                    item.TotalGroups = count.TotalGroups;
-                    item.TotalParticipants = count.TotalParticipants;
-                }
-            }
-
-            return Ok(returnValue);
-
-        }
-
-        // GET: <EventsController>/5
-        /// <summary>
-        /// Gets a single event.
-        /// </summary>
-        /// <param name="id">Id of the event</param>
-        /// <returns></returns>
-        [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Models.OutputModels.EventDetailOutputModel), StatusCodes.Status200OK)]
-        public async Task<ActionResult<Models.OutputModels.EventDetailOutputModel>> Get([Required] string? id)
-        {
-            // Validate.
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Get display name.
-            string? displayName = User.GetDisplayName();
-
-            if (string.IsNullOrEmpty(displayName))
-            {
-                Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            // Get event from the database.
-            Models.Event? dbEvent = (await DatabaseContext.Events
-                                    .Include(x => x.Groups!)
-                                        .ThenInclude(x => x.Participants)
-                                    .Include(x => x.EventManagers!)
-                                        .ThenInclude(x => x.Manager)
-                                    .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
-#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-
-            // Check db response.
-            if (dbEvent == null)
-            {
-                // Nothing found.
-                return NotFound();
-            }
-            else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
-            {
-                // Calling user is not an event manager of that group.
-                return Forbid();
-            }
-
-            // Success. Map the response.
-            Models.OutputModels.EventDetailOutputModel returnValue = Mapper.Map<Models.OutputModels.EventDetailOutputModel>(dbEvent);
-
-            // Get the total amounts.
-            int totalParticipants = 0;
-            for (int i = 0; i < returnValue.Groups.Count; i++)
-            {
-                // Get participant amount of this group.
-                int? groupParticipants = dbEvent.Groups?[i]?.Participants?.Count;
-                if (!groupParticipants.HasValue) groupParticipants = 0;
-
-                // Add to total for event.
-                totalParticipants += (int)groupParticipants;
-
-                returnValue.Groups[i].TotalParticipants = (int)groupParticipants;
-            }
-
-            // Merge with counts.
-            returnValue.TotalGroups = returnValue.Groups.Count;
-            returnValue.TotalParticipants = totalParticipants;
-
-            return Ok(returnValue);
-        }
-
-        // POST <EventsController>
         /// <summary>
         /// Creates an event.
         /// </summary>
         /// <param name="event">The event to be created</param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(Models.OutputModels.EventDetailOutputModel), StatusCodes.Status200OK)]
-        public async Task<ActionResult<Models.OutputModels.EventDetailOutputModel>> Post([FromBody, Required] Models.InputModels.EventCreateModel @event)
+        [ProducesResponseType(typeof(EventDetailOutputModel), StatusCodes.Status200OK)]
+        public async Task<ActionResult<EventDetailOutputModel>> Post([FromBody, Required] EventCreateModel @event)
         {
-            // Validate.
-            if (!ModelState.IsValid)
+            EventDetailOutputModel returnValue;
+            try
             {
-                return BadRequest(ModelState);
-            }
-
-            // Check if the event already exists.
-            if (await DatabaseContext.Events.AnyAsync(x => x.Id == @event.Id))
-            {
-                // Event already exists.
-                Logger.LogError("Attempt to create event '{EventId}' failed as it already exists.", @event.Id);
-                return Problem(detail: "Event already exists.", title: "Dieses Event existiert bereits.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-            // Get display name.
-            string? displayName = User.GetDisplayName();
-
-            if (string.IsNullOrEmpty(displayName))
-            {
-                Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-            // Check if the current user is already a manager.
-#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            Models.Manager? manager = await DatabaseContext.Managers.FirstOrDefaultAsync(x => x.Email.ToLower() == displayName.ToLower());
-#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            if (manager == null)
-            {
-                // Add current user as manager.
-                manager = new Models.Manager
+                // Validate.
+                if (!ModelState.IsValid)
                 {
-                    Email = displayName,
-                    CreatedAt = DateTime.UtcNow
-                };
+                    return BadRequest(ModelState);
+                }
 
-                // Create the manager.
-                DatabaseContext.Managers.Add(manager);
-                await DatabaseContext.SaveChangesAsync();
+                returnValue = await EventService.CreateEventAsync(User, @event);
             }
-
-            // Map the event input.
-            Models.Event dbEvent = Mapper.Map<Models.Event>(@event, opt => opt.AfterMap((src, dest) => dest.CreatedBy = displayName));
-
-            // Create the event.
-            DatabaseContext.Events.Add(dbEvent);
-            await DatabaseContext.SaveChangesAsync();
-
-            // Create the event manager.
-            Models.EventManager eventManager = new Models.EventManager
+            catch (CustomException ex)
             {
-                EventId = dbEvent.Id,
-                ManagerId = manager.Id,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            DatabaseContext.EventManagers.Add(eventManager);
-            await DatabaseContext.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(Get), new { id = dbEvent.Id }, Mapper.Map<Models.OutputModels.EventDetailOutputModel>(dbEvent));
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return CreatedAtAction(nameof(Get), new { id = returnValue.Id }, returnValue);
         }
 
-        // POST <EventsController>/5/EventManager
+        /// <summary>
+        /// Sends a test registration mail for the event to the current user.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost("{id}/SendTestRegistrationMail")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> SendTestRegistrationMail([Required] string? id)
+        {
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await EventService.SendTestRegistrationMail(User, id!);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Sends a test approval mail for the event to the current user.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost("{id}/SendTestApprovalMail")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> SendTestApprovalMail([Required] string? id)
+        {
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await EventService.SendTestApprovalMail(User, id!);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Gets all events.
+        /// </summary>
+        /// <remarks>Events are filtered on behalf of the calling user's permissions.</remarks>
+        [HttpGet]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(List<EventOutputModel>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<EventOutputModel>>> Get()
+        {
+            List<EventOutputModel> returnValue;
+            try
+            {
+                returnValue = await EventService.GetEventsAsync(User);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return Ok(returnValue);
+        }
+
+        /// <summary>
+        /// Gets a single event.
+        /// </summary>
+        /// <param name="id">Id of the event</param>
+        /// <returns></returns>
+        [HttpGet("{id}")]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(EventDetailOutputModel), StatusCodes.Status200OK)]
+        public async Task<ActionResult<EventDetailOutputModel>> Get([Required] string? id)
+        {
+            EventDetailOutputModel returnValue;
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                returnValue = await EventService.GetEventAsync(User, id!);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return Ok(returnValue);
+        }
+
+        /// <summary>
+        /// Updates an event.
+        /// </summary>
+        /// <param name="id">Id of the event</param>
+        /// <param name="event"></param>
+        /// <returns></returns>
+        [HttpPut("{id}")]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(EventDetailOutputModel), StatusCodes.Status200OK)]
+        public async Task<ActionResult<EventDetailOutputModel>> Put([Required] string? id, [Required] EventUpdateModel? @event)
+        {
+            EventDetailOutputModel returnValue;
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                returnValue = await EventService.UpdateEventAsync(User, id!, @event!);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return Ok(returnValue);
+        }
+
+        /// <summary>
+        /// Deletes an event as well as all connected groups and participants.
+        /// </summary>
+        /// <param name="id">Id of the event</param>
+        [HttpDelete("{id}")]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete([Required] string? id)
+        {
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await EventService.DeleteEventAsync(User, id!);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Gets the sign up form suited to the request event.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("{id}/signup-form.html")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/json")]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, "application/json")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK, contentType: "text/html")]
+        public async Task<IActionResult> GetSignUpForm([Required] string? id)
+        {
+            string returnValue;
+            try
+            {
+                // Validate.
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                returnValue = await EventService.GetSignUpFormAsync(id!);
+            }
+            catch (CustomException ex)
+            {
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
+            }
+            return Content(returnValue, "text/html");
+        }
+
         /// <summary>
         /// Adds a new manager to an event.
         /// </summary>
@@ -235,184 +255,25 @@ namespace FFischbach.Events.API.Controllers
         /// <param name="email">Email of the manager</param>
         /// <remarks>Permit other users to manage the event using their email.</remarks>
         [HttpPost("{id}/EventManager")]
+        [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> AddEventManager([Required] string? id, [FromQuery, Required, EmailAddress] string? email)
         {
-            // Validate.
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
-
-            // Get display name.
-            string? displayName = User.GetDisplayName();
-
-            if (string.IsNullOrEmpty(displayName))
-            {
-                Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-            // Get event from the database.
-#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            Models.Event? dbEvent = (await DatabaseContext.Events
-                                    .Include(x => x.EventManagers!)
-                                        .ThenInclude(x => x.Manager)
-                                    .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
-#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-
-            // Check db response.
-            if (dbEvent == null)
-            {
-                // Nothing found.
-                return NotFound();
-            }
-            else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
-            {
-                // Calling user is not an event manager of that group.
-                return Forbid();
-            }
-            else if (dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase)))
-            {
-                return Problem(detail: "User is already a manager of this event.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-            // Check if the email is already a manager.
-#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            Models.Manager? manager = await DatabaseContext.Managers.FirstOrDefaultAsync(x => x.Email.ToLower() == email!.ToLower());
-#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            if (manager == null)
-            {
-                // Add current user as manager.
-                manager = new Models.Manager
+                // Validate.
+                if (!ModelState.IsValid)
                 {
-                    Email = email!,
-                    CreatedAt = DateTime.UtcNow
-                };
+                    return BadRequest(ModelState);
+                }
 
-                // Create the manager.
-                DatabaseContext.Managers.Add(manager);
-                await DatabaseContext.SaveChangesAsync();
+                await EventManagerService.AddEventManagerAsync(User, id!, email!);
             }
-
-            // Create the event manager.
-            Models.EventManager eventManager = new Models.EventManager
+            catch (CustomException ex)
             {
-                EventId = dbEvent.Id,
-                ManagerId = manager.Id,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            DatabaseContext.EventManagers.Add(eventManager);
-            await DatabaseContext.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        // POST <EventsController>/5/EventManager
-        /// <summary>
-        /// Completes an event.
-        /// </summary>
-        /// <param name="id">Id of the event</param>
-        [HttpPost("{id}/Complete")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<Models.OutputModels.EventDetailOutputModel>> Complete([Required] string? id)
-        {
-            // Validate.
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
+                return Problem(detail: ex.Detail, title: ex.Message, statusCode: ex.StatusCode);
             }
-
-            // Get display name.
-            string? displayName = User.GetDisplayName();
-
-            if (string.IsNullOrEmpty(displayName))
-            {
-                Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            // Get event from the database.
-            Models.Event? dbEvent = (await DatabaseContext.Events
-                                    .Include(x => x.EventManagers!)
-                                        .ThenInclude(x => x.Manager)
-                                    .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
-#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-
-            // Check db response.
-            if (dbEvent == null)
-            {
-                // Nothing found.
-                return NotFound();
-            }
-            else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
-            {
-                // Calling user is not an event manager of that group.
-                return Forbid();
-            }
-
-            // Update the completed value.
-            dbEvent.Completed = true;
-            DatabaseContext.Events.Update(dbEvent);
-            await DatabaseContext.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        // DELETE <EventsController>/5
-        /// <summary>
-        /// Deletes an event as well as all connected groups and participants.
-        /// </summary>
-        /// <param name="id">Id of the event</param>
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete([Required] string? id)
-        {
-            // Validate.
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Get display name.
-            string? displayName = User.GetDisplayName();
-
-            if (string.IsNullOrEmpty(displayName))
-            {
-                Logger.LogError("Could not get display name of user.");
-                return Problem(detail: "Unable to get display name from token.", title: "Ein unerwarteter Fehler ist aufgetreten.", statusCode: StatusCodes.Status400BadRequest);
-            }
-
-            // Get event from the database.
-#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-            Models.Event? dbEvent = (await DatabaseContext.Events
-                                    .Include(x => x.EventManagers!)
-                                        .ThenInclude(x => x.Manager)
-                                    .FirstOrDefaultAsync(x => x.Id.ToLower() == id!.ToLower()));
-#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-
-            // Check db response.
-            if (dbEvent == null)
-            {
-                // Nothing found.
-                return NotFound();
-            }
-            else if (!dbEvent.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
-            {
-                // Calling user is not an event manager of that group.
-                return Forbid();
-            }
-
-            // Remove the event, resulting in a cascade of all groups and participants as well as event managers.
-            DatabaseContext.Events.Remove(dbEvent);
-            await DatabaseContext.SaveChangesAsync();
-
             return NoContent();
         }
     }

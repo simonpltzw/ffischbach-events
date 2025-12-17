@@ -17,16 +17,64 @@ namespace FFischbach.Events.API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "8.0.22")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("FFischbach.Events.API.Models.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("EventId")
+                        .IsRequired()
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("SignUpFrom")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("SignUpTo")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("Categories");
+                });
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Event", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<string>("ApprovalEmailContent")
+                        .HasColumnType("text");
 
                     b.Property<bool>("Completed")
                         .HasColumnType("boolean");
@@ -36,7 +84,11 @@ namespace FFischbach.Events.API.Migrations
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
@@ -49,6 +101,16 @@ namespace FFischbach.Events.API.Migrations
                     b.Property<string>("PublicKey")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("RegistrationEmailContent")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.HasKey("Id");
 
@@ -65,6 +127,11 @@ namespace FFischbach.Events.API.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("EventId")
                         .IsRequired()
@@ -93,10 +160,8 @@ namespace FFischbach.Events.API.Migrations
                     b.Property<bool?>("Approved")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -114,7 +179,16 @@ namespace FFischbach.Events.API.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("EventId");
 
@@ -131,6 +205,11 @@ namespace FFischbach.Events.API.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -173,6 +252,17 @@ namespace FFischbach.Events.API.Migrations
                     b.ToTable("Participants");
                 });
 
+            modelBuilder.Entity("FFischbach.Events.API.Models.Category", b =>
+                {
+                    b.HasOne("FFischbach.Events.API.Models.Event", "Event")
+                        .WithMany("Categories")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+                });
+
             modelBuilder.Entity("FFischbach.Events.API.Models.EventManager", b =>
                 {
                     b.HasOne("FFischbach.Events.API.Models.Event", "Event")
@@ -194,11 +284,19 @@ namespace FFischbach.Events.API.Migrations
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Group", b =>
                 {
+                    b.HasOne("FFischbach.Events.API.Models.Category", "Category")
+                        .WithMany("Groups")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FFischbach.Events.API.Models.Event", "Event")
                         .WithMany("Groups")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Category");
 
                     b.Navigation("Event");
                 });
@@ -214,8 +312,15 @@ namespace FFischbach.Events.API.Migrations
                     b.Navigation("Group");
                 });
 
+            modelBuilder.Entity("FFischbach.Events.API.Models.Category", b =>
+                {
+                    b.Navigation("Groups");
+                });
+
             modelBuilder.Entity("FFischbach.Events.API.Models.Event", b =>
                 {
+                    b.Navigation("Categories");
+
                     b.Navigation("EventManagers");
 
                     b.Navigation("Groups");
