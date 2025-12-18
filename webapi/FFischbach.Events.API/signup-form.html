@@ -16,6 +16,13 @@
             -ms-user-select: none; /* IE 10 and IE 11 */
             user-select: none; /* Standard syntax */
         }
+
+        .form-check-input-disabled {
+            pointer-events:none;
+            filter:none;
+            opacity:.5;
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -138,7 +145,7 @@
 - Wir übernehmen keine Haftung für Garderobe, Sachschäden oder Körperschäden.</textarea>
 
                 <!-- AGB checkbox (disabled by default -> read first (scroll down))-->
-                <input class="form-check-input" type="checkbox" id="termsAndConditionsCheck" required disabled>
+                <input class="form-check-input form-check-input-disabled" type="checkbox" id="termsAndConditionsCheck" required >
                 <label class="form-check-label prevent-select" for="termsAndConditionsCheck">Ich habe die AGB gelesen und bin damit einverstanden</label>
             </div>
 
@@ -194,7 +201,7 @@
             const scrollPercentage = e.target.scrollTop / (e.target.scrollHeight- e.target.clientHeight)
             if(scrollPercentage > 0.94) {
                 //enable checkbox (AGB)
-                document.getElementById("termsAndConditionsCheck").disabled = false
+                document.getElementById("termsAndConditionsCheck").classList.remove("form-check-input-disabled")
             }
         }
 
