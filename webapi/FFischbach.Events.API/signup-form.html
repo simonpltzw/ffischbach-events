@@ -376,10 +376,13 @@
                 const checkbox = document.getElementById("termsAndConditionsCheck")
                 //if there are errors
                 if(!checkbox.checked) {
-                    //the agb checkbox is only enabled when the AGB where read (scrolled down)
-                    //if not mark text area and show hint
-                    document.getElementById("termsAndConditions").classList.add("error-border");
-                    document.getElementById("termsAndConditionsCheck-hint").hidden = false;
+                    //only apply hints if checkbox (AGB) is disabled
+                    if(checkbox.classList.contains("form-check-input-disabled")){
+                        //the agb checkbox is only enabled when the AGB where read (scrolled down)
+                        //if not mark text area and show hint
+                        document.getElementById("termsAndConditions").classList.add("error-border");
+                        document.getElementById("termsAndConditionsCheck-hint").hidden = false;
+                    }
                 }
             }
 
