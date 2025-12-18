@@ -23,6 +23,10 @@
             opacity:.5;
             pointer-events: none;
         }
+
+        .error-border {
+            border-color: var(--bs-form-invalid-border-color);
+        }
     </style>
 </head>
 
@@ -146,7 +150,8 @@
 
                 <!-- AGB checkbox (disabled by default -> read first (scroll down))-->
                 <input class="form-check-input form-check-input-disabled" type="checkbox" id="termsAndConditionsCheck" required >
-                <label class="form-check-label prevent-select" for="termsAndConditionsCheck">Ich habe die AGB gelesen und bin damit einverstanden</label>
+                <label class="form-check-label prevent-select" for="termsAndConditionsCheck">Ich habe die AGB gelesen und bin damit einverstanden <i hidden id="termsAndConditionsCheck-hint" >(Bitte die AGB lesen)</i></label>
+   
             </div>
 
             <!-- Privacy policy -->
@@ -202,6 +207,10 @@
             if(scrollPercentage > 0.94) {
                 //enable checkbox (AGB)
                 document.getElementById("termsAndConditionsCheck").classList.remove("form-check-input-disabled")
+                //remove red border from AGB textbox
+                document.getElementById("termsAndConditions").classList.remove("error-border");
+                //remove hint next to agb consent
+                document.getElementById("termsAndConditionsCheck-hint").hidden = true
             }
         }
 
@@ -363,6 +372,15 @@
                         });
                     }
                 });
+            } else  {
+                const checkbox = document.getElementById("termsAndConditionsCheck")
+                //if there are errors
+                if(!checkbox.checked) {
+                    //the agb checkbox is only enabled when the AGB where read (scrolled down)
+                    //if not mark text area and show hint
+                    document.getElementById("termsAndConditions").classList.add("error-border");
+                    document.getElementById("termsAndConditionsCheck-hint").hidden = false;
+                }
             }
 
             // Set button back to normal state.
