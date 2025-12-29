@@ -134,7 +134,7 @@
             <!-- Terms and conditions -->
             <div class="mb-3">
                 <!-- AGB Textarea -->
-                <label for="termsAndConditions" class="form-label">Allgemeine Geschäftsbedingungen</label>
+                <label for="termsAndConditions" class="form-label">Allgemeine Geschäftsbedingungen <i hidden id="termsAndConditionsCheck-hint" style="color: var(--bs-form-invalid-color);" >(Bitte die AGB lesen)</i></label>
                 <textarea class="form-control form-control-sm mb-2" id="termsAndConditions" rows="6" readonly>
 - Die Anmeldung führt nicht automatisch zum Erhalt von Karten. Dies erfolgt nur nach Kapazität und Prüfung der angegebenen Daten.
 - Falsche Angaben führen automatisch zu einer Ablehnung der Eintrittskarten.
@@ -147,11 +147,11 @@
 - Verkauf von Getränken und Speisen nur gegen Wertmarken.
 - Wir halten uns an das Gesetz zum Schutz der Jugend in der Öffentlichkeit.
 - Wir übernehmen keine Haftung für Garderobe, Sachschäden oder Körperschäden.</textarea>
-
-                <!-- AGB checkbox (disabled by default -> read first (scroll down))-->
-                <input class="form-check-input form-check-input-disabled" type="checkbox" id="termsAndConditionsCheck" required >
-                <label class="form-check-label prevent-select" for="termsAndConditionsCheck">Ich habe die AGB gelesen und bin damit einverstanden <i hidden id="termsAndConditionsCheck-hint" >(Bitte die AGB lesen)</i></label>
-   
+                <div id="termsAndConditionsCheckContainer" class="form-check-input-disabled">
+                    <!-- AGB checkbox (disabled by default -> read first (scroll down))-->
+                    <input class="form-check-input " type="checkbox" id="termsAndConditionsCheck" required >
+                    <label class="form-check-label prevent-select" for="termsAndConditionsCheck">Ich habe die AGB gelesen und bin damit einverstanden</label>
+                </div>
             </div>
 
             <!-- Privacy policy -->
@@ -206,7 +206,7 @@
             const scrollPercentage = e.target.scrollTop / (e.target.scrollHeight- e.target.clientHeight)
             if(scrollPercentage > 0.94) {
                 //enable checkbox (AGB)
-                document.getElementById("termsAndConditionsCheck").classList.remove("form-check-input-disabled")
+                document.getElementById("termsAndConditionsCheckContainer").classList.remove("form-check-input-disabled")
                 //remove red border from AGB textbox
                 document.getElementById("termsAndConditions").classList.remove("error-border");
                 //remove hint next to agb consent
@@ -377,7 +377,7 @@
                 //if there are errors
                 if(!checkbox.checked) {
                     //only apply hints if checkbox (AGB) is disabled
-                    if(checkbox.classList.contains("form-check-input-disabled")){
+                    if(document.getElementById("termsAndConditionsCheckContainer").classList.contains("form-check-input-disabled")){
                         //the agb checkbox is only enabled when the AGB where read (scrolled down)
                         //if not mark text area and show hint
                         document.getElementById("termsAndConditions").classList.add("error-border");
