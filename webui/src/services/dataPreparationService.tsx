@@ -39,6 +39,8 @@ export const useJsonToCsv = () => {
     const privateKey = await decryptKeyWithPassword(
       event.encryptedPrivateKey,
       eventSettings.password!,
+      event.PrivateKeyEncryptionSalt!,
+      event.PrivateKeyEncryptionIV!
     );
 
     const result = await Promise.all(
@@ -46,7 +48,7 @@ export const useJsonToCsv = () => {
         .groups!.filter((g: Group) => g.approved)
         .map(async (g: Group) => {
           const group = await getGroup(g.id);
-          const decGroup: Group = await decryptGroup(group, { privateKey });
+          const decGroup: Group = await decryptGroup(group, { privateKey }, event.PrivateKeyEncryptionSalt!, event.PrivateKeyEncryptionIV!);
           delete decGroup.contact.encryptedData;
 
           const contact = decGroup.contact;

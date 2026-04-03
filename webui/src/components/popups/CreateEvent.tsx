@@ -52,13 +52,15 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (
   }, [visible]);
 
   const onSubmit = async () => {
-    encryptWithPassword(password).then(({ encryptedPrivateKey, publicKey }) => {
+    encryptWithPassword(password).then(({ encryptedPrivateKey, publicKey, salt, iv }) => {
       const newEvent: EventOut = {
         id: `${name}`,
         description,
         date,
         encryptedPrivateKey,
         publicKey,
+        PrivateKeyEncryptionSalt: salt,
+        PrivateKeyEncryptionIV: iv
       };
 
       createEvent(newEvent)

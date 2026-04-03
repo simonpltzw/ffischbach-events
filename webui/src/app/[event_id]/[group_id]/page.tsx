@@ -112,7 +112,14 @@ const GroupPage = () => {
       localState = groupState;
     }
 
-    const updatedGroup: Group = await decryptGroup(localState, { password });
+    const event = localState.event;
+
+    const updatedGroup: Group = await decryptGroup(
+      localState,
+      { password },
+      event?.PrivateKeyEncryptionSalt!,
+      event?.PrivateKeyEncryptionIV!
+    );
 
     if (!updatedGroup.category) {
       updatedGroup.category = categories[0];
@@ -391,6 +398,7 @@ const GroupPage = () => {
             disabled={isEncrypted}
             groupId={params.group_id}
             setParticipants={setParticipants}
+            groupState={groupState}
             dispatchGroup={dispatchGroup}
             contact={groupState.contact}
             encPrivateKey={groupState.event?.encryptedPrivateKey}

@@ -4,26 +4,26 @@ import { SwapContactPopup } from "@/components/popups/SwapContactPopup";
 import { useEventSettings } from "@/context/eventSettings";
 import { GroupAction } from "@/context/group";
 import { useToast } from "@/context/toast";
+import { Group } from "@/models/in/Group";
 import { Participant } from "@/models/in/Participant";
 import { ParticipantEdit } from "@/models/out/ParticipantEdit";
 import { decryptParticipant } from "@/services/decryptService";
 import useErrorHandler from "@/services/errorHandler";
 import { useParticipantService } from "@/services/participantService";
 import { Action } from "@/util/types";
-import { ChangeEvent, Dispatch, FC, Reducer, useReducer } from "react";
+import { ChangeEvent, Dispatch, FC, useReducer } from "react";
 
 export interface NewParticipantProps {
   encPrivateKey?: string;
   groupId: string;
   setParticipants: Dispatch<React.SetStateAction<Participant[]>>;
   contact: Participant;
+  groupState: Group;
   dispatchGroup: React.Dispatch<GroupAction>;
   disabled?: boolean;
 }
 
-export const NewParticipant: FC<NewParticipantProps> = (
-  props: NewParticipantProps,
-) => {
+export const NewParticipant: FC<NewParticipantProps> = (props: NewParticipantProps) => {
   const { addToast } = useToast();
   const [eventSettings] = useEventSettings();
 
@@ -39,15 +39,15 @@ export const NewParticipant: FC<NewParticipantProps> = (
     birthDate: "",
   };
 
-  const [participant, setParticipant] = useReducer<
-    ParticipantEdit,
-    [Action<ParticipantEdit>]
-  >((state, action) => {
-    return {
-      ...state,
-      ...action,
-    };
-  }, empty);
+  const [participant, setParticipant] = useReducer<ParticipantEdit, [Action<ParticipantEdit>]>(
+    (state, action) => {
+      return {
+        ...state,
+        ...action,
+      };
+    },
+    empty
+  );
 
   const onAddParticipant = () => {
     const updatedParticipant: ParticipantEdit = {
@@ -57,11 +57,15 @@ export const NewParticipant: FC<NewParticipantProps> = (
 
     addParticipant(updatedParticipant)
       .then((p) => {
+        const event = props.groupState.event;
+
         if (eventSettings.password && props.encPrivateKey) {
           decryptParticipant(
             p,
             eventSettings.password,
             props.encPrivateKey,
+            event?.PrivateKeyEncryptionSalt!,
+            event?.PrivateKeyEncryptionIV!
           ).then((newP) => {
             props.setParticipants((list) => [...list, newP]);
             setParticipant({ ...empty });
@@ -77,11 +81,15 @@ export const NewParticipant: FC<NewParticipantProps> = (
 
     addContact(p)
       .then((p) => {
+        const event = props.groupState.event;
+
         if (eventSettings.password && props.encPrivateKey) {
           decryptParticipant(
             p,
             eventSettings.password,
             props.encPrivateKey,
+            event?.PrivateKeyEncryptionSalt!,
+            event?.PrivateKeyEncryptionIV!
           ).then((newP) => {
             props.setParticipants((list) => [...list, props.contact]);
             props.dispatchGroup({ type: "contact_new", value: newP });
@@ -132,10 +140,7 @@ export const NewParticipant: FC<NewParticipantProps> = (
       >
         Hinzufügen
       </Button>
-      <SwapContactPopup
-        participant={participant}
-        done={(p) => onReplaceWithContact(p)}
-      >
+      <SwapContactPopup participant={participant} done={(p) => onReplaceWithContact(p)}>
         <Button disabled={props.disabled} type="button" styletype="secondary">
           Ersetzen mit Kontakt
         </Button>

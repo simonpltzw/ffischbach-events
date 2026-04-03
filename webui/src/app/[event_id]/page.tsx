@@ -65,7 +65,7 @@ const EventPage = () => {
         ...action,
       };
     },
-    new Event("", "", "", 1, 1, false, "", [], "", "", "", "", "", [])
+    new Event("", "", "", 1, 1, false, "", [], "", "", "", "", "", [], "")
   );
 
   useLayoutEffect(() => {
