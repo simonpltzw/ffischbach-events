@@ -39,6 +39,9 @@ namespace FFischbach.Events.API.Data
                 c.Property(x => x.PrivateKeyEncryptionSalt)
                     .IsRequired(false);
 
+               c.Property(x => x.PrivateKeyEncryptionIV)
+                    .IsRequired(false);
+
                 c.Property(x => x.UpdatedBy)
                     .HasMaxLength(255);
 

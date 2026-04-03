@@ -9,6 +9,7 @@
         public required string PublicKey { get; set; }
         public required string EncryptedPrivateKey { get; set; }
         public required string PrivateKeyEncryptionSalt { get; set; }
+        public required string PrivateKeyEncryptionIV { get; set; }
         public string? RegistrationEmailContent { get; set; }
         public string? ApprovalEmailContent { get; set; }
         public List<Group>? Groups { get; set; }
