@@ -51,6 +51,11 @@
         public required string PrivateKeyEncryptionSalt { get; set; }
 
         /// <summary>
+        /// Salt used for the encryption of the private key.
+        /// </summary>
+        public required string PrivateKeyEncryptionIV { get; set; }
+
+        /// <summary>
         /// The contents of the registration mail.
         /// The following placeholders can be used: [[ContactFirstName]] [[GroupName]] [[ParticipantsTable]].
         /// </summary>
