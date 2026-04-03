@@ -16,6 +16,8 @@ export class Event {
     public registrationEmailContent: string,
     public privateKey?: string,
     public publicKey?: string,
-    public groups?: Group[]
+    public groups?: Group[],
+    public PrivateKeyEncryptionSalt?: string,
+    public PrivateKeyEncryptionIV?: string
   ) {}
 }

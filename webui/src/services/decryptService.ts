@@ -9,9 +9,11 @@ export const decryptEvent = async (
   state: Event,
   password: string,
 ): Promise<Group[]> => {
-  const privateKey = decryptKeyWithPassword(
+  const privateKey = await decryptKeyWithPassword(
     state.encryptedPrivateKey,
     password,
+    state.PrivateKeyEncryptionSalt!,
+    state.PrivateKeyEncryptionIV!
   );
   const key: CryptoKey = await PrivateKeyService.importPrivateKey(privateKey);
 
@@ -39,6 +41,8 @@ export const decryptEvent = async (
 export const decryptGroup = async (
   groupState: Group,
   options: { password?: string; privateKey?: string },
+  salt: string,
+  iv: string
 ): Promise<Group> => {
   let privateKey;
 
@@ -46,6 +50,8 @@ export const decryptGroup = async (
     privateKey = await decryptKeyWithPassword(
       groupState.event!.encryptedPrivateKey,
       options.password,
+      salt,
+      iv
     );
   } else if (options.privateKey) {
     privateKey = options.privateKey;
@@ -112,8 +118,10 @@ export const decryptParticipant = async (
   participant: ParticipantOut,
   password: string,
   encPrivateKey: string,
+  salt: string,
+  iv: string
 ): Promise<Participant> => {
-  const privateKey = await decryptKeyWithPassword(encPrivateKey, password);
+  const privateKey = await decryptKeyWithPassword(encPrivateKey, password, salt, iv);
 
   const key: CryptoKey = await PrivateKeyService.importPrivateKey(privateKey);
 
