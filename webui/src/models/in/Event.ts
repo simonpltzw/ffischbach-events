@@ -17,7 +17,7 @@ export class Event {
     public privateKey?: string,
     public publicKey?: string,
     public groups?: Group[],
-    public PrivateKeyEncryptionSalt?: string,
-    public PrivateKeyEncryptionIV?: string
+    public privateKeyEncryptionSalt?: string,
+    public privateKeyEncryptionIV?: string
   ) {}
 }

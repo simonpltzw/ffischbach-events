@@ -59,8 +59,8 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (
         date,
         encryptedPrivateKey,
         publicKey,
-        PrivateKeyEncryptionSalt: salt,
-        PrivateKeyEncryptionIV: iv
+        privateKeyEncryptionSalt: salt,
+        privateKeyEncryptionIV: iv
       };
 
       createEvent(newEvent)

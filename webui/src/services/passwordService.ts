@@ -1,10 +1,15 @@
+import { str2ab } from "@/util/converter";
 import { PrivateKeyService } from "./privateKeyService";
+import { getKey } from "@/util/crypto";
 
 export const encryptWithPassword = async (password: string) => {
   const keyPair: CryptoKeyPair = await PrivateKeyService.generateKeyPair();
   const publicKey = await PrivateKeyService.exportPublicKey(keyPair.publicKey);
 
-  const { key, salt, iv } = await PrivateKeyService.exportPrivateKey(keyPair.privateKey, password);
+  const { key, salt, iv } = await PrivateKeyService.exportPrivateKey(
+    keyPair.privateKey,
+    password,
+  );
 
   return {
     publicKey,
@@ -15,47 +20,30 @@ export const encryptWithPassword = async (password: string) => {
 };
 
 export const decryptKeyWithPassword = async (
-  content: string,
+  encryptedPrivateKeyB64: string,
   password: string,
-  salt: string,
-  iv: string
+  saltB64: string,
+  ivB64: string,
 ) => {
-  const textEncoder = new TextEncoder();
   const textDecoder = new TextDecoder();
 
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw",
-    textEncoder.encode(password),
-    "PBKDF2",
-    false,
-    ["deriveKey"]
-  );
+  const iv = str2ab(atob(ivB64));
+  const salt = str2ab(atob(saltB64));
+  const encryptedPrivateKey = str2ab(atob(encryptedPrivateKeyB64));
 
-  const importedKey = await window.crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      salt: textEncoder.encode(salt),
-      iterations: 100000,
-      hash: "SHA-256",
-    },
-    keyMaterial,
-    { name: "AES-GCM", length: 256 },
-    false,
-    ["decrypt"]
-  );
+  const importedKey = await getKey(password, salt, ["decrypt"]);
 
-  // const importedKey = await crypto.subtle.importKey(
-  //   "pkcs8",
-  //   textEncoder.encode(password),
-  //   "AES-CBC",
-  //   true,
-  //   ["decrypt"],
-  // );
+  try {
+    const arrayBuffer = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv },
 
-  const arrayBuffer = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: textEncoder.encode(iv) },
-    importedKey,
-    textEncoder.encode(content)
-  );
-  return textDecoder.decode(arrayBuffer);
+      importedKey,
+      encryptedPrivateKey,
+    );
+
+    return textDecoder.decode(arrayBuffer);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
 };

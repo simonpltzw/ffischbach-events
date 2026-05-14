@@ -64,8 +64,8 @@ export const NewParticipant: FC<NewParticipantProps> = (props: NewParticipantPro
             p,
             eventSettings.password,
             props.encPrivateKey,
-            event?.PrivateKeyEncryptionSalt!,
-            event?.PrivateKeyEncryptionIV!
+            event?.privateKeyEncryptionSalt!,
+            event?.privateKeyEncryptionIV!
           ).then((newP) => {
             props.setParticipants((list) => [...list, newP]);
             setParticipant({ ...empty });
@@ -88,8 +88,8 @@ export const NewParticipant: FC<NewParticipantProps> = (props: NewParticipantPro
             p,
             eventSettings.password,
             props.encPrivateKey,
-            event?.PrivateKeyEncryptionSalt!,
-            event?.PrivateKeyEncryptionIV!
+            event?.privateKeyEncryptionSalt!,
+            event?.privateKeyEncryptionIV!
           ).then((newP) => {
             props.setParticipants((list) => [...list, props.contact]);
             props.dispatchGroup({ type: "contact_new", value: newP });

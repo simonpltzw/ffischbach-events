@@ -5,7 +5,7 @@ export class EventOut {
     public date: string,
     public publicKey: string,
     public encryptedPrivateKey: string,
-    public PrivateKeyEncryptionSalt: string,
-    public PrivateKeyEncryptionIV: string
+    public privateKeyEncryptionSalt: string,
+    public privateKeyEncryptionIV: string
   ) {}
 }
