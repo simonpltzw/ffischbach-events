@@ -117,8 +117,8 @@ const GroupPage = () => {
     const updatedGroup: Group = await decryptGroup(
       localState,
       { password },
-      event?.PrivateKeyEncryptionSalt!,
-      event?.PrivateKeyEncryptionIV!
+      event?.privateKeyEncryptionSalt!,
+      event?.privateKeyEncryptionIV!
     );
 
     if (!updatedGroup.category) {

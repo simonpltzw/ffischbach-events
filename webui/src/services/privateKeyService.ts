@@ -1,5 +1,5 @@
 import { ab2str, str2ab } from "@/util/converter";
-import { AES } from "crypto-js";
+import { getKey } from "@/util/crypto";
 
 export class PrivateKeyService {
   static decryptData = async (key: CryptoKey, encryptedData: string) => {
@@ -45,7 +45,7 @@ export class PrivateKeyService {
 
   static exportPrivateKey = async (
     key: CryptoKey,
-    password: string
+    password: string,
   ): Promise<{ key: string; salt: string; iv: string }> => {
     // Export private key.
     const exported = await window.crypto.subtle.exportKey("pkcs8", key);
@@ -54,45 +54,25 @@ export class PrivateKeyService {
     const privateKey = `-----BEGIN PRIVATE KEY-----\n${exportedAsBase64}\n-----END PRIVATE KEY-----`;
 
     const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
 
     const salt = window.crypto.getRandomValues(new Uint8Array(16));
+    const saltString = btoa(String.fromCharCode(...salt));
+
     const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    const ivString = btoa(String.fromCharCode(...iv));
 
-    // //cleanup
-    const keyMaterial = await crypto.subtle.importKey(
-      "raw",
-      encoder.encode(password),
-      "PBKDF2",
-      false,
-      ["deriveKey"]
-    );
+    const _key = await getKey(password, salt, ["encrypt"])
 
-    const _key = await crypto.subtle.deriveKey(
-      {
-        name: "PBKDF2",
-        salt,
-        iterations: 100000,
-        hash: "SHA-256",
-      },
-      keyMaterial,
-      { name: "AES-GCM", length: 256 },
-      false,
-      ["encrypt"]
-    );
-
-    console.log({ salt });
     const arrBuffer = await crypto.subtle.encrypt(
       { name: "AES-GCM", iv },
       _key,
       encoder.encode(privateKey)
     );
-    console.log("after");
 
     return {
-      key: decoder.decode(new Uint8Array(arrBuffer)),
-      salt: decoder.decode(salt),
-      iv: decoder.decode(iv),
+      key: btoa(String.fromCharCode(...new Uint8Array(arrBuffer))),
+      salt: saltString,
+      iv: ivString,
     };
   };
 }
