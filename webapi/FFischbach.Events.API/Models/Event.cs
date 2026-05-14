@@ -1,4 +1,4 @@
-﻿namespace FFischbach.Events.API.Models
+﻿﻿namespace FFischbach.Events.API.Models
 {
     public class Event
     {
