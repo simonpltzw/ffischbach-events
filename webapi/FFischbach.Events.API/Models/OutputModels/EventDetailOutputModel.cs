@@ -1,4 +1,4 @@
-﻿namespace FFischbach.Events.API.Models.OutputModels
+﻿﻿namespace FFischbach.Events.API.Models.OutputModels
 {
     /// <summary>
     /// Event output model.
