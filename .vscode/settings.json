@@ -62,8 +62,6 @@
     "heroicons",
     "Kelkheim",
     "Kelkheimer",
-    "msal",
-    "Msal",
     "styletype"
   ],
   "restoreTerminals.terminals": [
@@ -78,6 +76,6 @@
                 }
             ]
         }
-        
+
     ]
 }
