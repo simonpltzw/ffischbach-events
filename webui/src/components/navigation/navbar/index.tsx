@@ -1,11 +1,10 @@
-import { loginRequest, logoutRequest } from "@/config/authConfig";
-import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import React, { FC, HTMLAttributes } from "react";
 import { ThemeToggle } from "../ThemeToggle";
 import { Button } from "@/components/Button";
 import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export interface NavigationProps extends HTMLAttributes<HTMLElement> {
   setVisible(): void;
@@ -14,8 +13,7 @@ export interface NavigationProps extends HTMLAttributes<HTMLElement> {
 }
 
 const Navigation: FC<NavigationProps> = (props: NavigationProps) => {
-  const { instance } = useMsal();
-  const isAuthenticated = useIsAuthenticated();
+  const { logout, loginWithRedirect, isAuthenticated } = useAuth0()
   const router = useRouter();
   const pathname = usePathname();
 
@@ -59,7 +57,7 @@ const Navigation: FC<NavigationProps> = (props: NavigationProps) => {
             <Button
               color="blue"
               type="button"
-              onClick={() => instance.logoutRedirect(logoutRequest)}
+              onClick={() => logout({logoutParams: {returnTo: "/"}})}
             >
               Abmelden
             </Button>
@@ -68,7 +66,7 @@ const Navigation: FC<NavigationProps> = (props: NavigationProps) => {
               color="gray"
               type="button"
               styletype="secondary"
-              onClick={() => instance.loginRedirect(loginRequest)}
+              onClick={() => loginWithRedirect()}
             >
               Anmelden
             </Button>
