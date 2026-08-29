@@ -216,7 +216,7 @@ namespace FFischbach.Events.API
             #endregion Auth
 
             #region Cors
-            app.UseCors(builder => builder
+            app.UseCors(options => options
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .SetIsOriginAllowed((host) => true)

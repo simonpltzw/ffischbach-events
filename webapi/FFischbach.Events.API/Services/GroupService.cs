@@ -92,7 +92,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get group from the database.
                 Group? dbGroup = (await DatabaseContext.Groups
@@ -138,7 +138,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get group from the database.
                 Group? dbGroup = await DatabaseContext.Groups
@@ -251,7 +251,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get group from the database.
                 Group? dbGroup = (await DatabaseContext.Groups
@@ -298,7 +298,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get group from the database.
                 Group? dbGroup = await DatabaseContext.Groups

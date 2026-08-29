@@ -32,7 +32,7 @@ namespace FFischbach.Events.API.Services
                 }
 
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Check if the current user is already a manager.
                 Manager? manager = await DatabaseContext.Managers.FirstOrDefaultAsync(x => x.Email.ToLower() == displayName.ToLower());
@@ -109,13 +109,13 @@ namespace FFischbach.Events.API.Services
             List<EventOutputModel> returnValue = [];
             try
             {
-                // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                // Get user email.
+                string email = UserService.GetEmail(user);
 
                 // Get group and participant counts.
                 List<EventOutputModel> counts = await DatabaseContext.Events
-                    .Where(x => x.EventManagers!.Any(x => x.Manager!.Email.ToLower() == displayName.ToLower())) // Filter by user display name.
-                    .Select(x => new EventOutputModel                                                           // Select id and counts to join them with the actual data later.
+                    .Where(x => x.EventManagers!.Any(x => x.Manager!.Email.ToLower() == email.ToLower()))   // Filter by user email.
+                    .Select(x => new EventOutputModel                                                                   // Select id and counts to join them with the actual data later.
                     {
                         Id = x.Id,
                         Date = x.Date,
@@ -130,7 +130,7 @@ namespace FFischbach.Events.API.Services
                 // Get events.
                 returnValue = Mapper.Map<List<EventOutputModel>>(
                         await DatabaseContext.Events
-                        .Where(x => x.EventManagers!.Any(x => x.Manager!.Email.ToLower() == displayName.ToLower()))
+                        .Where(x => x.EventManagers!.Any(x => x.Manager!.Email.ToLower() == email.ToLower()))
                         .OrderByDescending(x => x.CreatedAt)
                         .ToListAsync());
 
@@ -166,7 +166,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get event from the database.
                 Event? dbEvent = await DatabaseContext.Events
@@ -231,7 +231,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get event from the database.
                 Event? dbEvent = await DatabaseContext.Events
@@ -296,7 +296,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get event from the database.
                 Event? dbEvent = await DatabaseContext.Events
@@ -422,7 +422,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get event from the database.
                 Event? dbEvent = await DatabaseContext.Events
@@ -498,7 +498,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get event from the database.
                 Event? dbEvent = await DatabaseContext.Events
