@@ -52,7 +52,7 @@ namespace FFischbach.Events.API
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = $"https://{builder.Configuration["Auth0:Domain"]}/";
+                    options.Authority = builder.Configuration["Auth0:Authority"];
                     options.Audience = builder.Configuration["Auth0:Audience"];
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -96,12 +96,13 @@ namespace FFischbach.Events.API
                     Type = SecuritySchemeType.OAuth2,
                     Flows = new OpenApiOAuthFlows
                     {
-                        Implicit = new OpenApiOAuthFlow
+                        AuthorizationCode = new OpenApiOAuthFlow
                         {
-                            AuthorizationUrl = new Uri($"https://{builder.Configuration["Auth0:Domain"]}/authorize?audience={builder.Configuration["Auth0:Identifier"]}"),
+                            AuthorizationUrl = new Uri($"{builder.Configuration["Auth0:Authority"]}authorize"),
+                            TokenUrl = new Uri($"{builder.Configuration["Auth0:Authority"]}oauth/token"),
                             Scopes = new Dictionary<string, string>
                             {
-                                { "access", "Zugriffsrechte für die API" },
+                                { "access", "Full access" }
                             }
                         }
                     }
@@ -134,7 +135,10 @@ namespace FFischbach.Events.API
             #endregion Database
 
             #region AutoMapper
-            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+            builder.Services.AddAutoMapper(
+                cfg => cfg.LicenseKey = builder.Configuration["AutoMapper:LicenseKey"],
+                typeof(AutoMapperProfile)
+            );
             #endregion AutoMapper
 
             #region HealthChecks
@@ -175,8 +179,18 @@ namespace FFischbach.Events.API
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
+                c.RoutePrefix = "swagger";
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "FFischbach.Events.API");
-                c.OAuthClientId(builder.Configuration["Auth0:TestClientId"]);
+                c.OAuthClientId(builder.Configuration["Auth0:SwaggerClientId"]);
+                c.OAuthUsePkce();
+                c.OAuthScopeSeparator(" ");
+                
+                // Auth0 requires the "audience" param to issue a proper API access token (not just an ID token) â€” 
+                // this isn't part of the OpenAPI OAuthFlow spec, so it has to be injected as an additional query param
+                c.OAuthAdditionalQueryStringParams(new Dictionary<string, string>
+                {
+                    { "audience", builder.Configuration["Auth0:Audience"] }
+                });
             });
             #endregion Swagger
 
