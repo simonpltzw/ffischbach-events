@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Newtonsoft.Json.Converters;
 using Serilog;
 using System.Reflection;
@@ -78,16 +78,16 @@ namespace FFischbach.Events.API
             {
                 c.SupportNonNullableReferenceTypes();
 
-                c.MapType<DateOnly>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+                c.MapType<DateOnly>(() => new OpenApiSchema
                 {
-                    Type = "string",
+                    Type = JsonSchemaType.String,
                     Format = "date('yyyy-MM-dd')"
                 });
 
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Event-Management Freiwillige Feuerwehr Fischbach",
-                    Contact = new Microsoft.OpenApi.Models.OpenApiContact { Email = "ffischbach-events.rhyme209@passmail.net" },
+                    Contact = new OpenApiContact { Email = "ffischbach-events.rhyme209@passmail.net" },
                     Version = "v1"
                 });
 
@@ -108,19 +108,9 @@ namespace FFischbach.Events.API
                     }
                 });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
                 {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "oauth2"
-                            }
-                        },
-                        new[] { "access" }
-                    }
+                    [new OpenApiSecuritySchemeReference("oauth2", document)] = ["access"]
                 });
 
                 // Set the comments path for the Swagger JSON and UI.
