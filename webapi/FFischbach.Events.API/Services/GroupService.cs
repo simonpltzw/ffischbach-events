@@ -10,13 +10,13 @@ using System.Security.Claims;
 
 namespace FFischbach.Events.API.Services
 {
-    public class GroupService(ILogger<GroupService> logger, IMapper mapper, DatabaseContext databaseContext, IUserService userService, IEmailService emailService) : IGroupService
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+    public class GroupService(ILogger<GroupService> logger, IMapper mapper, IConfiguration configuration, DatabaseContext databaseContext, IUserService userService) : IGroupService
     {
         private ILogger<GroupService> Logger { get; } = logger;
         private IMapper Mapper { get; } = mapper;
         private DatabaseContext DatabaseContext { get; } = databaseContext;
         private IUserService UserService { get; } = userService;
-        private IEmailService EmailService { get; } = emailService;
 
         public async Task CreateGroupAsync(GroupCreateModel group)
         {
@@ -70,9 +70,6 @@ namespace FFischbach.Events.API.Services
                 // Create the group.
                 DatabaseContext.Groups.Add(dbGroup);
                 await DatabaseContext.SaveChangesAsync();
-
-                // Send a confirmation mail.
-                await EmailService.SendRegistrationMailAsync(group, dbEvent);
             }
             catch (CustomException ex)
             {
@@ -290,58 +287,6 @@ namespace FFischbach.Events.API.Services
                 throw new CustomException("Unerwarteter Fehler beim Löschen der Gruppe.", ex);
             }
         }
-
-        public async Task SendApprovalMailAsync(ClaimsPrincipal user, int id, GroupApprovalModel group)
-        {
-            try
-            {
-                // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
-
-                // Get group from the database.
-                Group? dbGroup = await DatabaseContext.Groups
-                                        .Include(x => x.Participants!)
-                                        .Include(x => x.Category)
-                                        .Include(x => x.Event!)
-                                            .ThenInclude(x => x.EventManagers!)
-                                                .ThenInclude(x => x.Manager)
-                                        .FirstOrDefaultAsync(x => x.Id == id);
-
-                // Check db response.
-                if (dbGroup == null)
-                {
-                    // Nothing found.
-                    throw new CustomException("Die Gruppe konnte nicht gefunden werden.", statusCode: StatusCodes.Status400BadRequest);
-                }
-                if (!dbGroup.Event!.EventManagers!.Any(x => x.Manager!.Email.Equals(displayName, StringComparison.CurrentCultureIgnoreCase)))
-                {
-                    // Calling user is not an event manager of that group.
-                    throw new CustomException("Du hast keine Berechtigungen für Gruppen dieses Events. Lass dich von einem Manager des Events hinzufügen.", statusCode: StatusCodes.Status403Forbidden);
-                }
-                if (dbGroup.Event!.Completed)
-                {
-                    // Event is already completed.
-                    throw new CustomException("Das Event ist bereits abgeschlossen, es können keine Änderungen mehr daran vorgenommen werden.", statusCode: StatusCodes.Status400BadRequest);
-                }
-                if (dbGroup.Approved != true)
-                {
-                    // Group is not yet approved.
-                    throw new CustomException("Du kannst Genehmigungs-Mails nur an Gruppen schicken, die bereits genehmigt sind.", statusCode: StatusCodes.Status403Forbidden);
-                }
-
-                // Use the email service to send the approval mail.
-                await EmailService.SendApprovalMailAsync(group, dbGroup.Event);
-            }
-            catch (CustomException ex)
-            {
-                Logger.LogWarning(ex, "Failed to send approval mail to group '{id}'.", id);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Failed to send approval mail to group '{id}'.", id);
-                throw new CustomException("Unerwarteter Fehler beim Senden der Genehmigungs-Email an die Gruppe.", ex);
-            }
-        }
     }
+#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
 }
