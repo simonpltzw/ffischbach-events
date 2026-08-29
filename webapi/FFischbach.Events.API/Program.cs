@@ -167,7 +167,10 @@ namespace FFischbach.Events.API
             //        c.OAuthClientId("979c1c0e-193c-4bb7-8024-c24c493b2e41");
             //    });
             //}
-            app.UseSwagger();
+            app.UseSwagger(options =>
+            {
+                options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
+            });
             app.UseSwaggerUI(c =>
             {
                 c.RoutePrefix = "swagger";
