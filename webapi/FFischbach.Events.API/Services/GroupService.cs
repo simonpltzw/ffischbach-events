@@ -7,6 +7,7 @@ using FFischbach.Events.API.Models.OutputModels;
 using FFischbach.Events.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace FFischbach.Events.API.Services
 {
@@ -15,6 +16,7 @@ namespace FFischbach.Events.API.Services
     {
         private ILogger<GroupService> Logger { get; } = logger;
         private IMapper Mapper { get; } = mapper;
+        private IConfiguration Configuration { get; } = configuration;
         private DatabaseContext DatabaseContext { get; } = databaseContext;
         private IUserService UserService { get; } = userService;
 
@@ -175,6 +177,8 @@ namespace FFischbach.Events.API.Services
                 // Create local mapper.
                 Mapper updateMapper = new Mapper(new MapperConfiguration(c =>
                 {
+                    c.LicenseKey = Configuration["AutoMapper:LicenseKey"];
+                    
                     c.CreateMap<Group, Group>()
                         .ForMember(x => x.Id, y => y.Ignore())
                         .ForMember(x => x.EventId, y => y.Ignore())
@@ -187,7 +191,7 @@ namespace FFischbach.Events.API.Services
                         .ForMember(x => x.GroupId, y => y.Ignore())
                         .ForMember(x => x.Group, y => y.Ignore())
                         .ForMember(x => x.CreatedAt, y => y.Ignore());
-                }));
+                }, NullLoggerFactory.Instance));
 
                 // Map the mapper input into the db value.
                 updateMapper.Map(inputGroup, dbGroup);
