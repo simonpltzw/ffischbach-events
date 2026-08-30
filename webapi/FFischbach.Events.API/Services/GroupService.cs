@@ -73,6 +73,9 @@ namespace FFischbach.Events.API.Services
                 // Create the group.
                 DatabaseContext.Groups.Add(dbGroup);
                 await DatabaseContext.SaveChangesAsync();
+                
+                // Send a confirmation mail.
+                await EmailService.SendRegistrationMailAsync(group, dbEvent);
             }
             catch (CustomException ex)
             {

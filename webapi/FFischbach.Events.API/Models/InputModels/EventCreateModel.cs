@@ -43,7 +43,6 @@ namespace FFischbach.Events.API.Models.InputModels
         [Required]
         public string? PrivateKeyEncryptionSalt { get; set; }
 
-
         /// <summary>
         /// Salt used for the encryption of the private key.
         /// </summary>
