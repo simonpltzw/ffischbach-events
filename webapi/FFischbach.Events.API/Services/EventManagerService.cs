@@ -19,7 +19,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get event from the database.
                 Event? dbEvent = await DatabaseContext.Events
