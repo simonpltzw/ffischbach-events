@@ -106,7 +106,6 @@ export const SwapContactPopup: FC<SwapContactPopupProps> = (
       <Popup
         state={{ open: visible, setOpen: setVisible }}
         onClose={() => {
-          console.log("close");
           setEditParticipant(undefined);
         }}
       >

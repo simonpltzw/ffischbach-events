@@ -43,7 +43,7 @@ export const decryptKeyWithPassword = async (
 
     return textDecoder.decode(arrayBuffer);
   } catch (e) {
-    console.log(e);
+    console.error(e);
     throw e;
   }
 };

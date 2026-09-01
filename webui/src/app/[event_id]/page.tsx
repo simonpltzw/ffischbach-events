@@ -107,8 +107,6 @@ const EventPage = () => {
       if (isManual) {
         addToast({ message: "Entschlüsselt", type: "info" });
       }
-
-      console.log(state);
     } catch (e) {
       throw new Error("Falsches Passwort");
     }
