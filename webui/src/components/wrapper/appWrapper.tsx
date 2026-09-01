@@ -4,14 +4,17 @@ import { FC, HTMLAttributes } from "react";
 import { AppProvider } from "./appProvider";
 import { Auth0Provider } from "@auth0/auth0-react";
 
-export interface AppWrapperProps extends HTMLAttributes<HTMLElement> {}
+export interface AppWrapperProps extends HTMLAttributes<HTMLElement> {
+  clientId: string;
+  domain: string;
+}
 
-export const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
+export const AppWrapper: FC<AppWrapperProps> = ({ children, clientId, domain }) => {
   return (
     <Auth0Provider
-      domain="dev-ow0eeengm8qeok37.eu.auth0.com"
-      clientId="fDFlPlPdtfKA4DY31cx76r0IwwYJRs5Y"
-      authorizationParams={{ redirect_uri: "http://localhost:3000" }}
+      domain={domain}
+      clientId={clientId}
+      authorizationParams={{ redirect_uri: "http://localhost:3000", scope: "access", audience: "https://ffischbach-events-api.palzone.de" }}
     >
       <AppProvider>{children}</AppProvider>
     </Auth0Provider>
