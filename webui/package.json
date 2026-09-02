@@ -7,6 +7,7 @@
     "build": "next build",
     "build:analyze": "ANALYZE=true npm run build",
     "build:docker": "docker build -t ffischbacheventsui .",
+    "build:docker:prod": "docker build -t registry.palzone.de/ffischbacheventsui .",
     "start": "next start",
     "lint": "eslint"
   },
