@@ -1,5 +1,5 @@
 import { ab2str, str2ab } from "@/util/converter";
-import { AES } from "crypto-js";
+import { getKey } from "@/util/crypto";
 
 export class PrivateKeyService {
   static decryptData = async (key: CryptoKey, encryptedData: string) => {
@@ -43,13 +43,36 @@ export class PrivateKeyService {
     return `-----BEGIN PUBLIC KEY-----\n${exportedAsBase64}\n-----END PUBLIC KEY-----`;
   };
 
-  static exportPrivateKey = async (key: CryptoKey, password: string) => {
+  static exportPrivateKey = async (
+    key: CryptoKey,
+    password: string,
+  ): Promise<{ key: string; salt: string; iv: string }> => {
     // Export private key.
     const exported = await window.crypto.subtle.exportKey("pkcs8", key);
     const exportedAsString = ab2str(exported);
     const exportedAsBase64 = window.btoa(exportedAsString);
     const privateKey = `-----BEGIN PRIVATE KEY-----\n${exportedAsBase64}\n-----END PRIVATE KEY-----`;
 
-    return AES.encrypt(privateKey, password).toString();
+    const encoder = new TextEncoder();
+
+    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+    const saltString = btoa(String.fromCharCode(...salt));
+
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    const ivString = btoa(String.fromCharCode(...iv));
+
+    const _key = await getKey(password, salt, ["encrypt"])
+
+    const arrBuffer = await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv },
+      _key,
+      encoder.encode(privateKey)
+    );
+
+    return {
+      key: btoa(String.fromCharCode(...new Uint8Array(arrBuffer))),
+      salt: saltString,
+      iv: ivString,
+    };
   };
 }

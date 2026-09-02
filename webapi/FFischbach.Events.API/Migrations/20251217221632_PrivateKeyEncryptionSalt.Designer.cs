@@ -3,6 +3,7 @@ using System;
 using FFischbach.Events.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,16 +12,17 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FFischbach.Events.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20251217221632_PrivateKeyEncryptionSalt")]
+    partial class PrivateKeyEncryptionSalt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.11")
+                .HasAnnotation("ProductVersion", "8.0.22")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("FFischbach.Events.API.Models.Category", b =>
@@ -41,7 +43,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.Property<string>("EventId")
                         .IsRequired()
-                        .HasColumnType("citext");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -72,7 +74,7 @@ namespace FFischbach.Events.API.Migrations
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(20)
-                        .HasColumnType("citext");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("ApprovalEmailContent")
                         .HasColumnType("text");
@@ -99,10 +101,8 @@ namespace FFischbach.Events.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("PrivateKeyEncryptionIV")
-                        .HasColumnType("text");
-
                     b.Property<string>("PrivateKeyEncryptionSalt")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("PublicKey")
@@ -142,7 +142,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.Property<string>("EventId")
                         .IsRequired()
-                        .HasColumnType("citext");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<int>("ManagerId")
                         .HasColumnType("integer");
@@ -179,7 +179,7 @@ namespace FFischbach.Events.API.Migrations
 
                     b.Property<string>("EventId")
                         .IsRequired()
-                        .HasColumnType("citext");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("HashedName")
                         .IsRequired()

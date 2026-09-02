@@ -1,7 +1,6 @@
 import { ChangeEvent, FC, PropsWithChildren, useEffect, useRef, useState } from "react";
 import { Button } from "../Button";
 import { Popup, PopupBackdrop, PopupDialogPanel, PopupOpener, PopupTitle } from "../Popup";
-import { Event } from "@/models/in/Event";
 import { TextArea } from "../TextArea";
 import { useToast } from "@/context/toast";
 import { ConfirmPopup } from "./ConfirmPopup";

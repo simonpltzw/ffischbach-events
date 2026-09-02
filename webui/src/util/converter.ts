@@ -2,7 +2,10 @@ export const ab2str = (buf: ArrayBuffer) => {
   return String.fromCharCode.apply(null, Array.from(new Uint8Array(buf)));
 };
 
-// https://stackoverflow.com/questions/21797299/how-can-i-convert-a-base64-string-to-arraybuffer
+// Source - https://stackoverflow.com/a/21797381
+// Posted by Goran.it, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-05-14, License - CC BY-SA 4.0
+
 export const str2ab = (str: string) => {
   const bytes = new Uint8Array(str.length);
   for (let i = 0; i < str.length; i++) {

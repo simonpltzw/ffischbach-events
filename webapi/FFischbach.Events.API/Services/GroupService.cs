@@ -7,13 +7,16 @@ using FFischbach.Events.API.Models.OutputModels;
 using FFischbach.Events.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace FFischbach.Events.API.Services
 {
-    public class GroupService(ILogger<GroupService> logger, IMapper mapper, DatabaseContext databaseContext, IUserService userService, IEmailService emailService) : IGroupService
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+    public class GroupService(ILogger<GroupService> logger, IMapper mapper, IConfiguration configuration, DatabaseContext databaseContext, IUserService userService, IEmailService emailService) : IGroupService
     {
         private ILogger<GroupService> Logger { get; } = logger;
         private IMapper Mapper { get; } = mapper;
+        private IConfiguration Configuration { get; } = configuration;
         private DatabaseContext DatabaseContext { get; } = databaseContext;
         private IUserService UserService { get; } = userService;
         private IEmailService EmailService { get; } = emailService;
@@ -70,7 +73,7 @@ namespace FFischbach.Events.API.Services
                 // Create the group.
                 DatabaseContext.Groups.Add(dbGroup);
                 await DatabaseContext.SaveChangesAsync();
-
+                
                 // Send a confirmation mail.
                 await EmailService.SendRegistrationMailAsync(group, dbEvent);
             }
@@ -92,7 +95,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get group from the database.
                 Group? dbGroup = (await DatabaseContext.Groups
@@ -138,7 +141,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get group from the database.
                 Group? dbGroup = await DatabaseContext.Groups
@@ -178,6 +181,8 @@ namespace FFischbach.Events.API.Services
                 // Create local mapper.
                 Mapper updateMapper = new Mapper(new MapperConfiguration(c =>
                 {
+                    c.LicenseKey = Configuration["AutoMapper:LicenseKey"];
+                    
                     c.CreateMap<Group, Group>()
                         .ForMember(x => x.Id, y => y.Ignore())
                         .ForMember(x => x.EventId, y => y.Ignore())
@@ -190,7 +195,7 @@ namespace FFischbach.Events.API.Services
                         .ForMember(x => x.GroupId, y => y.Ignore())
                         .ForMember(x => x.Group, y => y.Ignore())
                         .ForMember(x => x.CreatedAt, y => y.Ignore());
-                }));
+                }, NullLoggerFactory.Instance));
 
                 // Map the mapper input into the db value.
                 updateMapper.Map(inputGroup, dbGroup);
@@ -249,7 +254,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get group from the database.
                 Group? dbGroup = (await DatabaseContext.Groups
@@ -290,13 +295,13 @@ namespace FFischbach.Events.API.Services
                 throw new CustomException("Unerwarteter Fehler beim Löschen der Gruppe.", ex);
             }
         }
-
+        
         public async Task SendApprovalMailAsync(ClaimsPrincipal user, int id, GroupApprovalModel group)
         {
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get group from the database.
                 Group? dbGroup = await DatabaseContext.Groups
@@ -344,4 +349,5 @@ namespace FFischbach.Events.API.Services
             }
         }
     }
+#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
 }

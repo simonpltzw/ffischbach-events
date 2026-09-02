@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Newtonsoft.Json.Converters;
 using Serilog;
 using System.Reflection;
+using System.Security.Claims;
 
 namespace FFischbach.Events.API
 {
@@ -48,7 +50,15 @@ namespace FFischbach.Events.API
             #region Authentication
             // Add services to the container.
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = builder.Configuration["Auth0:Authority"];
+                    options.Audience = builder.Configuration["Auth0:Audience"];
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        NameClaimType = ClaimTypes.NameIdentifier
+                    };
+                });
             #endregion Authentication
 
             #region Routing
@@ -68,44 +78,39 @@ namespace FFischbach.Events.API
             {
                 c.SupportNonNullableReferenceTypes();
 
-                c.MapType<DateOnly>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+                c.MapType<DateOnly>(() => new OpenApiSchema
                 {
-                    Type = "string",
+                    Type = JsonSchemaType.String,
                     Format = "date('yyyy-MM-dd')"
                 });
 
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Event-Management Freiwillige Feuerwehr Fischbach",
-                    Contact = new Microsoft.OpenApi.Models.OpenApiContact { Email = "ffischbach-events.rhyme209@passmail.net" },
+                    Contact = new OpenApiContact { Email = "ffischbach-events.rhyme209@passmail.net" },
                     Version = "v1"
                 });
 
-                c.AddSecurityDefinition("msid", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.OAuth2,
-                    Flows = new Microsoft.OpenApi.Models.OpenApiOAuthFlows
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows
                     {
-                        Implicit = new Microsoft.OpenApi.Models.OpenApiOAuthFlow
+                        AuthorizationCode = new OpenApiOAuthFlow
                         {
-                            AuthorizationUrl = new Uri("https://login.microsoftonline.com/a21b658e-30c5-4bc5-8409-1729b686c215/oauth2/v2.0/authorize"),
+                            AuthorizationUrl = new Uri($"{builder.Configuration["Auth0:Authority"]}authorize"),
+                            TokenUrl = new Uri($"{builder.Configuration["Auth0:Authority"]}oauth/token"),
                             Scopes = new Dictionary<string, string>
                             {
-                                { "api://ee995dcc-a9ec-4203-93ea-81b5f8621033/access_as_user", "access_as_user" }
+                                { "access", "Full access" }
                             }
                         }
                     }
                 });
 
-                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
                 {
-                    {
-                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                        {
-                            Reference = new Microsoft.OpenApi.Models.OpenApiReference { Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme, Id = "msid" }
-                        },
-                        new [] { "api://ee995dcc-a9ec-4203-93ea-81b5f8621033/access_as_user" }
-                    }
+                    [new OpenApiSecuritySchemeReference("oauth2", document)] = ["access"]
                 });
 
                 // Set the comments path for the Swagger JSON and UI.
@@ -120,7 +125,10 @@ namespace FFischbach.Events.API
             #endregion Database
 
             #region AutoMapper
-            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+            builder.Services.AddAutoMapper(
+                cfg => cfg.LicenseKey = builder.Configuration["AutoMapper:LicenseKey"],
+                typeof(AutoMapperProfile)
+            );
             #endregion AutoMapper
 
             #region HealthChecks
@@ -159,11 +167,25 @@ namespace FFischbach.Events.API
             //        c.OAuthClientId("979c1c0e-193c-4bb7-8024-c24c493b2e41");
             //    });
             //}
-            app.UseSwagger();
+            app.UseSwagger(options =>
+            {
+                options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
+            });
             app.UseSwaggerUI(c =>
             {
+                c.RoutePrefix = "swagger";
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "FFischbach.Events.API");
-                c.OAuthClientId("979c1c0e-193c-4bb7-8024-c24c493b2e41");
+                c.OAuthClientId(builder.Configuration["Auth0:SwaggerClientId"]);
+                c.OAuthUsePkce();
+                c.OAuthScopeSeparator(" ");
+                c.OAuthScopes("access");
+                
+                // Auth0 requires the "audience" param to issue a proper API access token (not just an ID token) — 
+                // this isn't part of the OpenAPI OAuthFlow spec, so it has to be injected as an additional query param
+                c.OAuthAdditionalQueryStringParams(new Dictionary<string, string>
+                {
+                    { "audience", builder.Configuration["Auth0:Audience"] }
+                });
             });
             #endregion Swagger
 
@@ -195,7 +217,7 @@ namespace FFischbach.Events.API
             #endregion Auth
 
             #region Cors
-            app.UseCors(builder => builder
+            app.UseCors(options => options
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .SetIsOriginAllowed((host) => true)

@@ -1,18 +1,5 @@
-import localFont from "next/font/local";
 import { AppWrapper } from "@/components/wrapper/appWrapper";
-
 import "./globals.css";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
 
 export default function RootLayout({
   children,
@@ -21,8 +8,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black dark:text-white dark:bg-gray-700 pb-10`}>
-        <AppWrapper>
+      <body
+        className={`antialiased bg-white text-black dark:text-white dark:bg-gray-700 pb-10`}
+      >
+        <AppWrapper domain={process.env["AUTH_DOMAIN"]!} clientId={process.env["AUTH_CLIENT_ID"]!}>
           {children}
         </AppWrapper>
       </body>

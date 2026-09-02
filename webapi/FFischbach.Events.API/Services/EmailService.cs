@@ -162,7 +162,7 @@ namespace FFischbach.Events.API.Services
             {
                 // Connect and authorized at the smtp server.
                 await client.ConnectAsync(Configuration["Email:Host"], Configuration.GetValue<int>("Email:Port"), MailKit.Security.SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync(Configuration["Email:FromAddress"], Configuration["Email:Password"]);
+                await client.AuthenticateAsync(Configuration["Email:Login"], Configuration["Email:Password"]);
 
                 // Send the prepared mail.
                 await client.SendAsync(message);

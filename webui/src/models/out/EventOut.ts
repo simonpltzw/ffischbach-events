@@ -4,6 +4,8 @@ export class EventOut {
     public description: string,
     public date: string,
     public publicKey: string,
-    public encryptedPrivateKey: string
+    public encryptedPrivateKey: string,
+    public privateKeyEncryptionSalt: string,
+    public privateKeyEncryptionIV: string
   ) {}
 }
