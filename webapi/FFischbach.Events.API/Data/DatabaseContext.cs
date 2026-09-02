@@ -14,6 +14,9 @@ namespace FFischbach.Events.API.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Case insensitivity.
+            modelBuilder.HasPostgresExtension("citext");
+            
             modelBuilder.Entity<Event>(c =>
             {
                 c.HasKey(x => x.Id);
@@ -22,7 +25,8 @@ namespace FFischbach.Events.API.Data
                     .HasMaxLength(1000);
 
                 c.Property(x => x.Id)
-                    .HasMaxLength(20);
+                    .HasMaxLength(20)
+                    .HasColumnType("citext");
 
                 c.Property(x => x.Date)
                     .IsRequired();
