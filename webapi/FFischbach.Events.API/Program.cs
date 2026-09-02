@@ -121,7 +121,10 @@ namespace FFischbach.Events.API
             #endregion Swagger
 
             #region Database
-            builder.Services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddDbContext<DatabaseContext>(options => 
+                options.UseNpgsql(
+                    builder.Configuration.GetConnectionString("DefaultConnection"), 
+                    o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
             #endregion Database
 
             #region AutoMapper
