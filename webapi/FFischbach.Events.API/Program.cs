@@ -178,6 +178,7 @@ namespace FFischbach.Events.API
                 c.OAuthClientId(builder.Configuration["Auth0:SwaggerClientId"]);
                 c.OAuthUsePkce();
                 c.OAuthScopeSeparator(" ");
+                c.OAuthScopes("access");
                 
                 // Auth0 requires the "audience" param to issue a proper API access token (not just an ID token) — 
                 // this isn't part of the OpenAPI OAuthFlow spec, so it has to be injected as an additional query param
