@@ -65,7 +65,7 @@ const EventPage = () => {
         ...action,
       };
     },
-    new Event("", "", "", 1, 1, false, "", [], "", "", "", "", "", [])
+    new Event("", "", "", 1, 1, false, "", [], "", "", "", "", "", [], "")
   );
 
   useLayoutEffect(() => {
@@ -107,8 +107,6 @@ const EventPage = () => {
       if (isManual) {
         addToast({ message: "Entschlüsselt", type: "info" });
       }
-
-      console.log(state);
     } catch (e) {
       throw new Error("Falsches Passwort");
     }

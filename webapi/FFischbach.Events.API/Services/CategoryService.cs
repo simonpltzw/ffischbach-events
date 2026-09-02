@@ -24,7 +24,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get event from the database.
                 Event? dbEvent = await DatabaseContext.Events
@@ -82,7 +82,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get category from the database.
                 Category? dbCategory = await DatabaseContext.Categories
@@ -125,7 +125,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get category from the database.
                 Category? dbCategory = await DatabaseContext.Categories
@@ -182,7 +182,7 @@ namespace FFischbach.Events.API.Services
             try
             {
                 // Get user display name.
-                string displayName = UserService.GetDisplayName(user);
+                string displayName = UserService.GetEmail(user);
 
                 // Get category from the database.
                 Category? dbCategory = await DatabaseContext.Categories

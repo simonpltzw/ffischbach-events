@@ -4,34 +4,29 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "next telemetry disable",
     "build": "next build",
     "build:analyze": "ANALYZE=true npm run build",
     "build:docker": "docker build -t ffischbacheventsui .",
+    "build:docker:prod": "docker build -t registry.palzone.de/ffischbacheventsui .",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
-    "@azure/msal-browser": "^3.11.1",
-    "@azure/msal-react": "^2.0.14",
+    "@auth0/auth0-react": "^2.18.0",
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
-    "@types/crypto-js": "^4.2.2",
-    "crypto-js": "^4.2.0",
-    "next": "^16.0.10",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "next": "^16.3.3",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^16.0.10",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9.39.1",
-    "eslint-config-next": "^16.0.10",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18",
-    "typescript": "^5.9.3"
+    "eslint-config-next": "^16.3.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6"
   }
 }

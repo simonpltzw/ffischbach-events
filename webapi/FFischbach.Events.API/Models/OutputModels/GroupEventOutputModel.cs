@@ -26,6 +26,16 @@
         /// AES-Encrypted PKCS#8 RSA private key.
         /// </summary>
         public required string EncryptedPrivateKey { get; set; }
+        
+        /// <summary>
+        /// Salt used for the encryption of the private key.
+        /// </summary>
+        public required string PrivateKeyEncryptionSalt { get; set; }
+
+        /// <summary>
+        /// Salt used for the encryption of the private key.
+        /// </summary>
+        public required string PrivateKeyEncryptionIV { get; set; }
 
         /// <summary>
         /// Last updated identifier.
