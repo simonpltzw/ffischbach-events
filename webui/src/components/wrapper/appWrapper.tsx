@@ -14,7 +14,7 @@ export const AppWrapper: FC<AppWrapperProps> = ({ children, clientId, domain }) 
     <Auth0Provider
       domain={domain}
       clientId={clientId}
-      authorizationParams={{ redirect_uri: process.env["NEXT_PUBLIC_REDIRECT_URI"], scope: "access", audience: process.env["NEXT_PUBLIC_WEB_API"] }}
+      authorizationParams={{ redirect_uri: process.env["NEXT_PUBLIC_REDIRECT_URI"], scope: "access", audience: process.env["NEXT_PUBLIC_AUTH_AUDIENCE"] }}
     >
       <AppProvider>{children}</AppProvider>
     </Auth0Provider>
