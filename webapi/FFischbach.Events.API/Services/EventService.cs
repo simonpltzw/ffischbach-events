@@ -30,6 +30,12 @@ namespace FFischbach.Events.API.Services
                     // Event already exists.
                     throw new CustomException($"Das Event '{@event.Id}' existiert bereits.", statusCode: StatusCodes.Status400BadRequest);
                 }
+                
+                // Validate event date.
+                if (@event.Date < DateTime.UtcNow)
+                {
+                    throw new CustomException("Das Datum des Events darf nicht in der Vergangenheit liegen.", statusCode: StatusCodes.Status400BadRequest);
+                }
 
                 // Get user display name.
                 string displayName = UserService.GetEmail(user);
@@ -230,6 +236,12 @@ namespace FFischbach.Events.API.Services
             EventDetailOutputModel returnValue;
             try
             {
+                // Validate event date.
+                if (@event.Date < DateTime.UtcNow)
+                {
+                    throw new CustomException("Das Datum des Events darf nicht in der Vergangenheit liegen.", statusCode: StatusCodes.Status400BadRequest);
+                }
+                
                 // Get user display name.
                 string displayName = UserService.GetEmail(user);
 
