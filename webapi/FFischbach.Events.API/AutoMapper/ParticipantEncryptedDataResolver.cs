@@ -20,9 +20,12 @@ namespace FFischbach.Events.API.AutoMapper
 
             // Parse create model to json.
             string json = JsonConvert.SerializeObject(source);
+            
+            // Encode the json in base64 (this simplifies umlaut handling).
+            string base64Json = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
 
             // Parse json to byte array.
-            byte[] data = Encoding.Default.GetBytes(json);
+            byte[] data = Encoding.Default.GetBytes(base64Json);
 
             // Encrypt data.
             destMember = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA256);
