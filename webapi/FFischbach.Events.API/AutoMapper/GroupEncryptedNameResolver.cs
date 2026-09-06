@@ -16,9 +16,12 @@ namespace FFischbach.Events.API.AutoMapper
             // Import public key in pem format.
             using RSA rsa = RSA.Create();
             rsa.ImportFromPem(publicKey);
+            
+            // Encode the name in base64 (this simplifies umlaut handling).
+            string base64Name = Convert.ToBase64String(Encoding.UTF8.GetBytes(source.Name!));
 
             // Parse string to byte array.
-            byte[] data = Encoding.Default.GetBytes(source.Name!);
+            byte[] data = Encoding.Default.GetBytes(base64Name);
 
             // Encrypt data.
             destMember = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA256);
