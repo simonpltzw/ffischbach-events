@@ -44,6 +44,8 @@ const GroupPage = () => {
   const [categories, setCategories] = useCategories();
   const { putEvent } = useEventService();
 
+  const [isInitApproved, setIsInitApproved] = useState<boolean>(false);
+
   /*const [participantToSwap, setParticipantToSwap] = useState<ParticipantEdit | undefined>(
     undefined
   );*/
@@ -67,6 +69,7 @@ const GroupPage = () => {
     setIsPending(true);
     getGroup(parseInt(params.group_id))
       .then((group: Group) => {
+        setIsInitApproved(group.approved);
         dispatchGroup({ type: "new", value: group });
         setParticipants([...group.participants]);
         setIsPending(false);
@@ -294,6 +297,13 @@ const GroupPage = () => {
       </PasswordPopup>
 
       <div className="mb-3 font-bold text-xl">Gruppe bearbeiten</div>
+      {isInitApproved && (
+        <div className="bg-yellow-600 rounded-lg text-white p-2 w-fit">
+          <strong>Achtung:</strong> &nbsp; Beim Aktualisieren einer genehmigten Gruppe wird erneut
+          eine Bestätigungsemail versendet.
+        </div>
+      )}
+
       <Input
         value={groupState.name ?? empty}
         disabled={isEncrypted}
