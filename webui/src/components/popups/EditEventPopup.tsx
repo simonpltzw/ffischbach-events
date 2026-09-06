@@ -95,7 +95,7 @@ export const EditEventPopup: FC<EditEventPopupProps> = (
       >
         <PopupBackdrop />
         <PopupDialogPanel>
-          <PopupTitle>Event Manager hinzufügen</PopupTitle>
+          <PopupTitle>Event bearbeiten</PopupTitle>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -127,7 +127,7 @@ export const EditEventPopup: FC<EditEventPopupProps> = (
                 placeholder="Veranstaltungsdatum"
                 value={getDateTime(event.date)}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setEvent({ date: e.target.value })
+                  setEvent({ date: new Date(e.target.value).toISOString() })
                 }
               />
             </div>

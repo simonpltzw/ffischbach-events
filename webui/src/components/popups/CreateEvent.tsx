@@ -125,7 +125,7 @@ export const CreateEventPopup: FC<CreateEventPopupProps> = (
                 value={date}
                 labelClassName="text-white"
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setDate(e.target.value)
+                  setDate(new Date(e.target.value).toISOString())
                 }
               />
               <Input
