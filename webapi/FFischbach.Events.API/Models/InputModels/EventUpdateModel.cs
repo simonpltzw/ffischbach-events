@@ -26,12 +26,14 @@ namespace FFischbach.Events.API.Models.InputModels
         /// The contents of the registration mail.
         /// The following placeholders can be used: [[ContactFirstName]] [[GroupName]] [[ParticipantsTable]].
         /// </summary>
+        [Required]
         public string? RegistrationEmailContent { get; set; }
 
         /// <summary>
         /// The contents of the approval mail.
         /// The following placeholders can be used: [[ContactFirstName]] [[GroupName]] [[ParticipantsTable]].
         /// </summary>
+        [Required]
         public string? ApprovalEmailContent { get; set; }
     }
 }
