@@ -1,6 +1,7 @@
 ﻿using FFischbach.Events.API.Models;
 using FFischbach.Events.API.Models.InputModels;
 using FFischbach.Events.API.Services.Interfaces;
+using MailKit;
 using MailKit.Net.Smtp;
 using MimeKit;
 
@@ -14,12 +15,12 @@ namespace FFischbach.Events.API.Services
         {
             // Create email message with standard sender and receiver information.
             MimeMessage message = new MimeMessage();
-            message.From.Add(new MailboxAddress("Freiwillige Feuerwehr Fischbach Events", Configuration["Email:FromAddress"])); // Send from a configured mail address.
-            message.To.Add(new MailboxAddress("", group.Contact!.Email));                                                       // Send to the group contact mail.
+            message.From.Add(new MailboxAddress("Freiwillige Feuerwehr Fischbach Events", Configuration["Email:FromAddress"]!)); // Send from a configured mail address.
+            message.To.Add(new MailboxAddress("", group.Contact!.Email!));                                                       // Send to the group contact mail.
             string[]? ccAddresses = Configuration.GetSection("Email:CcAddresses").Get<string[]>();
-            ccAddresses?.ToList().ForEach(cc => message.Cc.Add(new MailboxAddress("", cc)));                                    // Add cc mail addresses.
-            message.ReplyTo.Add(new MailboxAddress("", Configuration["Email:ReplyToAddress"]));                                 // Make receivers reply to a configured mail address.
-            message.Subject = $"Gruppenanmeldung {@event.Id} eingegangen";                                                      // Set subject.
+            ccAddresses?.ToList().ForEach(cc => message.Cc.Add(new MailboxAddress("", cc)));                               // Add cc mail addresses.
+            message.ReplyTo.Add(new MailboxAddress("", Configuration["Email:ReplyToAddress"]!));                                 // Make receivers reply to a configured mail address.
+            message.Subject = $"Gruppenanmeldung {@event.Id} eingegangen";                                                                    // Set subject.
 
             // Join participants with contact to gain a complete participants list.
             List<ParticipantGroupCreateModel> allParticipants = [group.Contact, .. group.Participants!];
@@ -165,7 +166,7 @@ namespace FFischbach.Events.API.Services
                 await client.AuthenticateAsync(Configuration["Email:Login"], Configuration["Email:Password"]);
 
                 // Send the prepared mail.
-                await client.SendAsync(message);
+                await client.SendAsync(new SendRequest(message));
             }
             catch (Exception)
             {

@@ -27,7 +27,6 @@ namespace FFischbach.Events.API.Controllers
         /// <param name="isContact">Value indicating if the new participant should replace the current contact of the group</param>
         /// <returns></returns>
         [HttpPost]
-        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ParticipantOutputModel), StatusCodes.Status200OK)]
         public async Task<IActionResult> Post([FromBody, Required] ParticipantCreateModel? participant, [FromQuery] bool isContact = false)
