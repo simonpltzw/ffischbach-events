@@ -50,8 +50,15 @@ namespace FFischbach.Events.API.Tests.Controllers
             string base64Name = Convert.ToBase64String(Encoding.UTF8.GetBytes("Löschzug Süd"));
             Assert.Equal(Convert.ToHexStringLower(SHA256.HashData(Encoding.Default.GetBytes(base64Name))), group.HashedName);
 
-            string contactJson = TestData.Decrypt(group.Participants.Single(p => p.IsContact).EncryptedData);
-            Assert.Contains("\"FirstName\":\"Max\"", contactJson);
+            // The UI decrypts this JSON, so its format must stay exactly the same.
+            Assert.Equal("{\"Email\":\"max@example.com\",\"FirstName\":\"Max\",\"LastName\":\"Mustermann\",\"BirthDate\":\"2000-01-01\"}",
+                TestData.Decrypt(group.Participants.Single(p => p.IsContact).EncryptedData));
+            Assert.Equal(
+                [
+                    "{\"Email\":null,\"FirstName\":\"Erika\",\"LastName\":\"Musterfrau\",\"BirthDate\":\"1999-05-04\"}",
+                    "{\"Email\":null,\"FirstName\":\"Jürgen\",\"LastName\":\"Groß\",\"BirthDate\":\"1985-12-24\"}"
+                ],
+                group.Participants.Where(p => !p.IsContact).OrderBy(p => p.Id).Select(p => TestData.Decrypt(p.EncryptedData)));
 
             var mail = Assert.Single(Factory.Emails.RegistrationMails);
             Assert.Equal("max@example.com", mail.Group.Contact!.Email);

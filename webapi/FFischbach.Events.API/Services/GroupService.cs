@@ -1,22 +1,22 @@
-﻿using AutoMapper;
-using FFischbach.Events.API.Data;
+﻿using FFischbach.Events.API.Data;
 using FFischbach.Events.API.Helpers;
+using FFischbach.Events.API.Mapping;
 using FFischbach.Events.API.Models;
 using FFischbach.Events.API.Models.InputModels;
 using FFischbach.Events.API.Models.OutputModels;
 using FFischbach.Events.API.Services.Interfaces;
+using Mapster;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace FFischbach.Events.API.Services
 {
 #pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-    public class GroupService(ILogger<GroupService> logger, IMapper mapper, IConfiguration configuration, DatabaseContext databaseContext, IUserService userService, IEmailService emailService) : IGroupService
+    public class GroupService(ILogger<GroupService> logger, IMapper mapper, DatabaseContext databaseContext, IUserService userService, IEmailService emailService) : IGroupService
     {
         private ILogger<GroupService> Logger { get; } = logger;
         private IMapper Mapper { get; } = mapper;
-        private IConfiguration Configuration { get; } = configuration;
         private DatabaseContext DatabaseContext { get; } = databaseContext;
         private IUserService UserService { get; } = userService;
         private IEmailService EmailService { get; } = emailService;
@@ -61,7 +61,9 @@ namespace FFischbach.Events.API.Services
                 }
 
                 // Map the group input. Pass the public key since this mapping also encrypts the data.
-                Group dbGroup = Mapper.Map<Group>(group, x => x.Items["PublicKey"] = dbEvent.PublicKey);
+                Group dbGroup = Mapper.From(group)
+                    .AddParameters(EventEncryption.PublicKeyParameter, dbEvent.PublicKey)
+                    .AdaptToType<Group>();
 
                 // Check if the group already exists.
                 if (await DatabaseContext.Groups.AnyAsync(x => x.HashedName == dbGroup.HashedName && x.EventId.ToLower() == group.EventId!.ToLower()))
@@ -178,27 +180,8 @@ namespace FFischbach.Events.API.Services
                 // Map the input.
                 Group inputGroup = Mapper.Map<Group>(group);
 
-                // Create local mapper.
-                Mapper updateMapper = new Mapper(new MapperConfiguration(c =>
-                {
-                    c.LicenseKey = Configuration["AutoMapper:LicenseKey"];
-                    
-                    c.CreateMap<Group, Group>()
-                        .ForMember(x => x.Id, y => y.Ignore())
-                        .ForMember(x => x.EventId, y => y.Ignore())
-                        .ForMember(x => x.Event, y => y.Ignore())
-                        .ForMember(x => x.CreatedAt, y => y.Ignore())
-                        .ForMember(x => x.Participants, y => y.Ignore());
-
-                    c.CreateMap<Participant, Participant>()
-                        .ForMember(x => x.Id, y => y.Ignore())
-                        .ForMember(x => x.GroupId, y => y.Ignore())
-                        .ForMember(x => x.Group, y => y.Ignore())
-                        .ForMember(x => x.CreatedAt, y => y.Ignore());
-                }, NullLoggerFactory.Instance));
-
-                // Map the mapper input into the db value.
-                updateMapper.Map(inputGroup, dbGroup);
+                // Map the mapper input into the db value. (keeps keys, relations and creation data)
+                inputGroup.Adapt(dbGroup, GroupUpdateMappingConfig.Instance);
 
                 // Update trackables.
                 dbGroup.UpdatedBy = displayName;
@@ -220,7 +203,7 @@ namespace FFischbach.Events.API.Services
                     }
 
                     // Update the participant.
-                    updateMapper.Map(inputParticipant, dbParticipant);
+                    inputParticipant.Adapt(dbParticipant, GroupUpdateMappingConfig.Instance);
                 }
 
                 // Remove participants.

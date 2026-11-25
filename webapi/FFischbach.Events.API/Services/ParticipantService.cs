@@ -1,10 +1,11 @@
-﻿using AutoMapper;
-using FFischbach.Events.API.Data;
+﻿using FFischbach.Events.API.Data;
 using FFischbach.Events.API.Helpers;
+using FFischbach.Events.API.Mapping;
 using FFischbach.Events.API.Models;
 using FFischbach.Events.API.Models.InputModels;
 using FFischbach.Events.API.Models.OutputModels;
 using FFischbach.Events.API.Services.Interfaces;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -69,7 +70,9 @@ namespace FFischbach.Events.API.Services
                 }
 
                 // Map the input.
-                Participant dbParticipant = Mapper.Map<Participant>(participant!, x => x.Items["PublicKey"] = dbGroup.Event.PublicKey);
+                Participant dbParticipant = Mapper.From(participant)
+                    .AddParameters(EventEncryption.PublicKeyParameter, dbGroup.Event.PublicKey)
+                    .AdaptToType<Participant>();
                 dbParticipant.GroupId = dbGroup.Id;
                 dbParticipant.IsContact = isContact;
                 dbParticipant.CreatedAt = DateTime.UtcNow;

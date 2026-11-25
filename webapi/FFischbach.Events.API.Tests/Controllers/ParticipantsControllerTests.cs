@@ -26,7 +26,10 @@ namespace FFischbach.Events.API.Tests.Controllers
             ParticipantOutputModel created = await ReadAsync<ParticipantOutputModel>(HttpStatusCode.OK,
                 await ManagerClient().PostAsJsonAsync("/Participants", NewParticipant(groupId), Json, Ct));
 
-            Assert.Contains("\"LastName\":\"Löffler\"", TestData.Decrypt(created.EncryptedData));
+            // The UI decrypts this JSON, so its format must stay exactly the same.
+            Assert.Equal($"{{\"GroupId\":{groupId},\"Email\":null,\"FirstName\":\"Lisa\",\"LastName\":\"Löffler\",\"BirthDate\":\"2001-03-15\"}}",
+                TestData.Decrypt(created.EncryptedData));
+            Assert.False(created.VIP ?? false);
             Assert.Equal(4, await Factory.QueryDbAsync(db => db.Participants.CountAsync(x => x.GroupId == groupId, Ct)));
         }
 

@@ -20,6 +20,7 @@ namespace FFischbach.Events.API.Tests.Controllers
             Assert.Equal(TestData.Manager, created.CreatedBy);
             Assert.False(created.Completed);
             Assert.Equal(6, created.Categories.Count);
+            Assert.Empty(created.Groups);   // An empty list, not null.
             Assert.Contains("[[ParticipantsTable]]", created.RegistrationEmailContent);
             Assert.EndsWith("/Events/raup-2027", response.Headers.Location?.ToString());
 
@@ -92,6 +93,26 @@ namespace FFischbach.Events.API.Tests.Controllers
                 await ManagerClient().GetAsync("/Events/RAUP-2027", Ct));
 
             Assert.Equal("raup-2027", @event.Id);
+        }
+
+        [Fact]
+        public async Task Get_WithGroup_ReturnsGroupSummaryWithContactAndCounts()
+        {
+            (EventDetailOutputModel created, int groupId) = await CreateEventWithGroupAsync();
+
+            EventDetailOutputModel @event = await ReadAsync<EventDetailOutputModel>(HttpStatusCode.OK,
+                await ManagerClient().GetAsync($"/Events/{created.Id}", Ct));
+
+            Assert.Equal(1, @event.TotalGroups);
+            Assert.Equal(3, @event.TotalParticipants);
+            GroupOutputModel group = Assert.Single(@event.Groups);
+            Assert.Equal(groupId, group.Id);
+            Assert.Equal(3, group.TotalParticipants);
+            Assert.Equal(created.Categories[0].Id, group.Category.Id);
+            Assert.Equal(created.Categories[0].Name, group.Category.Name);
+            Assert.Contains("\"FirstName\":\"Max\"", TestData.Decrypt(group.Contact.EncryptedData));
+            Assert.Equal(6, @event.Categories.Count);
+            Assert.Equal(TestData.PublicKeyPem, @event.PublicKey);
         }
 
         [Fact]

@@ -1,10 +1,10 @@
-﻿using AutoMapper;
-using FFischbach.Events.API.Data;
+﻿using FFischbach.Events.API.Data;
 using FFischbach.Events.API.Helpers;
 using FFischbach.Events.API.Models;
 using FFischbach.Events.API.Models.InputModels;
 using FFischbach.Events.API.Models.OutputModels;
 using FFischbach.Events.API.Services.Interfaces;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text;
@@ -58,7 +58,8 @@ namespace FFischbach.Events.API.Services
                 }
 
                 // Map the event input.
-                Event dbEvent = Mapper.Map<Event>(@event, x => x.AfterMap((src, dest) => dest.CreatedBy = displayName));
+                Event dbEvent = Mapper.Map<Event>(@event);
+                dbEvent.CreatedBy = displayName;
 
                 // Create the event.
                 DatabaseContext.Events.Add(dbEvent);
