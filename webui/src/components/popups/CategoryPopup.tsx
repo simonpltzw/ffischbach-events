@@ -120,7 +120,7 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (
                 labelClassName="text-white"
                 value={getDateTime(category.signUpFrom)}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setCategory({ signUpFrom: e.target.value })
+                  setCategory({ signUpFrom: new Date(e.target.value).toISOString() })
                 }
               />
               <Input
@@ -129,7 +129,7 @@ export const CategoryPopup: FC<EditCategoriesPopupProps> = (
                 labelClassName="text-white"
                 value={getDateTime(category.signUpTo)}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setCategory({ signUpTo: e.target.value })
+                  setCategory({ signUpTo: new Date(e.target.value).toISOString() })
                 }
               />
             </div>

@@ -51,7 +51,7 @@ namespace FFischbach.Events.API.Controllers
         /// Sends the approval email to the group's contact person.
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="group">The group to be created</param>
+        /// <param name="group">The approved group</param>
         /// <returns></returns>
         [HttpPost("{id}/SendApproval")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

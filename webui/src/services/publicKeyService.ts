@@ -23,7 +23,7 @@ export const encryptData = async (data: string, publicKey: CryptoKey) => {
         name: "RSA-OAEP",
       },
       publicKey,
-      str2ab(data)
+      str2ab(btoa(data))
     )
   );
 

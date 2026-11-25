@@ -1,10 +1,10 @@
-import { ab2str, str2ab } from "@/util/converter";
+import { ab2str, ab2text, str2ab } from "@/util/converter";
 import { getKey } from "@/util/crypto";
 
 export class PrivateKeyService {
   static decryptData = async (key: CryptoKey, encryptedData: string) => {
     const r = await crypto.subtle.decrypt({ name: "RSA-OAEP" }, key, str2ab(atob(encryptedData)));
-    return ab2str(r);
+    return atob(ab2text(r));
   };
 
   static importPrivateKey = async (pem: string) => {

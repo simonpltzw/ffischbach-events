@@ -2,6 +2,11 @@ export const ab2str = (buf: ArrayBuffer) => {
   return String.fromCharCode.apply(null, Array.from(new Uint8Array(buf)));
 };
 
+//use only for readable text
+export const ab2text = (buf: ArrayBuffer) => {
+  return new TextDecoder("utf-8").decode(buf);
+};
+
 // Source - https://stackoverflow.com/a/21797381
 // Posted by Goran.it, modified by community. See post 'Timeline' for change history
 // Retrieved 2026-05-14, License - CC BY-SA 4.0

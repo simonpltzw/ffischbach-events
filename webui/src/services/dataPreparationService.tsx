@@ -35,6 +35,10 @@ export const useJsonToCsv = () => {
     return csv;
   };
 
+  const escape = (str: string | number) => {
+    return `"${str}"`;
+  }
+
   const parse = async (event: Event) => {
     const privateKey = await decryptKeyWithPassword(
       event.encryptedPrivateKey,
@@ -71,16 +75,16 @@ export const useJsonToCsv = () => {
               delete p.encryptedData;
 
               const exportData: ExportEntry = {
-                Vorname: p.FirstName,
-                Nachname: p.LastName,
+                Vorname: escape(p.FirstName),
+                Nachname: escape(p.LastName),
                 Email: "",
-                Geburtsdatum: getLocalDate(p.BirthDate),
+                Geburtsdatum: escape(getLocalDate(p.BirthDate)),
                 VIP: p.vip ? 1 : 0,
-                Gruppe: decGroup.name,
+                Gruppe: escape(decGroup.name),
                 Gr: decGroup.id,
                 Nr: p.id,
                 KategorieNr: decGroup.category.id,
-                Kategorie: decGroup.category?.name ?? "",
+                Kategorie: escape(decGroup.category?.name) ?? "",
               };
 
               return exportData;

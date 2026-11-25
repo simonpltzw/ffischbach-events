@@ -1,10 +1,10 @@
-﻿using AutoMapper;
-using FFischbach.Events.API.Data;
+﻿using FFischbach.Events.API.Data;
 using FFischbach.Events.API.Helpers;
 using FFischbach.Events.API.Models;
 using FFischbach.Events.API.Models.InputModels;
 using FFischbach.Events.API.Models.OutputModels;
 using FFischbach.Events.API.Services.Interfaces;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text;
@@ -30,6 +30,12 @@ namespace FFischbach.Events.API.Services
                     // Event already exists.
                     throw new CustomException($"Das Event '{@event.Id}' existiert bereits.", statusCode: StatusCodes.Status400BadRequest);
                 }
+                
+                // Validate event date.
+                if (@event.Date < DateTime.UtcNow)
+                {
+                    throw new CustomException("Das Datum des Events darf nicht in der Vergangenheit liegen.", statusCode: StatusCodes.Status400BadRequest);
+                }
 
                 // Get user display name.
                 string displayName = UserService.GetEmail(user);
@@ -52,7 +58,8 @@ namespace FFischbach.Events.API.Services
                 }
 
                 // Map the event input.
-                Event dbEvent = Mapper.Map<Event>(@event, x => x.AfterMap((src, dest) => dest.CreatedBy = displayName));
+                Event dbEvent = Mapper.Map<Event>(@event);
+                dbEvent.CreatedBy = displayName;
 
                 // Create the event.
                 DatabaseContext.Events.Add(dbEvent);
@@ -230,6 +237,12 @@ namespace FFischbach.Events.API.Services
             EventDetailOutputModel returnValue;
             try
             {
+                // Validate event date.
+                if (@event.Date < DateTime.UtcNow)
+                {
+                    throw new CustomException("Das Datum des Events darf nicht in der Vergangenheit liegen.", statusCode: StatusCodes.Status400BadRequest);
+                }
+                
                 // Get user display name.
                 string displayName = UserService.GetEmail(user);
 

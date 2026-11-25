@@ -1,10 +1,10 @@
-﻿using AutoMapper;
-using FFischbach.Events.API.Data;
+﻿using FFischbach.Events.API.Data;
 using FFischbach.Events.API.Helpers;
 using FFischbach.Events.API.Models;
 using FFischbach.Events.API.Models.InputModels;
 using FFischbach.Events.API.Models.OutputModels;
 using FFischbach.Events.API.Services.Interfaces;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -23,6 +23,12 @@ namespace FFischbach.Events.API.Services
             CategoryOutputModel returnValue;
             try
             {
+                // Validate the from and to dates.
+                if (category.SignUpFrom > category.SignUpTo)
+                {
+                    throw new CustomException("Der angegebene Anmeldezeitraum für diese Kategorie ist inkorrekt, da das Ende vor dem Beginn liegt.", statusCode: StatusCodes.Status400BadRequest);
+                }
+                
                 // Get user display name.
                 string displayName = UserService.GetEmail(user);
 
@@ -124,6 +130,12 @@ namespace FFischbach.Events.API.Services
             CategoryOutputModel returnValue;
             try
             {
+                // Validate the from and to dates.
+                if (category.SignUpFrom > category.SignUpTo)
+                {
+                    throw new CustomException("Der angegebene Anmeldezeitraum für diese Kategorie ist inkorrekt, da das Ende vor dem Beginn liegt.", statusCode: StatusCodes.Status400BadRequest);
+                }
+                
                 // Get user display name.
                 string displayName = UserService.GetEmail(user);
 

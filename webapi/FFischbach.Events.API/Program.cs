@@ -1,7 +1,9 @@
-using FFischbach.Events.API.AutoMapper;
 using FFischbach.Events.API.Data;
+using FFischbach.Events.API.Mapping;
 using FFischbach.Events.API.Services;
 using FFischbach.Events.API.Services.Interfaces;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -121,15 +123,17 @@ namespace FFischbach.Events.API
             #endregion Swagger
 
             #region Database
-            builder.Services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddDbContext<DatabaseContext>(options => 
+                options.UseNpgsql(
+                    builder.Configuration.GetConnectionString("DefaultConnection"), 
+                    o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
             #endregion Database
 
-            #region AutoMapper
-            builder.Services.AddAutoMapper(
-                cfg => cfg.LicenseKey = builder.Configuration["AutoMapper:LicenseKey"],
-                typeof(AutoMapperProfile)
-            );
-            #endregion AutoMapper
+            #region Mapster
+            TypeAdapterConfig mappingConfig = MappingConfig.Create();
+            builder.Services.AddSingleton(mappingConfig);
+            builder.Services.AddSingleton<IMapper>(new Mapper(mappingConfig));
+            #endregion Mapster
 
             #region HealthChecks
             builder.Services.AddHealthChecks()
